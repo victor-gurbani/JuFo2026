@@ -43,3 +43,10 @@ The balanced export with all safety filters active satisfies Step 1: it suppli
 	- `python3 src/score_parser.py --stats-from data/parsed/summaries.json`
 - Common issues (e.g., massive multi-work compilations, missing measures) are handled gracefully by falling back to `None` and emitting warnings when necessary.
 - Result: a ready-to-use structural dataset for Phase 2 feature extraction without needing to re-parse MusicXML files for quick stats or sanity checks.
+
+# Phase 2 Step 1: Harmonic Features
+
+- `src/harmonic_features.py` extracts chord quality mixes, harmonic density, dissonance classifications, and Roman numeral trends for every curated score.
+- Restored a helper to strip melodic tones from chords and fixed pitch-class lookups so dissonant notes register correctly (passing/appoggiatura ratios now populate).
+- Validated the classifier with `--limit` smoke tests (1–10 pieces) and quick inspection scripts before rerunning the full corpus export.
+- Outputs: `data/features/harmonic_features.csv`, boxplots under `figures/harmonic/`, and a `--features-from` mode to reuse cached feature tables without recomputation.

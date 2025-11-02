@@ -34,3 +34,24 @@ Follow these steps to generate or inspect parsed summaries:
 	```
 	python3 src/score_parser.py --stats-from data/parsed/summaries.json
 	```
+
+## Harmonic Features (Phase 2 Step 1)
+
+Generate harmonic descriptors, dissonance profiles, and Roman numeral trends:
+
+1. Ensure the curated CSV exists under `data/curated/` (use the commands above if needed).
+2. Extract harmonic features and plots in one pass:
+	```
+	python3 src/harmonic_features.py --output-csv data/features/harmonic_features.csv
+	```
+3. Helpful flags:
+	- `--limit N`: process only the first `N` scores (smoke tests).
+	- `--no-skip-errors`: stop on the first extraction failure.
+	- `--skip-plots`: omit boxplot generation when running headless pipelines.
+	- `--features-from PATH`: load an existing CSV instead of recomputing, still enabling plots/statistics.
+	- `--figure-dir DIR`: override the output directory for boxplots (default `figures/harmonic`).
+	- `--csv PATH` / `--paths PATH`: point at alternate curated corpora or MusicXML path lists.
+4. Example cached run that reuses the last export for quick statistics:
+	```
+	python3 src/harmonic_features.py --features-from data/features/harmonic_features.csv --skip-plots
+	```
