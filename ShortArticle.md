@@ -57,3 +57,10 @@ The balanced export with all safety filters active satisfies Step 1: it suppli
 - Expanded chords into per-note events, added interval standard deviation and leap ratios, and replaced the flat correlation metric with discrete contrary/parallel/oblique motion tallies.
 - Debugged independence scores by aligning voice change points; Bach now shows a meaningful spread (mean −0.13, σ ≈ 0.33) instead of clustering at zero.
 - Deliverables: `data/features/melodic_features.csv`, boxplots under `figures/melodic/`, and `Melodic_Features.md` documenting each metric.
+
+# Phase 2 Step 3: Rhythmic Features
+
+- Built `src/rhythmic_features.py` to measure duration stats, downbeat emphasis, syncopation, micro-density of fast notes, and cross-hand subdivision mismatches.
+- Refined syncopation detection to require weak-beat starts that cross the following beat, and used sliding duration windows to highlight clustered ornamentation.
+- Cross-rhythm detection compares per-measure duration denominators between staves; filtering rests kept ratios meaningful (≈0.62–0.66 across composers).
+- Outputs: `data/features/rhythmic_features.csv`, boxplots under `figures/rhythmic/`, and CLI parity with earlier phases for cached runs and plotting.

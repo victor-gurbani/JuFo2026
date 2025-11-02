@@ -212,3 +212,33 @@ Parsing (Step 2) now delivers structured summaries for every curated score, st
 - `data/features/melodic_features.csv`: refreshed melodic dataset including new contour and motion fields.
 - `figures/melodic/boxplot_*.png`: composer comparisons for contour, entropy, and motion ratios.
 - `Melodic_Features.md`: narrative descriptions of every melodic metric, their calculation, and interpretation examples.
+
+## Rhythmic Feature Extraction (Phase 2 Step 3)
+
+### Objectives & Scope
+- Implement a dedicated rhythmic pipeline (`src/rhythmic_features.py`) to quantify duration usage, metrical stress, syncopation, micro-rhythm density, and cross-hand subdivisions.
+- Provide CSV/visual outputs that complement harmonic/melodic datasets and surface stylistic contrasts in timing practices across eras.
+
+### Implementation Highlights
+- **Event Harvesting**: Flattened each score, treated chords as single rhythmic events, and captured offset/length/beat-strength triples for subsequent analysis.
+- **Duration Statistics**: Computed mean and standard deviation of note lengths alongside `notes_per_beat`, derived via `score.highestTime` and the primary beat unit.
+- **Metrical Emphasis**: Used `music21` beat strengths to compute downbeat emphasis ratios; flagged syncopations by detecting weak-beat onsets whose durations spill past the next beat boundary.
+- **Pattern & Density Metrics**: Built sliding windows over duration tokens (n=3) to calculate Shannon entropy, and counted high-density windows where at least three of four notes were sixteenth-or-faster to quantify rubato potential.
+- **Cross-Rhythm Detection**: Compared denominator sets of duration fractions in corresponding measures for top/bottom staves; mismatched subdivision sets raise the cross-rhythm flag, approximating polyrhythmic interplay.
+- **Outputs**: Saved `data/features/rhythmic_features.csv`, generated boxplots in `figures/rhythmic/`, and wired the CLI for cached runs identical to prior scripts.
+
+### Roadblocks & Iterations
+- **Time Signature Access**: `music21` type exports differ by version; switched to string-based lookups for time signatures and guarded beat-length extraction to avoid attribute errors.
+- **Syncopation Heuristic**: Initial attempts over-counted eighth notes; refined by requiring weak-beat starts that extend beyond the remaining beat span.
+- **Micro-Density Windows**: Experimented with ratios vs. sliding windows; settled on four-event windows with ≥3 fast notes to reflect clustered ornamental passages.
+- **Cross-Rhythm Noise**: Denominator comparisons initially flagged rests; filtered rests out to focus on active subdivisions, yielding reasonable ratios (~0.62–0.66) without nullifying pieces lacking two-staff texture.
+
+### Validation & Diagnostics
+- `--limit` smoke tests confirmed per-piece outputs (e.g., BWV 847 showing near-uniform sixteenth-note density and low syncopation; chorales highlighting high downbeat emphasis but negligible micro-density).
+- Full dataset run produced composer means aligned with expectations: Bach’s high `notes_per_beat`, Debussy’s elevated entropy, and Romantic/Impressionist works exhibiting greater syncopation and cross-rhythm frequency.
+- Spot-checked extreme cases (e.g., Debussy planed textures) to confirm cross-rhythm flags coincided with triplet-vs-duplet passages.
+
+### Current Deliverables
+- `src/rhythmic_features.py`: fully featured CLI with plotting, cached reuse, and warning handling.
+- `data/features/rhythmic_features.csv`: rhythmic dataset covering duration stats, syncopation, entropy, micro-density, and cross-rhythm ratios.
+- `figures/rhythmic/boxplot_*.png`: composer comparisons for each rhythmic metric.

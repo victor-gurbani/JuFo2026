@@ -76,3 +76,24 @@ Extract melodic contour and independence metrics:
 	```
 	python3 src/melodic_features.py --features-from data/features/melodic_features.csv --skip-plots
 	```
+
+## Rhythmic Features (Phase 2 Step 3)
+
+Extract rhythmic density, syncopation, and cross-hand subdivision metrics:
+
+1. Ensure the curated corpus is available.
+2. Run the rhythmic extractor:
+	```
+	python3 src/rhythmic_features.py --output-csv data/features/rhythmic_features.csv
+	```
+3. Useful flags (mirroring other scripts):
+	- `--limit N`: process the first `N` scores for smoke tests.
+	- `--no-skip-errors`: stop on the first extraction failure instead of skipping.
+	- `--skip-plots`: suppress boxplot generation.
+	- `--features-from PATH`: reuse a previously generated CSV for stats/plots without recomputation.
+	- `--figure-dir DIR`: direct rhythmic feature plots to a custom directory (default `figures/rhythmic`).
+	- `--csv PATH` / `--paths PATH`: override the curated inputs.
+4. Example cached run:
+	```
+	python3 src/rhythmic_features.py --features-from data/features/rhythmic_features.csv --skip-plots
+	```
