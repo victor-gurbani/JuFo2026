@@ -97,3 +97,23 @@ Extract rhythmic density, syncopation, and cross-hand subdivision metrics:
 	```
 	python3 src/rhythmic_features.py --features-from data/features/rhythmic_features.csv --skip-plots
 	```
+
+## Significance Testing (Phase 2 Step 4)
+
+Run omnibus ANOVA and Tukey HSD post-hoc comparisons across every exported feature:
+
+1. Confirm harmonic, melodic, and rhythmic CSVs exist under `data/features/`.
+2. Execute the significance pipeline:
+	```
+	python3 src/significance_tests.py \
+	  --anova-output data/stats/anova_summary.csv \
+	  --tukey-output data/stats/tukey_hsd.csv
+	```
+3. Flags mirror earlier scripts:
+	- `--alpha VALUE`: change the significance threshold (default `0.05`).
+	- `--min-group-size N`: require at least `N` pieces per composer (default `3`).
+	- `--no-tukey`: skip Tukey HSD generation (useful if only SciPy is available).
+	- Alternate feature tables can be supplied with `--harmonic-csv`, `--melodic-csv`, or `--rhythmic-csv`.
+4. Results:
+	- `data/stats/anova_summary.csv` lists F-statistics, p-values, and sample sizes for each feature.
+	- `data/stats/tukey_hsd.csv` records composer-to-composer comparisons (using `statsmodels` when available, else SciPy's implementation).

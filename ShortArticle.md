@@ -64,3 +64,10 @@ The balanced export with all safety filters active satisfies Step 1: it suppli
 - Refined syncopation detection to require weak-beat starts that cross the following beat, and used sliding duration windows to highlight clustered ornamentation.
 - Cross-rhythm detection compares per-measure duration denominators between staves; filtering rests kept ratios meaningful (≈0.62–0.66 across composers).
 - Outputs: `data/features/rhythmic_features.csv`, boxplots under `figures/rhythmic/`, and CLI parity with earlier phases for cached runs and plotting.
+
+# Phase 2 Step 4: Significance Testing
+
+- Added `src/significance_tests.py`, a CLI that ingests all feature tables, enforces minimum sample sizes, and runs one-way ANOVA per metric.
+- When an omnibus test is significant, the script applies Tukey HSD (preferring `statsmodels`, falling back to SciPy) to pinpoint which composer pairs differ.
+- Top contrasts include registral span (`pitch_range_semitones`, F=39.66, p≈7e-18) and dissonance usage (Debussy vs. Bach, p≈1.3e-10); rhythmic entropy and duration variance also show strong era splits.
+- Outputs land in `data/stats/anova_summary.csv` and `data/stats/tukey_hsd.csv`, capturing F-statistics, adjusted p-values, and confidence intervals for downstream reporting.

@@ -103,7 +103,7 @@ This is the core of the project. We will expand the feature list to include "Lev
 3.  **Significance Testing: [UPDATED]**
     * **How:** Since you have more than two groups, you will use an **ANOVA (Analysis of Variance)** test (e.g., `scipy.stats.f_oneway()`) for each feature. This tests if there is a significant difference *somewhere* among the four composers.
     * **Follow-up:** If the ANOVA p-value is significant (p < 0.05), you can run a **Post-Hoc Test** (like a Tukey HSD test) to find out *which specific pairs* are different (e.g., "Bach-Mozart was not significant, but Bach-Chopin was").
-    * **The JuFo Sentence:** (Perfect) "An ANOVA revealed a statistically significant difference in mean dissonance ratios across the four eras, F(3, 156) = 22.1, p < .001. Post-hoc tests confirmed that Debussy's scores (M=0.45) were significantly more dissonant than Bach's (M=0.12)."
+    * **The JuFo Sentence:** (Example) "An ANOVA revealed a statistically significant difference in mean dissonance ratios across the four eras, F(3, 156) = 22.1, p < .001. Post-hoc tests confirmed that Debussy's scores (M=0.45) were significantly more dissonant than Bach's (M=0.12)."
 
 ---
 
