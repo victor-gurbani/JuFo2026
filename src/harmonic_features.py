@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, cast
@@ -376,98 +375,47 @@ def compute_harmonic_features(score: stream.Score) -> Dict[str, object]:
     return result
 
 
-def _compute_features_task(payload: Tuple[int, str, Optional[str], str]) -> Tuple[bool, int, str, Optional[str], str, Any]:
-    idx, composer, title, path_str = payload
-    path = Path(path_str)
-    try:
-        score = parse_score(path)
-        metrics = cast(Dict[str, Any], compute_harmonic_features(score))
-        return True, idx, composer, title, path_str, metrics
-    except Exception as exc:
-        return False, idx, composer, title, path_str, f"{type(exc).__name__}: {exc}"
-
-
-def _metrics_to_result(
-    composer: str, title: Optional[str], path: Path, metrics: Dict[str, Any]
-) -> HarmonicFeatureResult:
-    return HarmonicFeatureResult(
-        composer_label=composer,
-        title=title,
-        mxl_path=path,
-        chord_event_count=_get_int(metrics, "chord_event_count"),
-        chord_quality_total=_get_int(metrics, "chord_quality_total"),
-        chord_quality_major_pct=_get_float(metrics, "chord_quality_major_pct"),
-        chord_quality_minor_pct=_get_float(metrics, "chord_quality_minor_pct"),
-        chord_quality_diminished_pct=_get_float(metrics, "chord_quality_diminished_pct"),
-        chord_quality_augmented_pct=_get_float(metrics, "chord_quality_augmented_pct"),
-        chord_quality_other_pct=_get_float(metrics, "chord_quality_other_pct"),
-        harmonic_density_mean=_get_optional_float(metrics, "harmonic_density_mean"),
-        dissonance_ratio=_get_optional_float(metrics, "dissonance_ratio"),
-        dissonant_note_count=_get_int(metrics, "dissonant_note_count"),
-        passing_tone_ratio=_get_optional_float(metrics, "passing_tone_ratio"),
-        appoggiatura_ratio=_get_optional_float(metrics, "appoggiatura_ratio"),
-        other_dissonance_ratio=_get_optional_float(metrics, "other_dissonance_ratio"),
-        roman_chord_count=_get_int(metrics, "roman_chord_count"),
-        deceptive_cadence_ratio=_get_optional_float(metrics, "deceptive_cadence_ratio"),
-        modal_interchange_ratio=_get_optional_float(metrics, "modal_interchange_ratio"),
-    )
-
-
 def run_feature_extraction(
     df: pd.DataFrame,
     limit: Optional[int] = None,
     skip_errors: bool = True,
-    workers: int = 1,
-    batch_size: Optional[int] = None,
 ) -> List[HarmonicFeatureResult]:
     results: List[HarmonicFeatureResult] = []
-
-    if workers <= 1:
-        for idx, (composer, title, path) in enumerate(iter_score_records(df)):
-            if limit is not None and idx >= limit:
-                break
-            try:
-                score = parse_score(path)
-                metrics = cast(Dict[str, Any], compute_harmonic_features(score))
-            except Exception as exc:
-                message = f"[warn] Failed to extract harmonic features from {path}: {exc}"
-                if skip_errors:
-                    print(message, file=sys.stderr)
-                    continue
-                raise
-            results.append(_metrics_to_result(composer, title, path, metrics))
-        return results
-
-    records: List[Tuple[int, str, Optional[str], str]] = []
     for idx, (composer, title, path) in enumerate(iter_score_records(df)):
         if limit is not None and idx >= limit:
             break
-        records.append((idx, composer, title, str(path)))
-
-    if not records:
-        return results
-
-    effective_chunk = 1
-    if batch_size is not None and batch_size > 0:
-        effective_chunk = batch_size
-    else:
-        estimated = max(1, len(records) // max(workers * 4, 1))
-        effective_chunk = max(1, estimated)
-
-    with ProcessPoolExecutor(max_workers=workers) as executor:
-        for success, idx, composer, title, path_str, payload in executor.map(
-            _compute_features_task, records, chunksize=effective_chunk
-        ):
-            path = Path(path_str)
-            if not success:
-                message = f"[warn] Failed to extract harmonic features from {path}: {payload}"
-                if skip_errors:
-                    print(message, file=sys.stderr)
-                    continue
-                raise RuntimeError(message)
-            metrics = cast(Dict[str, Any], payload)
-            results.append(_metrics_to_result(composer, title, path, metrics))
-
+        try:
+            score = parse_score(path)
+            metrics = cast(Dict[str, Any], compute_harmonic_features(score))
+        except Exception as exc:
+            message = f"[warn] Failed to extract harmonic features from {path}: {exc}"
+            if skip_errors:
+                print(message, file=sys.stderr)
+                continue
+            raise
+        results.append(
+            HarmonicFeatureResult(
+                composer_label=composer,
+                title=title,
+                mxl_path=path,
+                chord_event_count=_get_int(metrics, "chord_event_count"),
+                chord_quality_total=_get_int(metrics, "chord_quality_total"),
+                chord_quality_major_pct=_get_float(metrics, "chord_quality_major_pct"),
+                chord_quality_minor_pct=_get_float(metrics, "chord_quality_minor_pct"),
+                chord_quality_diminished_pct=_get_float(metrics, "chord_quality_diminished_pct"),
+                chord_quality_augmented_pct=_get_float(metrics, "chord_quality_augmented_pct"),
+                chord_quality_other_pct=_get_float(metrics, "chord_quality_other_pct"),
+                harmonic_density_mean=_get_optional_float(metrics, "harmonic_density_mean"),
+                dissonance_ratio=_get_optional_float(metrics, "dissonance_ratio"),
+                dissonant_note_count=_get_int(metrics, "dissonant_note_count"),
+                passing_tone_ratio=_get_optional_float(metrics, "passing_tone_ratio"),
+                appoggiatura_ratio=_get_optional_float(metrics, "appoggiatura_ratio"),
+                other_dissonance_ratio=_get_optional_float(metrics, "other_dissonance_ratio"),
+                roman_chord_count=_get_int(metrics, "roman_chord_count"),
+                deceptive_cadence_ratio=_get_optional_float(metrics, "deceptive_cadence_ratio"),
+                modal_interchange_ratio=_get_optional_float(metrics, "modal_interchange_ratio"),
+            )
+        )
     return results
 
 
@@ -560,18 +508,6 @@ def parse_arguments(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("--no-skip-errors", action="store_true", help="Abort on the first extraction error instead of skipping.")
     parser.add_argument("--skip-plots", action="store_true", help="Do not generate plots after extraction.")
     parser.add_argument("--features-from", type=Path, default=None, help="Load an existing features CSV instead of recomputing.")
-    parser.add_argument(
-        "--workers",
-        type=int,
-        default=1,
-        help="Number of parallel worker processes to use for feature extraction.",
-    )
-    parser.add_argument(
-        "--batch-size",
-        type=int,
-        default=0,
-        help="Chunk size for dispatching work to workers (set to 0 for automatic sizing).",
-    )
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -586,14 +522,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 0
 
     df = load_corpus(args.csv, args.paths)
-    batch_size = args.batch_size if args.batch_size and args.batch_size > 0 else None
-    results = run_feature_extraction(
-        df,
-        limit=args.limit,
-        skip_errors=not args.no_skip_errors,
-        workers=max(1, args.workers),
-        batch_size=batch_size,
-    )
+    results = run_feature_extraction(df, limit=args.limit, skip_errors=not args.no_skip_errors)
     if not results:
         raise RuntimeError("No harmonic features could be extracted.")
 
