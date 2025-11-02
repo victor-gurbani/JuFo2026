@@ -78,10 +78,24 @@ This is the core of the project. We will expand the feature list to include "Lev
 #### 3. Rhythmic Features:
 * **(Level 1) Note Duration Distribution:** (As you suggested) `avg_note_duration` and `std_dev_note_duration` (rhythmic variety).
 * **(Level 2) Rhythmic Density:** (As you suggested) `notes_per_beat`.
-* **[NEW] (Level 3) Syncopation Index:**
+* **(Level 2) Metrical Hierarchy:** Analyze the distribution of note onsets across metrical positions (downbeats, weak beats, off-beats). Calculate `downbeat_emphasis_ratio` (ratio of notes starting on strong beats vs. weak beats).
+    * **Hypothesis:** Baroque and Classical composers will show stronger downbeat emphasis; Romantic and Impressionist composers will distribute onsets more evenly.
+* **(Level 3) Syncopation Index:**
     * **How:** Measure how often notes are tied over strong beats or begin on weak off-beats and hold into strong beats.
     * **Feature:** `syncopation_ratio` (ratio of syncopated notes to all notes).
     * **Hypothesis:** This will be low for Bach/Mozart and much higher for Chopin/Debussy.
+* **(Level 3) Rhythmic Complexity:**
+    * **How:** Calculate the entropy of the n-gram distribution of consecutive note durations (e.g., quarter-eighth-quarter patterns).
+    * **Feature:** `rhythmic_pattern_entropy` (higher values = more varied/unpredictable rhythmic patterns).
+    * **Hypothesis:** Will increase from Classical (simple, periodic patterns) to Impressionist (complex, asymmetric patterns).
+* **(Level 3) Rubato Potential:**
+    * **How:** Identify passages with continuous small note values (e.g., sequences of sixteenth notes) vs. mixed durations.
+    * **Feature:** `micro_rhythmic_density` (measures local clustering of fast notes, which invite expressive timing).
+    * **Hypothesis:** Higher in Romantic era (Chopin's ornamental passages) than in Baroque/Classical.
+* **(Level 2) Polyrhythmic Complexity:**
+    * **How:** Compare rhythmic patterns between hands (for piano works). Calculate the ratio of measures where the hands have different subdivisions (e.g., triplets vs. duplets).
+    * **Feature:** `cross_rhythm_ratio`.
+    * **Hypothesis:** Will increase from Classical to Impressionist era.
 
 **B. Analysis & Visualization** (Method updated for 4 groups)
 1.  **Descriptive Statistics:** Calculate mean, median, and std. dev. for every feature, grouped by composer.
