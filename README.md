@@ -117,3 +117,8 @@ Run omnibus ANOVA and Tukey HSD post-hoc comparisons across every exported featu
 4. Results:
 	- `data/stats/anova_summary.csv` lists F-statistics, p-values, and sample sizes for each feature.
 	- `data/stats/tukey_hsd.csv` records composer-to-composer comparisons (using `statsmodels` when available, else SciPy's implementation).
+	- Optional: produce bar charts and heatmaps with
+		```
+		python3 src/significance_visualizations.py --top-n 15
+		```
+		This writes figures to `figures/significance/`: a top ANOVA bar chart, three pairwise heatmaps (significant-feature counts, signed mean difference, absolute mean difference), plus two feature-level heatmaps (sym-log and normalized). Count-heavy metrics (e.g., `note_event_count`, `roman_chord_count`, `dissonant_note_count`) are filtered automatically; supply additional `--exclude-pattern` flags to customise. Use `--no-symlog`, `--skip-normalized`, or adjusted `--top-n` values to tailor the views.

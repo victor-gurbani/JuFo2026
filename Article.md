@@ -254,19 +254,28 @@ Parsing (Step 2) now delivers structured summaries for every curated score, st
 - **ANOVA Engine**: Uses `scipy.stats.f_oneway` to compute F-statistics and p-values, tracking group sizes to guard against underpowered comparisons.
 - **Post-Hoc Strategy**: Prefers `statsmodels.pairwise_tukeyhsd` for Tukey tables; when unavailable, falls back to SciPy's native `stats.tukey_hsd`, assembling confidence intervals and adjusted p-values manually.
 - **Outputs**: Writes summary statistics to `data/stats/anova_summary.csv` and detailed pairwise comparisons to `data/stats/tukey_hsd.csv`, with configurable alpha thresholds and group-size requirements.
+- **Visualization Layer**: Introduced `src/significance_visualizations.py` to transform the statistics into advanced plots—top-`-log10(p)` bar charts, three pairwise heatmaps (significant-feature counts, signed mean differences, absolute mean differences), and two feature-level Tukey heatmaps—stored under `figures/significance/`. Count-heavy metrics (note/chord totals, Roman counts, dissonant note tallies) are filtered out by default so the gradients focus on proportional effects.
+- **Interpretive Reference**: Authored `Significance_Features.md`, cataloguing every tested feature with ANOVA strength, leading Tukey contrasts, and the real-world musical behaviours they imply. This bridges raw statistics to narrative-ready insights for the final report.
 
 ### Key Findings
 - **Strong Differentiators**: `pitch_range_semitones` (F=39.66, p≈7.0×10⁻¹⁸) and `dissonance_ratio` (F=23.41, p≈5.3×10⁻¹²) showed the clearest cross-era separation, confirming wider Romantic/Impressionist registral spreads and heightened modern dissonance.
 - **Rhythmic Contrast**: `std_note_duration` and `rhythmic_pattern_entropy` both yielded p-values < 1×10⁻⁷, highlighting increasingly varied rhythmic cells in Chopin and Debussy relative to Bach/Mozart.
 - **Targeted Post-Hoc Insights**: Tukey tests flagged, for example, Debussy’s dissonance ratio exceeding Bach’s (p≈1.3×10⁻¹⁰) and Mozart’s chord counts falling well below Bach’s (p≈2.1×10⁻²). Augmented-chord usage likewise separates Debussy and Chopin from earlier eras.
 - **Near-Threshold Measures**: `notes_per_beat` barely cleared the 0.05 cutoff (p≈0.041), while `avg_note_duration`, `cross_rhythm_ratio`, and `voice_independence_index` remained non-significant under current sample sizes.
+- **Pairwise Landscape**: The pairwise-count heatmap shows Debussy–Mozart still diverging on 16 metrics after filtering, with Bach–Debussy and Bach–Mozart at 10 and 9 respectively, while Chopin–Debussy trails at three. The signed mean-difference heatmap indicates Debussy and Mozart differ most through positive deltas (e.g., higher rhythmic entropy, augmented usage), whereas Bach vs. Chopin skews slightly negative.
+- **Normalized Perspective**: A companion heatmap divides mean differences by each feature’s across-pair standard deviation, emphasizing relative effect sizes and further dampening residual count bias.
+- **Notable Findings**: Mozart unexpectedly tops the downbeat-emphasis metric (0.23 vs Bach’s 0.13), reinforcing the strength of Classical metric clarity. Debussy’s syncopation ratio doubles Bach’s and quadruples Mozart’s, echoing impressionist rubato; Bach’s notes-per-beat outpace Romantic/Impressionist works, highlighting how contrapuntal density generates motion without relying on syncopation.
 
 ### Validation & Diagnostics
 - Ran the CLI end-to-end against the full corpus; console output lists the top 20 ANOVA hits, verifying consistent sample counts (≥31 pieces per composer for most metrics).
 - Confirmed Tukey fallback by executing on a SciPy-only environment (no `statsmodels`); the script now emits identical CSV schemas regardless of backend.
 - Spot-checked CSV contents to ensure meandiff signs align with composer ordering and that confidence intervals bracket the reported contrasts.
+- Generated the visualization suite to verify narratives: the bar chart corroborates the five most significant features, the symlog-scaled feature heatmap emphasizes Mozart’s dual proximity to Baroque and Impressionist voices, the normalized view confirms those contrasts once scales are standardised, and the new pair-level heatmaps separate sheer frequency of differences from their directional magnitude.
+- Verified Tukey exports after canonicalising composer pairs and excluding raw counts; recomputed matrices match the filtered feature reference (Debussy–Mozart differences persist across 16 metrics, while Chopin–Debussy remains limited with minor effect sizes). The written `Significance_Features.md` summary now aligns with these final statistics.
 
 ### Current Deliverables
 - `src/significance_tests.py`: reusable significance-testing CLI with ANOVA/Tukey logic and configurable thresholds.
+- `src/significance_visualizations.py`: companion plotting tool that turns significance tables into interpretable graphics (bar chart plus two heatmaps with filtering, sym-log scaling, and normalization controls).
+- `Significance_Features.md`: narrative interpretation of every statistically tested feature, linking numbers to stylistic traits.
 - `data/stats/anova_summary.csv`: omnibus test catalog covering all harmonic, melodic, and rhythmic features.
 - `data/stats/tukey_hsd.csv`: pairwise composer comparisons for each significant feature, including adjusted p-values and confidence intervals.
