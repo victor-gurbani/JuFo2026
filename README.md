@@ -55,3 +55,24 @@ Generate harmonic descriptors, dissonance profiles, and Roman numeral trends:
 	```
 	python3 src/harmonic_features.py --features-from data/features/harmonic_features.csv --skip-plots
 	```
+
+## Melodic Features (Phase 2 Step 2)
+
+Extract melodic contour and independence metrics:
+
+1. Ensure the curated corpus is available as described above.
+2. Run the melodic extractor:
+	```
+	python3 src/melodic_features.py --output-csv data/features/melodic_features.csv
+	```
+3. Useful flags mirror the harmonic script:
+	- `--limit N`: process the first `N` scores for smoke tests.
+	- `--no-skip-errors`: halt on the first parsing/extraction error.
+	- `--skip-plots`: suppress boxplot generation.
+	- `--features-from PATH`: reuse a previously generated CSV while still emitting stats/plots.
+	- `--figure-dir DIR`: change the destination for melodic feature boxplots (default `figures/melodic`).
+	- `--csv PATH` / `--paths PATH`: override the curated corpus inputs.
+4. Example reuse of cached results:
+	```
+	python3 src/melodic_features.py --features-from data/features/melodic_features.csv --skip-plots
+	```

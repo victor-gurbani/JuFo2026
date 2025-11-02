@@ -50,3 +50,10 @@ The balanced export with all safety filters active satisfies Step 1: it suppli
 - Restored a helper to strip melodic tones from chords and fixed pitch-class lookups so dissonant notes register correctly (passing/appoggiatura ratios now populate).
 - Validated the classifier with `--limit` smoke tests (1–10 pieces) and quick inspection scripts before rerunning the full corpus export.
 - Outputs: `data/features/harmonic_features.csv`, boxplots under `figures/harmonic/`, and a `--features-from` mode to reuse cached feature tables without recomputation.
+
+# Phase 2 Step 2: Melodic Features
+
+- Introduced `src/melodic_features.py` to capture ambitus, contour variability, pitch-class entropy, and soprano/bass interaction metrics.
+- Expanded chords into per-note events, added interval standard deviation and leap ratios, and replaced the flat correlation metric with discrete contrary/parallel/oblique motion tallies.
+- Debugged independence scores by aligning voice change points; Bach now shows a meaningful spread (mean −0.13, σ ≈ 0.33) instead of clustering at zero.
+- Deliverables: `data/features/melodic_features.csv`, boxplots under `figures/melodic/`, and `Melodic_Features.md` documenting each metric.

@@ -183,3 +183,32 @@ Parsing (Step 2) now delivers structured summaries for every curated score, st
 - `data/features/harmonic_features.csv`: corpus-wide harmonic metrics regenerated after the dissonance fixes.
 - `figures/harmonic/boxplot_*.png`: per-feature composer comparisons suitable for reports.
 - Terminal script outputs that echo composer-level descriptive stats, aiding regression detection during subsequent modifications.
+
+## Melodic Feature Extraction (Phase 2 Step 2)
+
+### Objectives & Scope
+- Extend the feature pipeline with melodic contour and contrapuntal metrics using a new CLI (`src/melodic_features.py`).
+- Quantify ambitus, contour smoothness, pitch-class diversity, and coordination between outer voices for every curated piece.
+- Produce CSVs and boxplots to track stylistic evolution across eras.
+
+### Implementation Highlights
+- **Note Collection**: Flattened each score and expanded chords into constituent note events so pitch-range and entropy calculations reflect stacked sonorities, not just single melodic lines.
+- **Contour Metrics**: Computed mean interval size, standard deviation, step vs. leap ratio, and chromatic entropy for the primary melodic part, mirroring analytical music theory terminology.
+- **Outer-Voice Coordination**: Replaced the earlier sliding correlation (which kept values near zero) with a timeline-based comparison of soprano and bass change points. Classified each event as contrary, parallel, or oblique motion and derived both ratios and a net independence index `(contrary - parallel) / total`.
+- **Outputs**: Wrote `data/features/melodic_features.csv`, added boxplots under `figures/melodic/`, and surfaced descriptive stats via the CLI.
+
+### Roadblocks & Iterations
+- **Flat Independence Scores**: Initial correlation approach produced variance near zero for Bach, contradicting expectations. Switching to discrete motion categories exposed meaningful spreads (e.g., Bach mean −0.13 with σ ≈ 0.33).
+- **Chord Tokenization Gaps**: Early pitch range and entropy values ignored chord tones. By expanding chords into individual proxy notes, registral spans and entropy better reflected harmonic texture.
+- **Contour Detail**: Averages alone concealed leap-heavy writing; we introduced interval standard deviation and leap ratio to capture Romantic/Impressionist volatility.
+
+### Validation & Diagnostics
+- Smoke tests with `--limit` verified new columns populated correctly; spot-checked pieces like `BWV 847` and Debussy preludes to confirm contour metrics aligned with musical intuition.
+- Full-corpus run (`python3 src/melodic_features.py --output-csv data/features/melodic_features.csv`) produced composer-level means showing expected trends: wider ranges and higher leap ratios for Chopin/Debussy, higher oblique motion in nocturnes, etc.
+- Inspected extreme independence values (e.g., Mozart K.331 theme at −0.46 vs. Debussy “Cathédrale engloutie” at +0.24) to ensure classifications matched perceived motion.
+
+### Current Deliverables
+- `src/melodic_features.py`: CLI mirroring the harmonic script with plotting, cached reads, and motion statistics.
+- `data/features/melodic_features.csv`: refreshed melodic dataset including new contour and motion fields.
+- `figures/melodic/boxplot_*.png`: composer comparisons for contour, entropy, and motion ratios.
+- `Melodic_Features.md`: narrative descriptions of every melodic metric, their calculation, and interpretation examples.
