@@ -107,4 +107,5 @@ This is the "wow" factor that solidifies your findings.
 5.  **Bonus (The Core Insight):**
     * Show the **4x4 confusion matrix (with younger and older composers (same composer))**. This is your best result. It will visually show, for example, that the model *never* confused Bach and Debussy, but *did* confuse Mozart and Bach 10% of the time. This is a powerful musicological insight.
     * Show the `model.feature_importances_` (or `model.coef_`) to prove *which* of your features (e.g., `pitch_class_entropy` and `dissonance_profile`) were the most powerful predictors. This links the ML result directly back to your research question.
-
+6. Allow for sending a MusicXML, and tell you percentage-wise, how far it is from each composer's "fingerprint", like "you used 40% more major chords than Debussy typically does."
+7. Allow for discussion on overfitting, dataset size, and potential next steps (e.g., more composers, more features, deeper models). Also aggregate statistics on like "analysed >6000h of music" etc.

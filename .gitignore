@@ -1,2 +1,5 @@
 15571083/
 data/curated/
+figures/harmonic
+*.csv
+__pycache__/
