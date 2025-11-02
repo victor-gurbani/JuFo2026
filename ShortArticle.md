@@ -1,5 +1,13 @@
 # Phase 1 Report
 
+## Project Metrics at a Glance
+- Filtered 254,077 catalogue entries down to 124 balanced solo piano works (31 per composer) covering 18,925 measures.
+- Parsed ~63.6k quarter-note durations, around 11.8 hours of music at 90 BPM, with average pieces spanning 153 measures and just over two staves.
+- Extracted 36 analytic descriptors grouped into harmonic (16), melodic (11), and rhythmic (9) feature families.
+- Evaluated 36 ANOVA hypotheses and 162 Tukey contrasts, flagging 27 metrics and 56 composer pairings as statistically distinct at α=0.05.
+
+Recreate these tallies locally with `python3 src/aggregate_metrics.py`.
+
 # Step 1: Corpus Objective
 We set out to assemble a high-quality, composer-balanced solo piano corpus from the PDMX archive so that later analysis stages can compare Bach, Mozart, Chopin, and Debussy on equal footing.
 

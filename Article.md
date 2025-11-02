@@ -5,6 +5,15 @@
 ## Project Context
 The goal of Phase 1 Step 1 was to curate a balanced set of solo piano scores for Bach, Mozart, Chopin, and Debussy from the PDMX dataset (`15571083/`). This summary documents the code we wrote, the dataset structure we relied on, the challenges encountered, the diagnostics we ran, and the conclusions we drew about the best corpus variant to carry forward.
 
+## Project Scale Highlights
+- Started from a catalog of 254,077 PDMX scores and tightened it to a license-safe, solo piano cohort.
+- Retained 124 balanced works (31 per composer) spanning 18,925 measures and ~63.6k quarter notes, roughly 11.8 listening hours at a moderate 90 BPM assumption.
+- Parsed structural summaries showing an average of 153 measures and 2.1 parts per score, ensuring downstream features reflect comparable texture.
+- Engineered 36 descriptive metrics split across harmonic (16), melodic (11), and rhythmic (9) families before feeding them into the statistics stack.
+- Ran 36 omnibus ANOVAs and 162 Tukey HSD contrasts; 27 features and 56 composer pairings cleared the α=0.05 bar, energising the narrative in the later sections of this article.
+
+Run `python3 src/aggregate_metrics.py` from the repository root to reproduce every figure in this highlight reel.
+
 ## Dataset Structure Overview
 - `15571083/PDMX.csv`: primary metadata table with composer names, ratings, subset flags, and relative paths to MusicXML and JSON metadata.
 - `15571083/metadata/**`: JSON files containing instrumentation details (`data.score.instruments`, `instrumentations`, `instrumentation_text`, `parts`).

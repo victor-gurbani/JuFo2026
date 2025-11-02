@@ -1,5 +1,13 @@
 # JuFo2026
 
+## Project Scale Highlights
+- Filtered a raw archive of 254,077 PDMX entries down to a safety-screened solo piano cohort.
+- Balanced 124 curated works (31 per composer) spanning 18,925 measures and ~11.8 listening hours at a moderate tempo.
+- Computed 36 hand-crafted features across three pillars: 16 harmonic, 11 melodic, and 9 rhythmic descriptors.
+- Ran 36 omnibus ANOVA tests with 27 passing a 0.05 threshold and 162 Tukey HSD contrasts, surfacing 56 significant composer-to-composer gaps.
+- Generated reusable CSVs, JSON summaries, and multi-view visualizations that feed the documentation in `Article.md`, `ShortArticle.md`, and `Significance_Features.md`.
+- Reproduce these headline numbers locally with `python3 src/aggregate_metrics.py`.
+
 ## Corpus Curation (Phase 1 Step 1)
 
 Follow these steps to regenerate the curated CSV and path list used in this project:
