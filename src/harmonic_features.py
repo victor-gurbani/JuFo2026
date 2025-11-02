@@ -173,6 +173,24 @@ def find_chord_for_offset(index: Sequence[Tuple[float, float, chord.Chord]], off
     return None
 
 
+def remove_pitch_from_chord(src_chord: chord.Chord, target_pitch_class: Optional[int]) -> Optional[chord.Chord]:
+    """Strip a single occurrence of the melodic pitch class to inspect the support."""
+    if target_pitch_class is None:
+        return None
+    remaining = []
+    removed = False
+    for chord_pitch in src_chord.pitches:
+        if not removed and chord_pitch.pitchClass == target_pitch_class:
+            removed = True
+            continue
+        remaining.append(chord_pitch)
+    if not remaining:
+        return None
+    stripped = chord.Chord(remaining)
+    stripped.duration = src_chord.duration
+    return stripped
+
+
 def classify_dissonant_note(
     target_note: note.Note,
     prev_note: Optional[note.Note],
@@ -184,13 +202,20 @@ def classify_dissonant_note(
         return None
     if len(current_chord.pitches) < 2:
         return None
-    target_pitch_class = getattr(target_note, "pitchClass", None)
-    if target_pitch_class is None:
+    target_pitch = getattr(target_note, "pitch", None)
+    target_pitch_class = getattr(target_pitch, "pitchClass", None)
+    if target_pitch is None or target_pitch_class is None:
+        return None
+
+    accompaniment = remove_pitch_from_chord(current_chord, target_pitch_class)
+    if accompaniment is None:
         return None
 
     try:
-        bass_pitch = min(current_chord.pitches, key=lambda p: p.midi)
+        bass_pitch = min(accompaniment.pitches, key=lambda p: p.midi)
     except Exception:
+        return None
+    if any(p.pitchClass == target_pitch_class for p in accompaniment.pitches):
         return None
 
     try:
@@ -208,9 +233,12 @@ def classify_dissonant_note(
     next_support = next_chord or current_chord
     next_is_chord_tone = False
     if next_note and next_support:
-        if len(next_support.pitches) >= 2:
+        next_pitch = getattr(next_note, "pitch", None)
+        next_pitch_class = getattr(next_pitch, "pitchClass", None)
+        support_without_note = remove_pitch_from_chord(next_support, next_pitch_class)
+        if support_without_note and support_without_note.pitches:
             try:
-                next_bass = min(next_support.pitches, key=lambda p: p.midi)
+                next_bass = min(support_without_note.pitches, key=lambda p: p.midi)
                 resolution_interval = interval.Interval(next_bass, next_note)
                 next_is_chord_tone = resolution_interval.isConsonant()
             except Exception:

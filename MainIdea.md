@@ -109,3 +109,9 @@ This is the "wow" factor that solidifies your findings.
     * Show the `model.feature_importances_` (or `model.coef_`) to prove *which* of your features (e.g., `pitch_class_entropy` and `dissonance_profile`) were the most powerful predictors. This links the ML result directly back to your research question.
 6. Allow for sending a MusicXML, and tell you percentage-wise, how far it is from each composer's "fingerprint", like "you used 40% more major chords than Debussy typically does."
 7. Allow for discussion on overfitting, dataset size, and potential next steps (e.g., more composers, more features, deeper models). Also aggregate statistics on like "analysed >6000h of music" etc.
+
+
+### Extras:
+
+Allow for visualizations of individual pieces' features over time (e.g., a line plot of dissonance ratio across measures in a Chopin nocturne) to illustrate how compositional style varies *within* a piece as well as *between* composers.
+Allow for visualising an actual MusicXML score with harmonic annotations (e.g., color-coding dissonant chords) to provide a tangible link between the abstract features and the musical surface.
