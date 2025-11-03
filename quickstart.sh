@@ -22,7 +22,7 @@ fi
 DATASET_DIR="15571083"
 if [ ! -d "$DATASET_DIR" ]; then
     echo "Error: Dataset directory '$DATASET_DIR/' not found in the project root."
-    echo "The required PDMX dataset is available for download at: https://zenodo.org/records/13763756"
+    echo "The required PDMX dataset is available for download at: https://zenodo.org/records/15571083"
     echo "Please download and extract it to the project root before running."
     exit 1
 fi
