@@ -1,0 +1,7 @@
+pandas
+music21
+matplotlib
+seaborn
+numpy
+scipy
+statsmodels
