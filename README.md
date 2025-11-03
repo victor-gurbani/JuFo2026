@@ -162,15 +162,18 @@ Create an interactive 3D scatter of every piece embedded in feature space:
 ```
 python3 src/feature_embedding.py \
 	--output figures/embeddings/pca_3d.html \
+	--output-2d figures/embeddings/pca_2d.html \
 	--loadings-csv data/stats/pca_loadings.csv \
-	--clouds-output figures/embeddings/composer_clouds.html
+	--clouds-output figures/embeddings/composer_clouds_3d.html \
+	--clouds-output-2d figures/embeddings/composer_clouds_2d.html
 ```
 
 - Default method is PCA; pass `--method tsne` (optionally `--perplexity 25`) for a non-linear view.
 - Points are colour-coded by composer and expose the title and MusicXML path on hover. The HTML output can be opened in any browser.
 - When using PCA the script prints variance explained per axis and writes the feature loadings to the CSV above, clarifying which metrics pull the cloud toward each direction.
 - Raw count-style features (`note_count`, `note_event_count`, `chord_event_count`, `chord_quality_total`, `roman_chord_count`, `dissonant_note_count`) are excluded by default so dense chorales no longer dominate the axes; density-style metrics (e.g., `harmonic_density_mean`) still participate after standardisation.
-- Supply `--clouds-output` to render a second HTML view where each composer becomes a semi-transparent Gaussian iso-surface. This “four-cloud” visual suppresses individual points and makes it easier to compare footprint, overlap, and axis lean per composer at a glance.
+- Supply `--clouds-output` to render a 3D Gaussian iso-surface view, and `--clouds-output-2d` for a companion filled-contour map that mirrors the scatter but suppresses individual points.
+- Add `--output-2d` when you want a browser-ready 2D scatter (first two axes) alongside the 3D view—handy for presentations that prefer flat plots.
 
 ## MusicXML Harmonic Annotation
 

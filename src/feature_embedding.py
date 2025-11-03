@@ -100,6 +100,32 @@ def _plot_embedding(df: pd.DataFrame, coords: np.ndarray, output_path: Path) -> 
     fig.write_html(str(output_path), include_plotlyjs="cdn")
 
 
+def _plot_embedding_2d(df: pd.DataFrame, coords: np.ndarray, output_path: Path) -> None:
+    if coords.shape[1] < 2:
+        raise ValueError("Projection returned fewer than two dimensions; cannot create 2D scatter.")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plot_df = df.copy()
+    plot_df[["dim1", "dim2"]] = coords[:, :2]
+
+    fig = px.scatter(
+        plot_df,
+        x="dim1",
+        y="dim2",
+        color="composer_label",
+        hover_data={
+            "title": True,
+            "composer_label": True,
+            "mxl_path": True,
+            "dim1": False,
+            "dim2": False,
+        },
+        title="Feature Embedding (2D)",
+    )
+    fig.update_traces(marker=dict(size=8, opacity=0.8))
+    fig.update_layout(xaxis_title="dim1", yaxis_title="dim2")
+    fig.write_html(str(output_path), include_plotlyjs="cdn")
+
+
 def _gaussian_pdf(points: np.ndarray, mean: np.ndarray, cov: np.ndarray) -> np.ndarray:
     diff = points - mean
     try:
@@ -110,7 +136,8 @@ def _gaussian_pdf(points: np.ndarray, mean: np.ndarray, cov: np.ndarray) -> np.n
     if not np.isfinite(det_cov) or det_cov <= 0:
         det_cov = 1e-6
     exponent = np.einsum("...i,ij,...j->...", diff, inv_cov, diff)
-    norm_const = np.sqrt(((2 * np.pi) ** 3) * det_cov)
+    dim = cov.shape[0]
+    norm_const = np.sqrt(((2 * np.pi) ** dim) * det_cov)
     norm_const = norm_const if norm_const > 1e-12 else 1e-12
     return np.exp(-0.5 * exponent) / norm_const
 
@@ -176,6 +203,68 @@ def _plot_composer_clouds(df: pd.DataFrame, coords: np.ndarray, output_path: Pat
     fig.write_html(str(output_path), include_plotlyjs="cdn")
 
 
+def _plot_composer_clouds_2d(df: pd.DataFrame, coords: np.ndarray, output_path: Path) -> None:
+    if coords.shape[1] < 2:
+        raise ValueError("Projection returned fewer than two dimensions; cannot create 2D clouds.")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    coords_2d = coords[:, :2]
+    mins = coords_2d.min(axis=0)
+    maxs = coords_2d.max(axis=0)
+    padding = (maxs - mins) * 0.1
+    lower = mins - padding
+    upper = maxs + padding
+
+    grid_axes = [
+        np.linspace(lower[idx], upper[idx], CLOUD_GRID_SIZE)
+        for idx in range(2)
+    ]
+    X, Y = np.meshgrid(*grid_axes, indexing="xy")
+    grid_points = np.stack([X.ravel(), Y.ravel()], axis=1)
+
+    palette = px.colors.qualitative.Plotly
+    fig = go.Figure()
+
+    for idx, composer in enumerate(df["composer_label"].unique()):
+        mask = df["composer_label"] == composer
+        comp_coords = coords_2d[mask]
+        if comp_coords.shape[0] < 3:
+            continue
+        cov = np.cov(comp_coords, rowvar=False)
+        if cov.shape != (2, 2):
+            continue
+        cov = cov + np.eye(2) * 1e-6
+        mean = comp_coords.mean(axis=0)
+        pdf = _gaussian_pdf(grid_points, mean, cov).reshape(X.shape)
+        vmax = float(np.max(pdf))
+        if not np.isfinite(vmax) or vmax <= 0:
+            continue
+        iso = float(vmax * CLOUD_ISO_FRACTION)
+        color = palette[idx % len(palette)]
+        z_mask = np.where(pdf < iso, np.nan, pdf)
+        fig.add_trace(
+            go.Contour(
+                x=grid_axes[0],
+                y=grid_axes[1],
+                z=z_mask,
+                showscale=False,
+                contours=dict(coloring="heatmap"),
+                colorscale=[[0.0, color], [1.0, color]],
+                opacity=0.38,
+                line=dict(width=0),
+                name=str(composer),
+                hovertemplate=f"Composer: {composer}<extra></extra>",
+            )
+        )
+
+    fig.update_layout(
+        title="Composer Clouds (2D)",
+        xaxis_title="dim1",
+        yaxis_title="dim2",
+        legend=dict(itemsizing="constant"),
+    )
+    fig.write_html(str(output_path), include_plotlyjs="cdn")
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Create interactive embeddings of composer features.")
     parser.add_argument("--harmonic", type=Path, default=DEFAULT_HARMONIC, help="Path to harmonic features CSV.")
@@ -201,6 +290,12 @@ def parse_arguments() -> argparse.Namespace:
         help="Destination HTML file for the interactive scatter.",
     )
     parser.add_argument(
+        "--output-2d",
+        type=Path,
+        default=None,
+        help="Optional HTML file for a 2D scatter version of the embedding.",
+    )
+    parser.add_argument(
         "--loadings-csv",
         type=Path,
         default=None,
@@ -214,6 +309,12 @@ def parse_arguments() -> argparse.Namespace:
             "Optional HTML file for smoothed composer clouds. Useful for PCA embeddings "
             "to compare overall footprint per composer."
         ),
+    )
+    parser.add_argument(
+        "--clouds-output-2d",
+        type=Path,
+        default=None,
+        help="Optional HTML file for a 2D composer cloud view mirroring the point scatter.",
     )
     return parser.parse_args()
 
@@ -229,6 +330,10 @@ def main() -> int:
     matrix, feature_cols, scaler = _prepare_feature_matrix(combined)
     coords, pca_model = _compute_projection(matrix, args.method, args.seed, args.perplexity)
     _plot_embedding(combined, coords, args.output)
+
+    if args.output_2d is not None:
+        _plot_embedding_2d(combined, coords, args.output_2d)
+        print(f"2D embedding written to {args.output_2d}")
 
     print(f"Embedding generated for {len(combined)} pieces using {len(feature_cols)} features -> {args.output}")
     if args.method == "pca" and pca_model is not None:
@@ -252,6 +357,9 @@ def main() -> int:
     if args.clouds_output is not None:
         _plot_composer_clouds(combined, coords, args.clouds_output)
         print(f"Composer cloud view written to {args.clouds_output}")
+    if args.clouds_output_2d is not None:
+        _plot_composer_clouds_2d(combined, coords, args.clouds_output_2d)
+        print(f"2D composer cloud view written to {args.clouds_output_2d}")
     return 0
 
 
