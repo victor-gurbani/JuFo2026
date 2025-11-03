@@ -8,6 +8,30 @@
 - Generated reusable CSVs, JSON summaries, and multi-view visualizations that feed the documentation in `Article.md`, `ShortArticle.md`, and `Significance_Features.md`.
 - Reproduce these headline numbers locally with `python3 src/aggregate_metrics.py`.
 
+## Automated Quickstart
+
+This project includes a `quickstart.sh` script that automates the entire pipeline, from setting up the environment to running the final analysis.
+
+### Usage
+
+To run the quickstart script, execute the following command from the project root:
+
+```bash
+./quickstart.sh
+```
+
+By default, the script will create a Python virtual environment in the `venv` directory to avoid interfering with your system's Python packages.
+
+### --no-venv Flag
+
+If you prefer to use your system's Python installation, you can use the `--no-venv` flag:
+
+```bash
+./quickstart.sh --no-venv
+```
+
+This is useful if you have already installed the required dependencies globally or are using a package manager like `conda`.
+
 ## Corpus Curation (Phase 1 Step 1)
 
 Follow these steps to regenerate the curated CSV and path list used in this project:

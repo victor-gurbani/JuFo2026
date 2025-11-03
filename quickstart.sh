@@ -7,6 +7,13 @@ set -e
 
 echo "--- JuFo2026 Project Quickstart ---"
 
+# 0. Parse command-line arguments
+USE_VENV=true
+if [ "$1" == "--no-venv" ]; then
+    USE_VENV=false
+    echo "Running with system Python installation (no virtual environment)."
+fi
+
 # 1. Check for prerequisites
 if ! command -v python3 &> /dev/null
 then
@@ -77,17 +84,19 @@ fi
 
 echo "Prerequisites met."
 
-# 2. Set up virtual environment
-VENV_DIR="venv"
-if [ ! -d "$VENV_DIR" ]; then
-    echo "Creating Python virtual environment..."
-    python3 -m venv "$VENV_DIR"
-else
-    echo "Virtual environment already exists."
-fi
+# 2. Set up virtual environment if enabled
+if [ "$USE_VENV" = true ]; then
+    VENV_DIR="venv"
+    if [ ! -d "$VENV_DIR" ]; then
+        echo "Creating Python virtual environment..."
+        python3 -m venv "$VENV_DIR"
+    else
+        echo "Virtual environment already exists."
+    fi
 
-echo "Activating virtual environment..."
-source "$VENV_DIR/bin/activate"
+    echo "Activating virtual environment..."
+    source "$VENV_DIR/bin/activate"
+fi
 
 # 3. Install dependencies
 echo "Installing dependencies from requirements.txt..."
