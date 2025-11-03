@@ -41,7 +41,9 @@ if [ ! -d "$DATASET_DIR" ]; then
         echo "Downloading dataset files..."
         cd "$DATASET_DIR"
         for url in $FILE_URLS; do
-            wget -c -q --show-progress "$url"
+            filename=$(echo "$url" | sed -e 's|/content$||' -e 's|.*/||')
+            echo "Downloading $filename..."
+            wget -c -q --show-progress -O "$filename" "$url"
         done
 
         echo "Extracting archives..."
