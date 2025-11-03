@@ -21,8 +21,8 @@ fi
 
 # 1a. Check for dataset and offer to download
 DATASET_DIR="15571083"
-if [ ! -d "$DATASET_DIR" ]; then
-    echo "Dataset directory '$DATASET_DIR/' not found."
+if [ ! -d "$DATASET_DIR" ] || [ -z "$(find "$DATASET_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)" ]; then
+    echo "Dataset directory '$DATASET_DIR/' not found or appears to be incomplete."
     read -p "Would you like to download and extract it automatically? (y/n) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
