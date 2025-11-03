@@ -154,3 +154,30 @@ Run omnibus ANOVA and Tukey HSD post-hoc comparisons across every exported featu
 		python3 src/significance_visualizations.py --top-n 15
 		```
 		This writes figures to `figures/significance/`: a top ANOVA bar chart, three pairwise heatmaps (significant-feature counts, signed mean difference, absolute mean difference), plus two feature-level heatmaps (sym-log and normalized). Count-heavy metrics (e.g., `note_event_count`, `roman_chord_count`, `dissonant_note_count`) are filtered automatically; supply additional `--exclude-pattern` flags to customise. Use `--no-symlog`, `--skip-normalized`, or adjusted `--top-n` values to tailor the views.
+
+## Feature Embedding Explorer
+
+Create an interactive 3D scatter of every piece embedded in feature space:
+
+```
+python3 src/feature_embedding.py --output figures/embeddings/pca_3d.html --loadings-csv data/stats/pca_loadings.csv
+```
+
+- Default method is PCA; pass `--method tsne` (optionally `--perplexity 25`) for a non-linear view.
+- Points are colour-coded by composer and expose the title and MusicXML path on hover. The HTML output can be opened in any browser.
+- When using PCA the script prints variance explained per axis and writes the feature loadings to the CSV above, clarifying which metrics pull the cloud toward each direction.
+
+## MusicXML Harmonic Annotation
+
+Generate colour-coded MusicXML files that highlight dissonant material for inspection in MuseScore or other editors:
+
+```
+python3 src/annotate_musicxml.py \
+	--mxl 15571083/mxl/0/46/Qmaug5pXs59BJq1VTdXhrKAU3DHxRqusrDgXraMS6xDtYk.mxl \
+	--output figures/annotated/La_cathedrale_annotated.mxl \
+	--renderer-template "mscore -o {output} {input}" --render-format pdf
+```
+
+- Notes classified as passing tones, appoggiaturas, or other dissonances reuse the feature-extraction heuristics, receive distinct colours, and gain lyric labels for quick inspection. Remaining notes in dissonant chords are tinted red and marked `dissonant-chord`.
+- Supply a renderer template (shown above for the MuseScore CLI) to emit a PDF or PNG alongside the annotated MusicXML for collaborators without engraving software.
+- Open the exported MusicXML or rendered file to review how the analysis aligns with the original notation and to spot-check the automated classifications.

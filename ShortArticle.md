@@ -6,6 +6,7 @@
 - Extracted 36 analytic descriptors grouped into harmonic (16), melodic (11), and rhythmic (9) feature families.
 - Evaluated 36 ANOVA hypotheses and 162 Tukey contrasts, flagging 27 metrics and 56 composer pairings as statistically distinct at α=0.05.
 - Validated the most extreme rhythmic cases after introducing meter-aware syncopation detection: Debussy’s “La cathédrale engloutie” still shows the largest duration spread (std. note duration 1.63) from sustained pedal sonorities, and Bach’s chorale anthology remains the syncopation leader (ratio 0.356) because of suspension-rich half-bar ties across 11k note events.
+- Delivered two new inspection tools: an interactive PCA/UMAP-style embedding (`src/feature_embedding.py`) that reports variance/loadings for each axis and colour-codes composers, plus an annotation pipeline (`src/annotate_musicxml.py`) that labels dissonant notes in coloured MusicXML (with optional PDF/PNG renders via MuseScore’s CLI template).
 
 Recreate these tallies locally with `python3 src/aggregate_metrics.py`.
 
@@ -81,3 +82,8 @@ The balanced export with all safety filters active satisfies Step 1: it suppli
 - Top contrasts include registral span (`pitch_range_semitones`, F=39.66, p≈7e-18) and dissonance usage (Debussy vs. Bach, p≈1.3e-10); rhythmic entropy and duration variance also show strong era splits.
 - Outputs land in `data/stats/anova_summary.csv` and `data/stats/tukey_hsd.csv`, capturing F-statistics, adjusted p-values, and confidence intervals for downstream reporting.
 - `src/significance_visualizations.py` now converts those tables into figures under `figures/significance/`, including a top-15 `-log10(p)` bar chart, a pairwise-count heatmap, signed/absolute mean-difference heatmaps, and two feature-level views (sym-log + normalized). Count-heavy metrics (note/chord totals, Roman counts, dissonant note totals) are filtered out; after filtering, Debussy–Mozart still shows 16 distinct metrics, Bach–Debussy 10, while Chopin–Debussy remains at three with modest effect sizes.
+
+# Phase 2 Enhancements: Embedding & Annotation
+
+- The embedding viewer (`feature_embedding.py`) standardises all 36 features, projects them via PCA or t-SNE, and reports variance ratios plus per-feature loadings (`data/stats/pca_loadings.csv`). The elongated cloud reflects overlapping stylistic traits rather than clean clusters; axis movement corresponds to blended feature weights (e.g., PC1 emphasises activity counts, PC2 duration spread).
+- The annotation helper (`annotate_musicxml.py`) colour-codes dissonant material, stamps lyric labels (passing/appoggiatura/other/dissonant-chord), and can invoke MuseScore’s CLI through a `{input}/{output}` template to emit shareable PDFs or PNGs alongside the annotated MusicXML.

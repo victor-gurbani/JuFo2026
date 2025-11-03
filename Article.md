@@ -12,6 +12,8 @@ The goal of Phase 1 Step 1 was to curate a balanced set of solo piano scores for
 - Engineered 36 descriptive metrics split across harmonic (16), melodic (11), and rhythmic (9) families before feeding them into the statistics stack.
 - Ran 36 omnibus ANOVAs and 162 Tukey HSD contrasts; 27 features and 56 composer pairings cleared the α=0.05 bar, energising the narrative in the later sections of this article.
 - Re-verified rhythmic outliers after feature extraction refinements: Debussy’s “La cathédrale engloutie” retains the widest rhythmic dispersion (std. note duration 1.63) thanks to alternating long pedal clusters and brief ornamental pickups, while Bach’s chorale anthology still posts the highest syncopation ratio (0.356) driven by suspension-heavy half-beat entries across 11k events. A refreshed syncopation detector now adapts to in-score meter changes, confirming these extremes are musical traits rather than tooling artifacts.
+- Added an interactive embedding explorer (`feature_embedding.py`) that projects all 36 features into a 3D Plotly scatter. PCA runs now report per-axis variance and dump loadings (`data/stats/pca_loadings.csv`) so the directions can be interpreted via their dominant metrics; t-SNE is available for curved manifolds when linear axes blur stylistic differences.
+- Enriched score inspection tooling (`annotate_musicxml.py`) to tag passing tones, appoggiaturas, and other dissonances with colours and lyric labels, plus optional PDF/PNG renders via a MuseScore command template for collaborators without notation software.
 
 Run `python3 src/aggregate_metrics.py` from the repository root to reproduce every figure in this highlight reel.
 
@@ -275,6 +277,18 @@ Parsing (Step 2) now delivers structured summaries for every curated score, st
 - **Pairwise Landscape**: The pairwise-count heatmap shows Debussy–Mozart still diverging on 16 metrics after filtering, with Bach–Debussy and Bach–Mozart at 10 and 9 respectively, while Chopin–Debussy trails at three. The signed mean-difference heatmap indicates Debussy and Mozart differ most through positive deltas (e.g., higher rhythmic entropy, augmented usage), whereas Bach vs. Chopin skews slightly negative.
 - **Normalized Perspective**: A companion heatmap divides mean differences by each feature’s across-pair standard deviation, emphasizing relative effect sizes and further dampening residual count bias.
 - **Notable Findings**: Mozart unexpectedly tops the downbeat-emphasis metric (0.23 vs Bach’s 0.13), reinforcing the strength of Classical metric clarity. Debussy’s syncopation ratio doubles Bach’s and quadruples Mozart’s, echoing impressionist rubato; Bach’s notes-per-beat outpace Romantic/Impressionist works, highlighting how contrapuntal density generates motion without relying on syncopation.
+
+## Feature Embedding & Score Annotation (Phase 2 Enhancements)
+
+### Multidimensional Embedding
+- `python3 src/feature_embedding.py --method pca --output figures/embeddings/pca_3d.html --loadings-csv data/stats/pca_loadings.csv` standardises the 36-feature matrix, applies PCA, and writes an interactive Plotly HTML view.
+- The script prints the variance captured by PCs 1–3 (22.6%, 13.7%, 12.3%), clarifying that the axes are weighted blends of metrics—PC1 concentrates raw activity counts (note/chord/roman totals), PC2 pivots on rhythmic duration spread, and PC3 balances registral span against downbeat clarity.
+- Because the corpus is balanced and stylistic traits overlap (especially between late Classical and Romantic works), we observe a single elongated cloud rather than clean clusters. Loadings in `data/stats/pca_loadings.csv` identify which features tug points along each axis; hovering reveals the piece title and MusicXML path for contextual drill-down. For non-linear separations, `--method tsne --perplexity 25` offers curved manifolds but with axes that carry no standalone meaning.
+
+### Annotated MusicXML
+- `python3 src/annotate_musicxml.py --mxl <path> --output figures/annotated/<name>.mxl` colour-codes the original score: passing tones (orange), appoggiaturas (violet), other dissonances (red), and residual dissonant chord members (light red). Each flagged note gains a lyric label (e.g., `passing_tone`), and dissonant chords receive `dissonant-chord` text for quick filtering.
+- Supplying a renderer template such as `--renderer-template "mscore -o {output} {input}" --render-format pdf` drives MuseScore’s CLI to emit an engraved PDF/PNG next to the annotated MusicXML, giving reviewers without MuseScore an immediate visual.
+- Combined with the embedding view, these artefacts allow rapid toggling between global stylistic trends and bar-level verification of how the heuristics interpret individual scores.
 
 ### Validation & Diagnostics
 - Ran the CLI end-to-end against the full corpus; console output lists the top 20 ANOVA hits, verifying consistent sample counts (≥31 pieces per composer for most metrics).
