@@ -19,12 +19,44 @@ if [ ! -f "requirements.txt" ]; then
     exit 1
 fi
 
+# 1a. Check for dataset and offer to download
 DATASET_DIR="15571083"
 if [ ! -d "$DATASET_DIR" ]; then
-    echo "Error: Dataset directory '$DATASET_DIR/' not found in the project root."
-    echo "The required PDMX dataset is available for download at: https://zenodo.org/records/15571083"
-    echo "Please download and extract it to the project root before running."
-    exit 1
+    echo "Dataset directory '$DATASET_DIR/' not found."
+    read -p "Would you like to download and extract it automatically? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Creating dataset directory..."
+        mkdir -p "$DATASET_DIR"
+
+        echo "Fetching file list from Zenodo..."
+        ZENODO_API_URL="https://zenodo.org/api/records/15571083/files"
+        FILE_URLS=$(curl -s "$ZENODO_API_URL" | grep -o 'https://[^\"]*content' | sed 's/\"//g')
+
+        if [ -z "$FILE_URLS" ]; then
+            echo "Error: Could not retrieve file list from Zenodo."
+            exit 1
+        fi
+
+        echo "Downloading dataset files..."
+        cd "$DATASET_DIR"
+        for url in $FILE_URLS; do
+            wget -c -q --show-progress "$url"
+        done
+
+        echo "Extracting archives..."
+        for archive in *.tar.gz; do
+            echo "Extracting $archive..."
+            tar -xzf "$archive"
+            rm "$archive"
+        done
+
+        cd ..
+        echo "Dataset downloaded and extracted successfully."
+    else
+        echo "Please download and extract the dataset manually to the '$DATASET_DIR' directory."
+        exit 1
+    fi
 fi
 
 echo "Prerequisites met."
