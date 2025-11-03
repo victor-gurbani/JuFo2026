@@ -160,16 +160,21 @@ Run omnibus ANOVA and Tukey HSD post-hoc comparisons across every exported featu
 Create an interactive 3D scatter of every piece embedded in feature space:
 
 ```
-python3 src/feature_embedding.py --output figures/embeddings/pca_3d.html --loadings-csv data/stats/pca_loadings.csv
+python3 src/feature_embedding.py \
+	--output figures/embeddings/pca_3d.html \
+	--loadings-csv data/stats/pca_loadings.csv \
+	--clouds-output figures/embeddings/composer_clouds.html
 ```
 
 - Default method is PCA; pass `--method tsne` (optionally `--perplexity 25`) for a non-linear view.
 - Points are colour-coded by composer and expose the title and MusicXML path on hover. The HTML output can be opened in any browser.
 - When using PCA the script prints variance explained per axis and writes the feature loadings to the CSV above, clarifying which metrics pull the cloud toward each direction.
+- Raw count-style features (`note_count`, `note_event_count`, `chord_event_count`, `chord_quality_total`, `roman_chord_count`, `dissonant_note_count`) are excluded by default so dense chorales no longer dominate the axes; density-style metrics (e.g., `harmonic_density_mean`) still participate after standardisation.
+- Supply `--clouds-output` to render a second HTML view where each composer becomes a semi-transparent Gaussian iso-surface. This “four-cloud” visual suppresses individual points and makes it easier to compare footprint, overlap, and axis lean per composer at a glance.
 
 ## MusicXML Harmonic Annotation
 
-Generate colour-coded MusicXML files that highlight dissonant material for inspection in MuseScore or other editors:
+Generate colour-coded MusicXML files that highlight dissonant material and the harmonic backdrop for inspection in MuseScore or other editors:
 
 ```
 python3 src/annotate_musicxml.py \
@@ -179,5 +184,17 @@ python3 src/annotate_musicxml.py \
 ```
 
 - Notes classified as passing tones, appoggiaturas, or other dissonances reuse the feature-extraction heuristics, receive distinct colours, and gain lyric labels for quick inspection. Remaining notes in dissonant chords are tinted red and marked `dissonant-chord`.
+- Every harmonic slice now carries a chord label (Roman numeral when the global key is recognised, otherwise a plain-text name) injected both as a text direction and as a chord symbol above the staff. The rendered chord symbol now displays the analysis text directly (falling back to a descriptive label), and the same string is duplicated as a text expression so MuseScore visibly shows the chord even if the symbol fallback fires. Chords containing chromatic notes outside the detected scale—or chords the analyser cannot explain—receive a turquoise tint and the lyric `chromatic-chord` so they stand out in the rendered score.
 - Supply a renderer template (shown above for the MuseScore CLI) to emit a PDF or PNG alongside the annotated MusicXML for collaborators without engraving software.
 - Open the exported MusicXML or rendered file to review how the analysis aligns with the original notation and to spot-check the automated classifications.
+
+### Curated Score Exports
+
+Regenerate the eight canonical annotated scores (two per composer) in one shot:
+
+```
+python3 src/generate_selected_annotations.py
+```
+
+- The script resolves absolute MusicXML paths from `data/curated/solo_piano_corpus.csv` and writes annotated outputs to `figures/annotated/` using the same naming conventions documented above.
+- Optional `--renderer-template` and `--render-format` flags mirror the one-off annotator so PDFs/PNGs can be produced alongside the MusicXML payloads.

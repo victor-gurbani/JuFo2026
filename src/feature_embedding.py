@@ -8,14 +8,25 @@ from typing import List, Optional
 import numpy as np
 import pandas as pd
 import plotly.express as px
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-from sklearn.preprocessing import StandardScaler
+import plotly.graph_objects as go  # type: ignore[import]
+from sklearn.decomposition import PCA  # type: ignore[import]
+from sklearn.manifold import TSNE  # type: ignore[import]
+from sklearn.preprocessing import StandardScaler  # type: ignore[import]
 
 DEFAULT_HARMONIC = Path("data/features/harmonic_features.csv")
 DEFAULT_MELODIC = Path("data/features/melodic_features.csv")
 DEFAULT_RHYTHMIC = Path("data/features/rhythmic_features.csv")
 DEFAULT_OUTDIR = Path("figures/embeddings")
+EXCLUDED_FEATURES = {
+    "note_count",
+    "note_event_count",
+    "chord_event_count",
+    "chord_quality_total",
+    "roman_chord_count",
+    "dissonant_note_count",
+}
+CLOUD_GRID_SIZE = 22
+CLOUD_ISO_FRACTION = 0.22
 
 
 def _load_features(path: Path) -> pd.DataFrame:
@@ -42,6 +53,7 @@ def _merge_feature_tables(harm: pd.DataFrame, mel: pd.DataFrame, rhy: pd.DataFra
 def _prepare_feature_matrix(df: pd.DataFrame) -> tuple[np.ndarray, List[str], StandardScaler]:
     numeric_cols = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
     numeric_cols = [col for col in numeric_cols if col not in {"mxl_path"}]
+    numeric_cols = [col for col in numeric_cols if col not in EXCLUDED_FEATURES]
     if not numeric_cols:
         raise ValueError("No numeric feature columns available for projection.")
     filled = df[numeric_cols].copy()
@@ -88,6 +100,82 @@ def _plot_embedding(df: pd.DataFrame, coords: np.ndarray, output_path: Path) -> 
     fig.write_html(str(output_path), include_plotlyjs="cdn")
 
 
+def _gaussian_pdf(points: np.ndarray, mean: np.ndarray, cov: np.ndarray) -> np.ndarray:
+    diff = points - mean
+    try:
+        inv_cov = np.linalg.inv(cov)
+    except np.linalg.LinAlgError:
+        inv_cov = np.linalg.inv(cov + np.eye(cov.shape[0]) * 1e-6)
+    det_cov = float(np.linalg.det(cov))
+    if not np.isfinite(det_cov) or det_cov <= 0:
+        det_cov = 1e-6
+    exponent = np.einsum("...i,ij,...j->...", diff, inv_cov, diff)
+    norm_const = np.sqrt(((2 * np.pi) ** 3) * det_cov)
+    norm_const = norm_const if norm_const > 1e-12 else 1e-12
+    return np.exp(-0.5 * exponent) / norm_const
+
+
+def _plot_composer_clouds(df: pd.DataFrame, coords: np.ndarray, output_path: Path) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    mins = coords.min(axis=0)
+    maxs = coords.max(axis=0)
+    padding = (maxs - mins) * 0.1
+    lower = mins - padding
+    upper = maxs + padding
+
+    grid_axes = [
+        np.linspace(lower[idx], upper[idx], CLOUD_GRID_SIZE)
+        for idx in range(3)
+    ]
+    X, Y, Z = np.meshgrid(*grid_axes, indexing="ij")
+    grid_points = np.stack([X.ravel(), Y.ravel(), Z.ravel()], axis=1)
+
+    palette = px.colors.qualitative.Plotly
+    fig = go.Figure()
+
+    for idx, composer in enumerate(df["composer_label"].unique()):
+        mask = df["composer_label"] == composer
+        comp_coords = coords[mask]
+        if comp_coords.shape[0] < 4:
+            continue
+        cov = np.cov(comp_coords, rowvar=False)
+        if cov.shape != (3, 3):
+            continue
+        cov = cov + np.eye(3) * 1e-6
+        mean = comp_coords.mean(axis=0)
+        pdf = _gaussian_pdf(grid_points, mean, cov)
+        pdf = pdf.reshape(X.shape)
+        vmax = float(np.max(pdf))
+        if not np.isfinite(vmax) or vmax <= 0:
+            continue
+        iso = float(vmax * CLOUD_ISO_FRACTION)
+        color = palette[idx % len(palette)]
+        fig.add_trace(
+            go.Isosurface(
+                x=X.ravel(),
+                y=Y.ravel(),
+                z=Z.ravel(),
+                value=pdf.ravel(),
+                isomin=iso,
+                isomax=vmax,
+                surface_count=1,
+                colorscale=[[0.0, color], [1.0, color]],
+                opacity=0.35,
+                caps=dict(x_show=False, y_show=False, z_show=False),
+                showscale=False,
+                name=str(composer),
+                hovertemplate=f"Composer: {composer}<extra></extra>",
+            )
+        )
+
+    fig.update_layout(
+        title="Composer Clouds (3D)",
+        scene=dict(xaxis_title="dim1", yaxis_title="dim2", zaxis_title="dim3"),
+        legend=dict(itemsizing="constant"),
+    )
+    fig.write_html(str(output_path), include_plotlyjs="cdn")
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Create interactive embeddings of composer features.")
     parser.add_argument("--harmonic", type=Path, default=DEFAULT_HARMONIC, help="Path to harmonic features CSV.")
@@ -117,6 +205,15 @@ def parse_arguments() -> argparse.Namespace:
         type=Path,
         default=None,
         help="Optional CSV path to store PCA loadings (only when --method pca).",
+    )
+    parser.add_argument(
+        "--clouds-output",
+        type=Path,
+        default=None,
+        help=(
+            "Optional HTML file for smoothed composer clouds. Useful for PCA embeddings "
+            "to compare overall footprint per composer."
+        ),
     )
     return parser.parse_args()
 
@@ -152,6 +249,9 @@ def main() -> int:
             print(f"Saved PCA loadings to {loadings_path}")
     elif args.method == "tsne":
         print("t-SNE axes are non-linear embeddings; absolute directions are not individually interpretable.")
+    if args.clouds_output is not None:
+        _plot_composer_clouds(combined, coords, args.clouds_output)
+        print(f"Composer cloud view written to {args.clouds_output}")
     return 0
 
 
