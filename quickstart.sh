@@ -40,11 +40,25 @@ if [ ! -d "$DATASET_DIR" ] || [ -z "$(find "$DATASET_DIR" -mindepth 1 -maxdepth 
 
         echo "Downloading dataset files..."
         cd "$DATASET_DIR"
-        for url in $FILE_URLS; do
-            filename=$(echo "$url" | sed -e 's|/content$||' -e 's|.*/||')
-            echo "Downloading $filename..."
-            wget -c -q --show-progress -O "$filename" "$url"
-        done
+
+        if command -v aria2c &> /dev/null; then
+            echo "aria2c detected, using it for faster parallel downloads."
+            # Prepare a file list for aria2c to download in one go
+            aria2_input_list=""
+            for url in $FILE_URLS; do
+                filename=$(echo "$url" | sed -e 's|/content$||' -e 's|.*/||')
+                aria2_input_list="${aria2_input_list}${url}\n  out=${filename}\n"
+            done
+            # Use echo -e to process the newlines and pipe to aria2c
+            echo -e "${aria2_input_list}" | aria2c --file-allocation=none -x 16 -s 16 -c --input-file=-
+        else
+            echo "aria2c not found, falling back to wget."
+            for url in $FILE_URLS; do
+                filename=$(echo "$url" | sed -e 's|/content$||' -e 's|.*/||')
+                echo "Downloading $filename..."
+                wget -c -q --show-progress -O "$filename" "$url"
+            done
+        fi
 
         echo "Extracting archives..."
         for archive in *.tar.gz; do
