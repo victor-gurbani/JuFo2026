@@ -11,6 +11,7 @@ The goal of Phase 1 Step 1 was to curate a balanced set of solo piano scores for
 - Parsed structural summaries showing an average of 153 measures and 2.1 parts per score, ensuring downstream features reflect comparable texture.
 - Engineered 36 descriptive metrics split across harmonic (16), melodic (11), and rhythmic (9) families before feeding them into the statistics stack.
 - Ran 36 omnibus ANOVAs and 162 Tukey HSD contrasts; 27 features and 56 composer pairings cleared the α=0.05 bar, energising the narrative in the later sections of this article.
+- Re-verified rhythmic outliers after feature extraction refinements: Debussy’s “La cathédrale engloutie” retains the widest rhythmic dispersion (std. note duration 1.63) thanks to alternating long pedal clusters and brief ornamental pickups, while Bach’s chorale anthology still posts the highest syncopation ratio (0.356) driven by suspension-heavy half-beat entries across 11k events. A refreshed syncopation detector now adapts to in-score meter changes, confirming these extremes are musical traits rather than tooling artifacts.
 
 Run `python3 src/aggregate_metrics.py` from the repository root to reproduce every figure in this highlight reel.
 

@@ -5,6 +5,7 @@
 - Parsed ~63.6k quarter-note durations, around 11.8 hours of music at 90 BPM, with average pieces spanning 153 measures and just over two staves.
 - Extracted 36 analytic descriptors grouped into harmonic (16), melodic (11), and rhythmic (9) feature families.
 - Evaluated 36 ANOVA hypotheses and 162 Tukey contrasts, flagging 27 metrics and 56 composer pairings as statistically distinct at α=0.05.
+- Validated the most extreme rhythmic cases after introducing meter-aware syncopation detection: Debussy’s “La cathédrale engloutie” still shows the largest duration spread (std. note duration 1.63) from sustained pedal sonorities, and Bach’s chorale anthology remains the syncopation leader (ratio 0.356) because of suspension-rich half-bar ties across 11k note events.
 
 Recreate these tallies locally with `python3 src/aggregate_metrics.py`.
 

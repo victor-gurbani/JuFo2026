@@ -137,10 +137,50 @@ def _is_syncopated(offset: float, duration: float, beat_length: float, beat_stre
     return duration > remaining + 1e-6
 
 
-def _syncopation_ratio(events: Sequence[Tuple[float, float, float]], beat_length: float) -> Optional[float]:
-    if not events or beat_length <= 0:
+def _time_signature_map(score: stream.Score) -> List[Tuple[float, float]]:
+    mapping: List[Tuple[float, float]] = []
+    parts = list(score.parts)
+    reference: stream.Stream = parts[0] if parts else score
+    for measure in reference.getElementsByClass(stream.Measure):
+        ts = measure.timeSignature
+        if ts is None:
+            continue
+        beat_duration = float(ts.beatDuration.quarterLength or 0.0)
+        if beat_duration <= 0:
+            continue
+        offset = float(measure.offset or 0.0)
+        if mapping and abs(mapping[-1][0] - offset) < 1e-6:
+            mapping[-1] = (offset, beat_duration)
+        elif not mapping or abs(mapping[-1][1] - beat_duration) > 1e-6:
+            mapping.append((offset, beat_duration))
+    if not mapping:
+        mapping.append((0.0, 1.0))
+    return mapping
+
+
+def _beat_length_at(ts_map: Sequence[Tuple[float, float]], offset: float) -> float:
+    beat_length = ts_map[0][1] if ts_map else 1.0
+    for ts_offset, candidate in ts_map:
+        if offset + 1e-6 >= ts_offset and candidate > 0:
+            beat_length = candidate
+        else:
+            if offset + 1e-6 < ts_offset:
+                break
+    return beat_length if beat_length > 0 else 1.0
+
+
+def _syncopation_ratio(events: Sequence[Tuple[float, float, float]], ts_map: Sequence[Tuple[float, float]]) -> Optional[float]:
+    if not events:
         return None
-    syncopated = sum(1 for offset, duration, strength in events if _is_syncopated(offset, duration, beat_length, strength))
+    syncopated = 0
+    for offset, duration, strength in events:
+        beat_length = _beat_length_at(ts_map, offset)
+        if beat_length <= 0:
+            continue
+        if _is_syncopated(offset, duration, beat_length, strength):
+            syncopated += 1
+    if not events:
+        return None
     return float(syncopated / len(events))
 
 
@@ -247,9 +287,11 @@ def compute_rhythmic_features(score: stream.Score) -> Dict[str, object]:
     else:
         beat_length = 1.0
 
+    ts_map = _time_signature_map(score)
+
     notes_per_beat = _notes_per_beat(events, beat_length, float(score.highestTime or 0.0))
     downbeat_ratio = _downbeat_emphasis(events)
-    syncopation = _syncopation_ratio(events, beat_length)
+    syncopation = _syncopation_ratio(events, ts_map)
     pattern_entropy = _rhythmic_pattern_entropy(events)
     micro_density = _micro_rhythmic_density(events)
     cross_ratio = _cross_rhythm_ratio(score)
