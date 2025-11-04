@@ -1,0 +1,122 @@
+victor@Victors-MacBook-Pro-M4: [20:53] JuFo2026 $ cd /Users/victor/JuFo2026 && python3 - <<'PY'
+cmdand heredoc> import pandas as pd
+cmdand heredoc> from pathlib import Path
+cmdand heredoc> import numpy as np
+cmdand heredoc> from sklearn.preprocessing import StandardScaler
+cmdand heredoc> from sklearn.decomposition import PCA
+cmdand heredoc> 
+cmdand heredoc> harm = pd.read_csv('data/features/harmonic_features.csv')
+cmdand heredoc> mel = pd.read_csv('data/features/melodic_features.csv')
+cmdand heredoc> rhy = pd.read_csv('data/features/rhythmic_features.csv')
+cmdand heredoc> 
+cmdand heredoc> key_cols = ['composer_label','title','mxl_path']
+cmdand heredoc> combined = harm.set_index(key_cols).join(mel.set_index(key_cols), how='inner', rsuffix='_mel').join(rhy.set_index(key_cols), how='inner', rsuffix='_rhy').reset_i
+ndex()
+cmdand heredoc> 
+cmdand heredoc> exclude = {"note_count","note_event_count","chord_event_count","chord_quality_total","roman_chord_count","dissonant_note_count"}
+cmdand heredoc> numeric_cols = [c for c in combined.columns if pd.api.types.is_numeric_dtype(combined[c]) and c not in exclude]
+cmdand heredoc> filled = combined[numeric_cols].copy().fillna(combined[numeric_cols].mean())
+cmdand heredoc> scaler = StandardScaler()
+cmdand heredoc> matrix = scaler.fit_transform(filled.values)
+cmdand heredoc> pca = PCA(n_components=3, random_state=42)
+cmdand heredoc> coords = pca.fit_transform(matrix)
+cmdand heredoc> combined[['PC1','PC2','PC3']] = coords
+cmdand heredoc> 
+cmdand heredoc> means = combined.groupby('composer_label')[['PC1','PC2','PC3']].mean()
+cmdand heredoc> print('Composer means:\n', means)
+cmdand heredoc> 
+cmdand heredoc> stds = combined.groupby('composer_label')[['PC1','PC2','PC3']].std()
+cmdand heredoc> print('\nComposer std:\n', stds)
+cmdand heredoc> 
+cmdand heredoc> loadings = pd.DataFrame(pca.components_.T, index=numeric_cols, columns=['PC1','PC2','PC3'])
+cmdand heredoc> print('\nTop loadings PC1:\n', loadings['PC1'].abs().sort_values(ascending=False).head(10))
+cmdand heredoc> print('\nTop loadings PC2:\n', loadings['PC2'].abs().sort_values(ascending=False).head(10))
+cmdand heredoc> print('\nTop loadings PC3:\n', loadings['PC3'].abs().sort_values(ascending=False).head(10))
+cmdand heredoc> 
+cmdand heredoc> for comp in ['PC1','PC2','PC3']:
+cmdand heredoc>     print(f"\nFeature contributions for {comp}:")
+cmdand heredoc>     top = loadings[comp].sort_values(key=lambda s: s.abs(), ascending=False).head(6)
+cmdand heredoc>     for feat, weight in top.items():
+cmdand heredoc>         direction = 'positive' if weight>0 else 'negative'
+cmdand heredoc>         print(f"  {feat}: {weight:.3f} ({direction})")
+cmdand heredoc> 
+cmdand heredoc> PY
+Composer means:
+                      PC1       PC2       PC3
+composer_label                              
+Bach           -0.274091 -1.058867 -0.914880
+Chopin          0.409762 -0.024685  0.465556
+Debussy         1.915079  0.262353  0.900262
+Mozart         -2.050750  0.821199 -0.450938
+
+Composer std:
+                      PC1       PC2       PC3
+composer_label                              
+Bach            2.390742  1.869654  1.175033
+Chopin          2.292763  2.347242  1.811537
+Debussy         2.055408  2.124040  1.778979
+Mozart          1.768608  1.950774  1.693096
+
+Top loadings PC1:
+ harmonic_density_mean           0.329798
+avg_melodic_interval            0.296033
+chord_quality_diminished_pct    0.271628
+melodic_leap_ratio              0.269215
+dissonance_ratio                0.268775
+chord_quality_other_pct         0.263808
+conjunct_motion_ratio           0.254642
+pitch_class_entropy             0.251134
+melodic_interval_std            0.236006
+pitch_range_semitones           0.230570
+Name: PC1, dtype: float64
+
+Top loadings PC2:
+ avg_note_duration          0.375477
+downbeat_emphasis_ratio    0.360783
+micro_rhythmic_density     0.349834
+notes_per_beat             0.304674
+std_note_duration          0.252599
+other_dissonance_ratio     0.248135
+appoggiatura_ratio         0.234932
+chord_quality_other_pct    0.199407
+chord_quality_major_pct    0.181188
+avg_melodic_interval       0.168835
+Name: PC2, dtype: float64
+
+Top loadings PC3:
+ oblique_motion_ratio        0.382309
+parallel_motion_ratio       0.317080
+cross_rhythm_ratio          0.304940
+rhythmic_pattern_entropy    0.276277
+pitch_range_semitones       0.249420
+dissonance_ratio            0.247594
+contrary_motion_ratio       0.226495
+conjunct_motion_ratio       0.220861
+passing_tone_ratio          0.213797
+melodic_leap_ratio          0.208408
+Name: PC3, dtype: float64
+
+Feature contributions for PC1:
+  harmonic_density_mean: 0.330 (positive)
+  avg_melodic_interval: 0.296 (positive)
+  chord_quality_diminished_pct: 0.272 (positive)
+  melodic_leap_ratio: 0.269 (positive)
+  dissonance_ratio: 0.269 (positive)
+  chord_quality_other_pct: -0.264 (negative)
+
+Feature contributions for PC2:
+  avg_note_duration: 0.375 (positive)
+  downbeat_emphasis_ratio: 0.361 (positive)
+  micro_rhythmic_density: -0.350 (negative)
+  notes_per_beat: -0.305 (negative)
+  std_note_duration: 0.253 (positive)
+  other_dissonance_ratio: -0.248 (negative)
+
+Feature contributions for PC3:
+  oblique_motion_ratio: 0.382 (positive)
+  parallel_motion_ratio: -0.317 (negative)
+  cross_rhythm_ratio: 0.305 (positive)
+  rhythmic_pattern_entropy: 0.276 (positive)
+  pitch_range_semitones: 0.249 (positive)
+  dissonance_ratio: 0.248 (positive)
+

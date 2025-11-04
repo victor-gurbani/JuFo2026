@@ -190,6 +190,8 @@ def _plot_composer_clouds(df: pd.DataFrame, coords: np.ndarray, output_path: Pat
                 opacity=0.35,
                 caps=dict(x_show=False, y_show=False, z_show=False),
                 showscale=False,
+                lighting=dict(ambient=0.45, diffuse=0.6, specular=0.25, roughness=0.4, fresnel=0.1),
+                lightposition=dict(x=80, y=100, z=60),
                 name=str(composer),
                 hovertemplate=f"Composer: {composer}<extra></extra>",
             )
