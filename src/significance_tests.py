@@ -15,6 +15,11 @@ try:  # statsmodels is optional but preferred for Tukey HSD
 except Exception:  # pragma: no cover - narrow environments may omit statsmodels
     pairwise_tukeyhsd = None  # type: ignore
 
+try:  # statsmodels also provides convenient FDR correction utilities
+    from statsmodels.stats.multitest import fdrcorrection  # type: ignore
+except Exception:  # pragma: no cover
+    fdrcorrection = None  # type: ignore
+
 DEFAULT_HARMONIC_FEATURES = Path("data/features/harmonic_features.csv")
 DEFAULT_MELODIC_FEATURES = Path("data/features/melodic_features.csv")
 DEFAULT_RHYTHMIC_FEATURES = Path("data/features/rhythmic_features.csv")
@@ -168,14 +173,48 @@ def _tukey_for_feature(df: pd.DataFrame, feature: str, source: str, alpha: float
     return None
 
 
-def run_significance_tests(feature_paths: Dict[str, Path], alpha: float) -> tuple[pd.DataFrame, pd.DataFrame]:
+def _bh_fdr(p_values: np.ndarray, alpha: float) -> Tuple[np.ndarray, np.ndarray]:
+    """Benjamini-Hochberg FDR correction with statsmodels fallback."""
+
+    if fdrcorrection is not None:
+        reject, pvals_corr = fdrcorrection(p_values, alpha=alpha)
+        return reject, pvals_corr
+
+    m = p_values.size
+    if m == 0:
+        return np.array([], dtype=bool), np.array([], dtype=float)
+
+    order = np.argsort(p_values)
+    ranked = np.empty_like(p_values, dtype=float)
+    cumulative = (np.arange(1, m + 1) / m) * alpha
+    ranked_vals = p_values[order]
+    below = ranked_vals <= cumulative
+    reject = np.zeros(m, dtype=bool)
+    if below.any():
+        max_idx = np.where(below)[0].max()
+        reject[order[: max_idx + 1]] = True
+
+    adjusted = np.empty_like(p_values, dtype=float)
+    prev = 1.0
+    for idx in reversed(range(m)):
+        rank = idx + 1
+        value = min(prev, (p_values[order[idx]] * m) / rank)
+        prev = value
+        adjusted[order[idx]] = value
+
+    return reject, np.clip(adjusted, 0.0, 1.0)
+
+
+def run_significance_tests(feature_paths: Dict[str, Path], alpha: float, run_tukey: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
     anova_records: List[Dict[str, object]] = []
     tukey_frames: List[pd.DataFrame] = []
+    dataframes: Dict[str, pd.DataFrame] = {}
 
     for source, path in feature_paths.items():
         if path is None:
             continue
         df = _load_features(path)
+        dataframes[source] = df
         columns = _numeric_feature_columns(df)
         for column in columns:
             if column in {"composer_label"}:
@@ -184,14 +223,36 @@ def run_significance_tests(feature_paths: Dict[str, Path], alpha: float) -> tupl
             if result is None:
                 continue
             anova_records.append(result.to_dict())
-            if result.significant:
-                tukey_df = _tukey_for_feature(df, column, source, alpha)
-                if tukey_df is not None:
-                    tukey_frames.append(tukey_df)
 
     anova_df = pd.DataFrame(anova_records)
     if not anova_df.empty:
         anova_df = anova_df.sort_values("p_value", ascending=True)
+
+        anova_df["alpha_threshold"] = alpha
+        anova_df["significant_alpha"] = anova_df["p_value"] <= alpha
+        anova_df["significant"] = anova_df["significant_alpha"]
+
+        num_tests = max(len(anova_df), 1)
+        bonf_threshold = alpha / num_tests
+        anova_df["bonferroni_threshold"] = bonf_threshold
+        anova_df["p_value_bonferroni"] = np.clip(anova_df["p_value"] * num_tests, 0.0, 1.0)
+        anova_df["significant_bonferroni"] = anova_df["p_value"] <= bonf_threshold
+
+        reject_fdr, pvals_fdr = _bh_fdr(anova_df["p_value"].to_numpy(dtype=float), alpha=alpha)
+        anova_df["p_value_fdr"] = pvals_fdr
+        anova_df["significant_fdr"] = reject_fdr
+
+        if run_tukey:
+            mask = anova_df["significant_bonferroni"] | anova_df["significant_fdr"]
+            selected = anova_df.loc[mask, ["feature", "source"]]
+            for feature, source in selected.itertuples(index=False):
+                df = dataframes.get(source)
+                if df is None:
+                    continue
+                tukey_df = _tukey_for_feature(df, feature, source, alpha)
+                if tukey_df is not None:
+                    tukey_frames.append(tukey_df)
+
     tukey_df = pd.concat(tukey_frames, ignore_index=True) if tukey_frames else pd.DataFrame()
     return anova_df, tukey_df
 
@@ -235,13 +296,33 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "rhythmic": args.rhythmic_csv,
     }
 
-    anova_df, tukey_df = run_significance_tests(feature_paths, alpha=ALPHA if not args.no_tukey else 0.0)
+    anova_df, tukey_df = run_significance_tests(feature_paths, alpha=ALPHA, run_tukey=not args.no_tukey)
     write_results(anova_df, tukey_df if not args.no_tukey else pd.DataFrame(), args.anova_output, args.tukey_output)
 
     if anova_df.empty:
         print("[warn] No ANOVA results were produced. Check group sizes and feature coverage.")
     else:
-        print(anova_df.head(20).to_string(index=False))
+        preview_cols = [
+            "feature",
+            "source",
+            "f_statistic",
+            "p_value",
+            "significant_alpha",
+            "p_value_bonferroni",
+            "significant_bonferroni",
+            "p_value_fdr",
+            "significant_fdr",
+        ]
+        display_df = anova_df[preview_cols].head(20)
+        print(display_df.to_string(index=False))
+        total_tests = len(anova_df)
+        alpha_hits = int(anova_df["significant_alpha"].sum())
+        bonf_hits = int(anova_df["significant_bonferroni"].sum())
+        fdr_hits = int(anova_df["significant_fdr"].sum())
+        bonf_threshold = float(anova_df["bonferroni_threshold"].iloc[0]) if "bonferroni_threshold" in anova_df.columns else args.alpha
+        print(f"[info] Raw α={args.alpha:.3g}: {alpha_hits}/{total_tests} significant")
+        print(f"[info] Bonferroni threshold α/{total_tests}≈{bonf_threshold:.3g}: {bonf_hits}/{total_tests} significant")
+        print(f"[info] Benjamini–Hochberg FDR q<{args.alpha:.3g}: {fdr_hits}/{total_tests} significant")
         print(f"Saved ANOVA summary to {args.anova_output}")
 
     if not args.no_tukey:
