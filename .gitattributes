@@ -1,8 +1,41 @@
+# === General Line Ending Rules ===
+# Set default behavior
+* text=auto eol=lf
+
+# Enforce LF for source code
+*.py    text eol=lf
+*.rs    text eol=lf
+*.sh    text eol=lf
+*.md    text eol=lf
+
+# === Language Statistics (Linguist) ===
+# Mark generated files so they don't skew stats
 figures/**/*.html linguist-generated=true
+figures/**/*.svg  linguist-generated=true
+
+# === Diff & Merge Drivers ===
+# Use nbdime for clean Jupyter diffs
+*.ipynb diff=nbdime
+
+# Treat Cargo.lock as binary on merge to avoid conflicts
+Cargo.lock merge=binary
+
+# === Git LFS (Large File Storage) ===
+# Track large data and figure files with LFS
+# Note: You must run `git lfs track "..."` to generate these
+data/curated/*.csv           filter=lfs diff=lfs merge=lfs -text
+data/curated/*.txt           filter=lfs diff=lfs merge=lfs -text
+data/features/*.csv        filter=lfs diff=lfs merge=lfs -text
+data/stats/*.csv           filter=lfs diff=lfs merge=lfs -text
+data/parsed/*.json         filter=lfs diff=lfs merge=lfs -text
+figures/annotated/*.mxl      filter=lfs diff=lfs merge=lfs -text
+figures/**/*.png             filter=lfs diff=lfs merge=lfs -text
+
+# === Binary Files ===
+# Mark all other binary files.
+# LFS files are already marked as -text (binary), but this is a good fallback.
 figures/**/*.html binary
-* text=auto
-*.py eol=lf 
-*.rs eol=lf 
-*.sh eol=lf
-*.png binary 
-*.jpg binary
+*.jpg             binary
+*.pdf             binary
+*.zip             binary
+
