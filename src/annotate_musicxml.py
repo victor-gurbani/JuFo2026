@@ -6,7 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 import shlex
 import subprocess
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 from music21 import chord as m21_chord
 from music21 import expressions
@@ -28,6 +28,7 @@ DISSONANT_COLORS = {
 CHROMATIC_CHORD_COLOR = "#00CED1"
 CHROMATIC_LYRIC = "chromatic-chord"
 OFFSET_ROUND_DIGITS = 6
+COLOR_CATEGORY_CHOICES = tuple(sorted({*DISSONANT_COLORS.keys(), "chromatic_chord"}))
 
 
 def _classify_melodic_dissonances(score: stream.Score, chord_index) -> List[Tuple[m21_note.Note, str]]:
@@ -204,7 +205,11 @@ def annotate_score(
     output_path: Path,
     renderer_template: Optional[str] = None,
     render_format: str = "pdf",
+    *,
+    hide_dissonant_label: bool = False,
+    hidden_color_categories: Optional[Set[str]] = None,
 ) -> None:
+    hidden_colors = {str(item) for item in hidden_color_categories} if hidden_color_categories else set()
     score = parse_score(mxl_path)
     chordified = hf.chordify_score(score)
     chords = hf.extract_chords(chordified)
@@ -259,26 +264,35 @@ def annotate_score(
             note_id = id(element)
             if note_id in melodic_map:
                 label = melodic_map[note_id]
-                _color_element(element, DISSONANT_COLORS[label])
+                if label in DISSONANT_COLORS and label not in hidden_colors:
+                    _color_element(element, DISSONANT_COLORS[label])
                 element.addLyric(label)
                 continue
             if dissonant:
-                _color_element(element, DISSONANT_COLORS["dissonant_chord"])
-                element.addLyric("dissonant-chord")
+                if "dissonant_chord" not in hidden_colors:
+                    _color_element(element, DISSONANT_COLORS["dissonant_chord"])
+                if not hide_dissonant_label:
+                    element.addLyric("dissonant-chord")
         elif isinstance(element, m21_chord.Chord):
             if dissonant:
-                _color_element(element, DISSONANT_COLORS["dissonant_chord"])
+                if "dissonant_chord" not in hidden_colors:
+                    _color_element(element, DISSONANT_COLORS["dissonant_chord"])
                 for component in element.notes:
-                    _color_element(component, DISSONANT_COLORS["dissonant_chord"])
-                    component.addLyric("dissonant-chord")
+                    if "dissonant_chord" not in hidden_colors:
+                        _color_element(component, DISSONANT_COLORS["dissonant_chord"])
+                    if not hide_dissonant_label:
+                        component.addLyric("dissonant-chord")
 
+    apply_chromatic_color = "chromatic_chord" not in hidden_colors
     for offset in interesting_offsets:
         for element in elements_by_offset.get(offset, []):
-            _color_element(element, CHROMATIC_CHORD_COLOR, force=False)
+            if apply_chromatic_color:
+                _color_element(element, CHROMATIC_CHORD_COLOR, force=False)
             _add_unique_lyric(element, CHROMATIC_LYRIC)
             if isinstance(element, m21_chord.Chord):
                 for component in element.notes:
-                    _color_element(component, CHROMATIC_CHORD_COLOR, force=False)
+                    if apply_chromatic_color:
+                        _color_element(component, CHROMATIC_CHORD_COLOR, force=False)
                     _add_unique_lyric(component, CHROMATIC_LYRIC)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -326,16 +340,36 @@ def parse_arguments() -> argparse.Namespace:
         choices=["pdf", "png"],
         help="Output format when --renderer is supplied (default: pdf).",
     )
+    parser.add_argument(
+        "--hide-dissonant-label",
+        action="store_true",
+        help="Do not add the 'dissonant-chord' lyric tag to notes or chords.",
+    )
+    parser.add_argument(
+        "--hide-color",
+        action="append",
+        dest="hidden_colors",
+        choices=COLOR_CATEGORY_CHOICES,
+        metavar="CATEGORY",
+        help=(
+            "Skip coloring for the given category. Available categories: "
+            + ", ".join(COLOR_CATEGORY_CHOICES)
+            + ". May be passed multiple times."
+        ),
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_arguments()
+    hidden_colors = set(args.hidden_colors or [])
     annotate_score(
         args.mxl,
         args.output,
         renderer_template=args.renderer_template,
         render_format=args.render_format,
+        hide_dissonant_label=args.hide_dissonant_label,
+        hidden_color_categories=hidden_colors or None,
     )
     print(f"Annotated score written to {args.output}")
     return 0
