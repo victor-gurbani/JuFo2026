@@ -3,6 +3,8 @@ test*.csv
 test*.txt
 tmp*.csv
 tmp*.txt
+tmp*.xml
+tmp*.mxl
 data/curated/solo_piano_*
 !data/curated/solo_piano_corpus.csv
 !data/curated/solo_piano_mxl_paths.txt

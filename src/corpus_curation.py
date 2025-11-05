@@ -74,6 +74,11 @@ def normalize_text(value: str) -> str:
     return text
 
 
+HARDCODED_TITLE_EXCLUSIONS = {
+    normalize_text("Clair de Lune beginner version"),
+}
+
+
 def is_arrangement(text: str) -> bool:
     tokens = [tok for tok in re.split(r"[^a-z0-9]+", text.lower()) if tok]
     return any(tok in ARRANGEMENT_KEYWORDS for tok in tokens)
@@ -191,6 +196,14 @@ def curate_corpus(
     accepted_rows: List[dict] = []
 
     for _, row in filtered.iterrows():
+        title_value = row.get("title") or row.get("song_name")
+        if isinstance(title_value, str):
+            normalized_title = normalize_text(title_value)
+            if normalized_title in HARDCODED_TITLE_EXCLUSIONS:
+                continue
+        else:
+            normalized_title = ""
+
         composer_label = resolve_composer(row.get("composer_name"))
         if composer_label is None:
             continue
@@ -213,7 +226,7 @@ def curate_corpus(
             {
                 "composer_label": composer_label,
                 "composer_name": row.get("composer_name"),
-                "title": row.get("title") or row.get("song_name"),
+                "title": title_value,
                 "rating": row.get("rating"),
                 "n_ratings": row.get("n_ratings"),
                 "mxl_rel_path": str(Path(dataset_root.name) / mxl_path.lstrip("./")),
