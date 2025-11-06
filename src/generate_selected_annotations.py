@@ -8,7 +8,7 @@ from typing import Iterable, List
 
 import pandas as pd
 
-from annotate_musicxml import annotate_score
+from annotate_musicxml import COLOR_CATEGORY_CHOICES, annotate_score
 
 DEFAULT_CORPUS = Path("data/curated/solo_piano_corpus.csv")
 
@@ -98,9 +98,12 @@ def generate_annotations(
     selections: Iterable[Selection],
     renderer_template: str | None,
     render_format: str,
+    hide_dissonant_label: bool = True,
+    hidden_color_categories: Iterable[str] | None = None,
 ) -> List[Path]:
     df = pd.read_csv(corpus_csv)
     outputs: List[Path] = []
+    hidden_colors = set(hidden_color_categories or [])
     for selection in selections:
         mxl_path = _find_score_path(df, selection)
         output_path = selection.output_path
@@ -109,6 +112,8 @@ def generate_annotations(
             output_path,
             renderer_template=renderer_template,
             render_format=render_format,
+            hide_dissonant_label=hide_dissonant_label,
+            hidden_color_categories=hidden_colors,
         )
         outputs.append(output_path)
         print(f"Annotated {selection.label} -> {output_path}")
@@ -139,16 +144,33 @@ def parse_args() -> argparse.Namespace:
         choices=["pdf", "png"],
         help="Output format when --renderer-template is supplied (default: pdf).",
     )
+    parser.add_argument(
+        "--show-dissonant-label",
+        action="store_true",
+        help="Include the 'dissonant-chord' lyric tag (hidden by default).",
+    )
+    parser.add_argument(
+        "--hide-color",
+        action="append",
+        dest="hidden_colors",
+        metavar="CATEGORY",
+        choices=COLOR_CATEGORY_CHOICES,
+        help="Skip coloring for the given category. May be passed multiple times.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    hide_dissonant_label = not args.show_dissonant_label
+    hidden_colors = args.hidden_colors or []
     outputs = generate_annotations(
         args.corpus,
         SELECTIONS,
         renderer_template=args.renderer_template,
         render_format=args.render_format,
+        hide_dissonant_label=hide_dissonant_label,
+        hidden_color_categories=hidden_colors,
     )
     print(f"Generated {len(outputs)} annotated scores.")
     return 0

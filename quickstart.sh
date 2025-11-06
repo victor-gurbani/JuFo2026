@@ -126,10 +126,13 @@ python3 src/significance_tests.py \
   --anova-output data/stats/anova_summary.csv \
   --tukey-output data/stats/tukey_hsd.csv
 
-echo "[7/8] Generating Significance Visualizations..."
+echo "[7/9] Generating Significance Visualizations..."
 python3 src/significance_visualizations.py --top-n 15
 
-echo "[8/8] Aggregating Final Metrics..."
+echo "[8/9] Generating Selected Annotations..."
+python3 src/generate_selected_annotations.py
+
+echo "[9/9] Aggregating Final Metrics..."
 python3 src/aggregate_metrics.py
 
 echo "--- Pipeline Complete ---"
