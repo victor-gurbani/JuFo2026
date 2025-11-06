@@ -208,8 +208,13 @@ def annotate_score(
     *,
     hide_dissonant_label: bool = False,
     hidden_color_categories: Optional[Set[str]] = None,
+    include_lyrics: bool = False,
+    hidden_lyric_categories: Optional[Set[str]] = None,
 ) -> None:
     hidden_colors = {str(item) for item in hidden_color_categories} if hidden_color_categories else set()
+    hidden_lyrics = {str(item) for item in hidden_lyric_categories} if hidden_lyric_categories else set()
+    if hide_dissonant_label:
+        hidden_lyrics.add("dissonant_chord")
     score = parse_score(mxl_path)
     chordified = hf.chordify_score(score)
     chords = hf.extract_chords(chordified)
@@ -266,12 +271,13 @@ def annotate_score(
                 label = melodic_map[note_id]
                 if label in DISSONANT_COLORS and label not in hidden_colors:
                     _color_element(element, DISSONANT_COLORS[label])
-                element.addLyric(label)
+                if include_lyrics and label not in hidden_lyrics:
+                    element.addLyric(label)
                 continue
             if dissonant:
                 if "dissonant_chord" not in hidden_colors:
                     _color_element(element, DISSONANT_COLORS["dissonant_chord"])
-                if not hide_dissonant_label:
+                if include_lyrics and "dissonant_chord" not in hidden_lyrics:
                     element.addLyric("dissonant-chord")
         elif isinstance(element, m21_chord.Chord):
             if dissonant:
@@ -280,7 +286,7 @@ def annotate_score(
                 for component in element.notes:
                     if "dissonant_chord" not in hidden_colors:
                         _color_element(component, DISSONANT_COLORS["dissonant_chord"])
-                    if not hide_dissonant_label:
+                    if include_lyrics and "dissonant_chord" not in hidden_lyrics:
                         component.addLyric("dissonant-chord")
 
     apply_chromatic_color = "chromatic_chord" not in hidden_colors
@@ -288,12 +294,14 @@ def annotate_score(
         for element in elements_by_offset.get(offset, []):
             if apply_chromatic_color:
                 _color_element(element, CHROMATIC_CHORD_COLOR, force=False)
-            _add_unique_lyric(element, CHROMATIC_LYRIC)
+            if include_lyrics and "chromatic_chord" not in hidden_lyrics:
+                _add_unique_lyric(element, CHROMATIC_LYRIC)
             if isinstance(element, m21_chord.Chord):
                 for component in element.notes:
                     if apply_chromatic_color:
                         _color_element(component, CHROMATIC_CHORD_COLOR, force=False)
-                    _add_unique_lyric(component, CHROMATIC_LYRIC)
+                    if include_lyrics and "chromatic_chord" not in hidden_lyrics:
+                        _add_unique_lyric(component, CHROMATIC_LYRIC)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     score.write("musicxml", fp=str(output_path), makeNotation=False)
@@ -346,6 +354,11 @@ def parse_arguments() -> argparse.Namespace:
         help="Do not add the 'dissonant-chord' lyric tag to notes or chords.",
     )
     parser.add_argument(
+        "--include-lyrics",
+        action="store_true",
+        help="Attach lyric labels (e.g., passing_tone, chromatic-chord) to annotated elements.",
+    )
+    parser.add_argument(
         "--hide-color",
         action="append",
         dest="hidden_colors",
@@ -357,12 +370,25 @@ def parse_arguments() -> argparse.Namespace:
             + ". May be passed multiple times."
         ),
     )
+    parser.add_argument(
+        "--hide-lyric",
+        action="append",
+        dest="hidden_lyrics",
+        choices=COLOR_CATEGORY_CHOICES,
+        metavar="CATEGORY",
+        help=(
+            "Skip lyric labels for the given category (independent of coloring). Available categories: "
+            + ", ".join(COLOR_CATEGORY_CHOICES)
+            + ". May be passed multiple times."
+        ),
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_arguments()
     hidden_colors = set(args.hidden_colors or [])
+    hidden_lyrics = set(args.hidden_lyrics or [])
     annotate_score(
         args.mxl,
         args.output,
@@ -370,6 +396,8 @@ def main() -> int:
         render_format=args.render_format,
         hide_dissonant_label=args.hide_dissonant_label,
         hidden_color_categories=hidden_colors or None,
+        include_lyrics=args.include_lyrics,
+        hidden_lyric_categories=hidden_lyrics or None,
     )
     print(f"Annotated score written to {args.output}")
     return 0

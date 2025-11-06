@@ -100,10 +100,13 @@ def generate_annotations(
     render_format: str,
     hide_dissonant_label: bool = True,
     hidden_color_categories: Iterable[str] | None = None,
+    include_lyrics: bool = False,
+    hidden_lyric_categories: Iterable[str] | None = None,
 ) -> List[Path]:
     df = pd.read_csv(corpus_csv)
     outputs: List[Path] = []
     hidden_colors = set(hidden_color_categories or [])
+    hidden_lyrics = set(hidden_lyric_categories or [])
     for selection in selections:
         mxl_path = _find_score_path(df, selection)
         output_path = selection.output_path
@@ -114,6 +117,8 @@ def generate_annotations(
             render_format=render_format,
             hide_dissonant_label=hide_dissonant_label,
             hidden_color_categories=hidden_colors,
+            include_lyrics=include_lyrics,
+            hidden_lyric_categories=hidden_lyrics,
         )
         outputs.append(output_path)
         print(f"Annotated {selection.label} -> {output_path}")
@@ -147,7 +152,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--show-dissonant-label",
         action="store_true",
-        help="Include the 'dissonant-chord' lyric tag (hidden by default).",
+        help="Include the 'dissonant-chord' lyric tag when lyrics are enabled.",
+    )
+    parser.add_argument(
+        "--include-lyrics",
+        action="store_true",
+        help="Attach lyric labels (e.g., passing_tone, chromatic-chord) to annotated elements.",
     )
     parser.add_argument(
         "--hide-color",
@@ -157,13 +167,23 @@ def parse_args() -> argparse.Namespace:
         choices=COLOR_CATEGORY_CHOICES,
         help="Skip coloring for the given category. May be passed multiple times.",
     )
+    parser.add_argument(
+        "--hide-lyric",
+        action="append",
+        dest="hidden_lyrics",
+        metavar="CATEGORY",
+        choices=COLOR_CATEGORY_CHOICES,
+        help="Skip lyric labels for the given category (independent of coloring). May be passed multiple times.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    include_lyrics = args.include_lyrics
     hide_dissonant_label = not args.show_dissonant_label
     hidden_colors = args.hidden_colors or []
+    hidden_lyrics = args.hidden_lyrics or []
     outputs = generate_annotations(
         args.corpus,
         SELECTIONS,
@@ -171,6 +191,8 @@ def main() -> int:
         render_format=args.render_format,
         hide_dissonant_label=hide_dissonant_label,
         hidden_color_categories=hidden_colors,
+        include_lyrics=include_lyrics,
+        hidden_lyric_categories=hidden_lyrics,
     )
     print(f"Generated {len(outputs)} annotated scores.")
     return 0
