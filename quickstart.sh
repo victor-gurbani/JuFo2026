@@ -106,33 +106,50 @@ echo "Dependencies installed."
 # 4. Run the analysis pipeline
 echo "--- Starting Analysis Pipeline ---"
 
-echo "[1/8] Running Corpus Curation..."
+echo "[1/10] Running Corpus Curation..."
 python3 src/corpus_curation.py --min-rating 0
 
-echo "[2/8] Running Score Parser..."
+echo "[2/10] Running Score Parser..."
 python3 src/score_parser.py --output data/parsed/summaries.json
 
-echo "[3/8] Extracting Harmonic Features..."
+echo "[3/10] Extracting Harmonic Features..."
 python3 src/harmonic_features.py --output-csv data/features/harmonic_features.csv
 
-echo "[4/8] Extracting Melodic Features..."
+echo "[4/10] Extracting Melodic Features..."
 python3 src/melodic_features.py --output-csv data/features/melodic_features.csv
 
-echo "[5/8] Extracting Rhythmic Features..."
+echo "[5/10] Extracting Rhythmic Features..."
 python3 src/rhythmic_features.py --output-csv data/features/rhythmic_features.csv
 
-echo "[6/8] Running Significance Tests..."
+echo "[6/10] Generating Feature Embeddings (PCA & t-SNE)..."
+python3 src/feature_embedding.py \
+    --method pca \
+    --output figures/embeddings/pca_3d.html \
+    --output-2d figures/embeddings/pca_2d.html \
+    --loadings-csv data/stats/pca_loadings.csv \
+    --clouds-output figures/embeddings/pca_clouds_3d.html \
+    --clouds-output-2d figures/embeddings/pca_clouds_2d.html
+
+python3 src/feature_embedding.py \
+    --method tsne \
+    --perplexity 20 --tsne-composer-weight 4.0 \
+    --output figures/embeddings/tsne_3d.html \
+    --output-2d figures/embeddings/tsne_2d.html \
+    --clouds-output figures/embeddings/tsne_clouds_3d.html \
+    --clouds-output-2d figures/embeddings/tsne_clouds_2d.html
+
+echo "[7/10] Running Significance Tests..."
 python3 src/significance_tests.py \
   --anova-output data/stats/anova_summary.csv \
   --tukey-output data/stats/tukey_hsd.csv
 
-echo "[7/9] Generating Significance Visualizations..."
+echo "[8/10] Generating Significance Visualizations..."
 python3 src/significance_visualizations.py --top-n 15
 
-echo "[8/9] Generating Selected Annotations..."
+echo "[9/10] Generating Selected Annotations..."
 python3 src/generate_selected_annotations.py
 
-echo "[9/9] Aggregating Final Metrics..."
+echo "[10/10] Aggregating Final Metrics..."
 python3 src/aggregate_metrics.py
 
 echo "--- Pipeline Complete ---"

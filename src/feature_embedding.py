@@ -63,13 +63,29 @@ def _prepare_feature_matrix(df: pd.DataFrame) -> tuple[np.ndarray, List[str], St
     return matrix, numeric_cols, scaler
 
 
-def _compute_projection(matrix: np.ndarray, method: str, seed: int, perplexity: float) -> tuple[np.ndarray, Optional[PCA]]:
+def _compute_projection(
+    matrix: np.ndarray,
+    method: str,
+    seed: int,
+    perplexity: float,
+    early_exaggeration: float,
+    learning_rate: float,
+    metric: str,
+) -> tuple[np.ndarray, Optional[PCA]]:
     if method == "pca":
         model = PCA(n_components=3, random_state=seed)
         coords = model.fit_transform(matrix)
         return coords, model
     if method == "tsne":
-        model = TSNE(n_components=3, init="pca", random_state=seed, perplexity=perplexity)
+        model = TSNE(
+            n_components=3,
+            init="pca",
+            random_state=seed,
+            perplexity=perplexity,
+            early_exaggeration=early_exaggeration,
+            learning_rate=learning_rate,
+            metric=metric,
+        )
         coords = model.fit_transform(matrix)
         return coords, None
     raise ValueError(f"Unsupported projection method: {method}")
@@ -284,6 +300,33 @@ def parse_arguments() -> argparse.Namespace:
         default=30.0,
         help="t-SNE perplexity (only used when --method tsne).",
     )
+    parser.add_argument(
+        "--tsne-early-exaggeration",
+        type=float,
+        default=12.0,
+        help="t-SNE early exaggeration (only used when --method tsne).",
+    )
+    parser.add_argument(
+        "--tsne-learning-rate",
+        type=float,
+        default=200.0,
+        help="t-SNE learning rate (only used when --method tsne).",
+    )
+    parser.add_argument(
+        "--tsne-metric",
+        type=str,
+        default="euclidean",
+        help="Distance metric for t-SNE (only used when --method tsne).",
+    )
+    parser.add_argument(
+        "--tsne-composer-weight",
+        type=float,
+        default=0.0,
+        help=(
+            "Additional weight applied to composer one-hot indicators before t-SNE. "
+            "Values >0 encourage pieces from the same composer to cluster together."
+        ),
+    )
     parser.add_argument("--seed", type=int, default=42, help="Random seed for projection algorithms.")
     parser.add_argument(
         "--output",
@@ -330,7 +373,29 @@ def main() -> int:
 
     combined = _merge_feature_tables(harmonic, melodic, rhythmic)
     matrix, feature_cols, scaler = _prepare_feature_matrix(combined)
-    coords, pca_model = _compute_projection(matrix, args.method, args.seed, args.perplexity)
+    tsne_matrix = matrix
+    if args.method == "tsne" and args.tsne_composer_weight > 0.0:
+        composer_dummies = pd.get_dummies(combined["composer_label"], dtype=float)
+        composer_dummies -= composer_dummies.mean(axis=0)
+        tsne_matrix = np.hstack(
+            [
+                matrix,
+                composer_dummies.values * args.tsne_composer_weight,
+            ]
+        )
+    coords, pca_model = _compute_projection(
+        tsne_matrix,
+        args.method,
+        args.seed,
+        args.perplexity,
+        args.tsne_early_exaggeration,
+        args.tsne_learning_rate,
+        args.tsne_metric,
+    )
+    if args.method == "tsne" and args.tsne_composer_weight > 0.0:
+        print(
+            f"Applied composer weight {args.tsne_composer_weight:.2f} to t-SNE input to encourage per-composer clustering."
+        )
     _plot_embedding(combined, coords, args.output)
 
     if args.output_2d is not None:
