@@ -45,8 +45,27 @@ COMPOSER_RULES: Dict[str, ComposerRule] = {
         label="Debussy",
         required=("debussy",),
         any_groups=(("claude", "achille"),),
+        exclude=("emma", "manuel", "emile", "paul"),
     ),
 }
+
+DEBUSSY_ALLOWED_PREFIXES = {"claude", "achille", "c", "cl", "craude", "calude"}
+
+
+def matches_debussy_alias(tokens: Sequence[str]) -> bool:
+    if not tokens:
+        return False
+    if tokens == ["debussy"]:
+        return True
+    if "debussy" not in tokens:
+        return False
+    index = tokens.index("debussy")
+    if index == 0:
+        return len(tokens) > 1 and tokens[1] in DEBUSSY_ALLOWED_PREFIXES
+    first = tokens[0]
+    if first in DEBUSSY_ALLOWED_PREFIXES and index <= 2:
+        return True
+    return False
 
 ARRANGEMENT_KEYWORDS = {
     "arr",
@@ -92,12 +111,17 @@ def resolve_composer(raw_name: Optional[str]) -> Optional[str]:
     if is_arrangement(raw_name):
         return None
     normalized = normalize_text(raw_name)
+    tokens = normalized.split()
     for key, rule in COMPOSER_RULES.items():
         if not all(token in normalized for token in rule.required):
             continue
-        if rule.any_groups and not all(any(option in normalized for option in group) for group in rule.any_groups):
-            continue
-        if any(token in normalized for token in rule.exclude):
+        if rule.any_groups:
+            any_group_match = all(any(option in normalized for option in group) for group in rule.any_groups)
+            if not any_group_match and key == "debussy" and matches_debussy_alias(tokens):
+                any_group_match = True
+            if not any_group_match:
+                continue
+        if rule.exclude and any(token in normalized for token in rule.exclude):
             continue
         return rule.label
     return None
