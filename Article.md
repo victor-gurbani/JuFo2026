@@ -7,7 +7,7 @@ The goal of Phase 1 Step 1 was to curate a balanced set of solo piano scores for
 
 ## Project Scale Highlights
 - Started from a catalog of 254,077 PDMX scores and tightened it to a license-safe, solo piano cohort.
-- Retained 124 balanced works (31 per composer) spanning 18,925 measures and ~63.6k quarter notes, roughly 11.8 listening hours at a moderate 90 BPM assumption.
+- Retained 144 balanced works (36 per composer) spanning roughly 22k measures and 73k quarter-note durations—about 13.5 listening hours at 90 BPM—after expanding the Debussy resolver to accept typo and initial variants that we manually rechecked score-by-score.
 - Parsed structural summaries showing an average of 153 measures and 2.1 parts per score, ensuring downstream features reflect comparable texture.
 - Engineered 36 descriptive metrics split across harmonic (16), melodic (11), and rhythmic (9) families before feeding them into the statistics stack.
 - Ran 36 omnibus ANOVAs and 162 Tukey HSD contrasts; raw α=0.05 initially flagged 27 metrics and 56 composer pairings, but because running that many tests after our earlier feature engineering inflates false-positive odds we layered in Bonferroni (α/36≈0.0014) and Benjamini–Hochberg FDR (q<0.05) safeguards, leaving 11 and 26 features respectively while keeping those 56 contrasts credible.
@@ -54,19 +54,20 @@ Sample command with all safety filters active and the default balancing:
 ```
 python3 src/corpus_curation.py --min-rating 0
 ```
-This creates `data/curated/solo_piano_corpus.csv` with 31 works per composer (124 total) and `data/curated/solo_piano_mxl_paths.txt` listing absolute paths.
+This creates `data/curated/solo_piano_corpus.csv` with 36 works per composer (144 total) now that `resolve_composer` tolerates Debussy initials/typos we manually inspected, and it writes `data/curated/solo_piano_mxl_paths.txt` listing absolute paths.
 
 Alternate command keeping all filters but disabling balancing:
 ```
 python3 src/corpus_curation.py --min-rating 0 --max-per-composer 999 --output-csv data/curated/solo_piano_corpus_unbalanced.csv --output-paths data/curated/solo_piano_mxl_paths_unbalanced.txt
 ```
-This produced 181 works spread unevenly: Bach 48, Mozart 39, Chopin 63, Debussy 31.
+This variant now yields 186 works and remains uneven: Bach 48, Mozart 39, Chopin 63, Debussy 36.
 
 ## Challenges and Decisions
 1. **Composer normalization**: Raw metadata mixes variants (e.g., “Mozart, W. A.”, “Wolfgang Amadeus Mozart”). We introduced `ComposerRule` with required tokens and exclusion lists to filter out individuals like Leopold or Franz Xaver Mozart.
 2. **Arrangements and ensembles**: Many metadata entries include “arr.” or “transcription”. We built a keyword detector (`is_arrangement`) to reject such cases. Additional instrumentation checks ensure no choir/ensemble terms slip through.
 3. **Sparse instrumentation metadata**: Some JSON metadata lacks instrument lists but includes descriptive text. `is_solo_piano` now accepts valid evidence from instruments, instrumentation tags, or instrumentation text while dropping obvious ensemble clues.
 4. **Quality filters vs. coverage**: Relying solely on `rating >= 4` and `is_original` left too few scores. Pivoting to dataset-provided subset flags (`subset:no_license_conflict`, `subset:rated_deduplicated`, `is_best_unique_arrangement`) yielded a sizeable, reliable corpus.
+5. **Composer alias cleanup**: A revisit of Debussy-labelled rows showed 14 high-quality solo-piano scores rejected only because of misspellings or initial-only credits (e.g., `C.Debussy`, `Calude Debussy`). Expanding the Debussy rule to accept those aliases—and keeping arrangement/co-composer exclusions—raised each composer’s quota to 36 without introducing ensembles.
 
 ## Diagnostics and Tests
 - Verified CLI help loads without errors:
@@ -106,7 +107,7 @@ PY
 ```
 
 ## Key Findings
-- **Balanced filtered corpus** (`--min-rating 0` with default filters): 31 pieces per composer (124 total), mean rating 4.85, no duplicate titles, zero missing instrument info. Ready for downstream feature extraction and comparative analysis.
+- **Balanced filtered corpus** (`--min-rating 0` with default filters): 36 pieces per composer (144 total) thanks to the relaxed Debussy alias matching; all 14 newly admitted scores were manually checked for solo-piano instrumentation, and the set still averages 4.84 stars with no duplicate titles or missing metadata.
 - **Unbalanced filtered corpus** (`--min-rating 0 --max-per-composer 999`): 181 pieces, uneven distribution (Chopin-heavy, Debussy-light), mean rating 4.79, already contains duplicate titles. Requires manual normalization before any fair comparison.
 
 ## Parsing & Summaries (Step 2)
@@ -290,6 +291,7 @@ Parsing (Step 2) now delivers structured summaries for every curated score, st
 - **Axis interpretation** – Composer centroids land at roughly Mozart (−2.05, 0.82, −0.45), Bach (−0.27, −1.06, −0.91), Chopin (0.41, −0.02, 0.47), and Debussy (1.92, 0.26, 0.90) in (PC1, PC2, PC3) space. PC1 is dominated by harmonic density, leap ratio, diminished/“other” chord share, and dissonance usage: Debussy races toward +PC1 because of chromatic harmonies and saturated sonorities, Mozart anchors the negative side with diatonic clarity, Bach stays near the origin thanks to dense harmony offset by contrapuntal consonance, and Chopin falls between eras. PC2 contrasts average duration and downbeat emphasis (positive loadings) with notes-per-beat and micro-density (negative). Mozart’s long phrases and metric regularity push him upward, Bach’s relentless note stream drives him downward, and Chopin/Debussy hover near zero because they blend long singing lines with ornamental bursts. PC3 rewards oblique motion, cross-rhythms, rhythmic entropy, and registral span while penalising parallel motion; Debussy and Chopin therefore sit well above the plane, whereas Mozart and Bach remain below it.
 - **Why 2D collapses** – Each composer’s footprint spans σ≈1.7–2.4 units per axis, so projecting onto PC1×PC2 hides key contrasts: without PC3, the Chopin/Debussy ridge folds over the classical pair, Bach’s negative PC2 tail overlaps Chopin’s centre, and Mozart’s separation relies on the vertical lift contributed by contrapuntal motion. The 3D view restores the layout observed in MuseScore: Mozart and Bach occupy different “slots” along PC2 while remaining distinct on PC1, Chopin bridges toward Debussy through shared chromatic density, and Debussy separates further by soaring along PC3.
 - **Musical reading** – Chopin’s blend of classical scaffolding and Romantic colour explains his midpoint. Harmonically he shares chromatic mediants, extended dominants, and sustained pedal pitches with Debussy, which drives him positive on PC1 and lifts PC3 through oblique motion and cross-rhythms. Yet his phrases still cadence like Mozart’s, with balanced periods and clear tonal gravity, keeping his downbeat emphasis and notes-per-beat near the classical mean. Debussy abandons that anchor: stacked planing chords, modal mixture, unresolved dissonances, and layered polyrhythms max out every chromatic and independence metric, pushing him into a distinct “third slot” beyond Chopin. Bach conversely pairs dense harmony with strict counterpoint, leaving him closer to the origin on PC1 and deep in negative PC2, while Mozart’s diatonic clarity and metrical poise hold the opposite corner.
+- **Outlier spotlight** – One Mozart entry, *Sonata in B♭ K 570 – I*, sits noticeably apart in both PCA and t-SNE. None of its individual features are extreme, but the combination of very stepwise melodic motion (high conjunct/low leap ratios), a large share of “other” harmonic sonorities flagged by the analyser, and abundant passing/appoggiatura dissonances nudges it to PC1 ≈ −2.5. With only a few genuine neighbours in the 36-piece Mozart set, t-SNE (perplexity = 30) exaggerates that spacing and pushes the point toward the periphery. We confirmed the MusicXML has complete metadata and solo-piano scoring; the separation is musical, not a data bug, though we plan a follow-up review with Olivia to make sure the chord labelling of the planed passages isn’t overstating the “other” bucket.
 
 ### Annotated MusicXML
 - `python3 src/annotate_musicxml.py --mxl <path> --output figures/annotated/<name>.mxl` colour-codes the original score: passing tones (orange), appoggiaturas (violet), other dissonances (red), and residual dissonant chord members (light red). Each flagged note gains a lyric label (e.g., `passing_tone`), and dissonant chords receive `dissonant-chord` text for quick filtering. Every harmonic slice additionally gains a chord symbol (reflecting the concert spelling) whose lyric carries the Roman numeral when analysis succeeds, otherwise a descriptive fallback. Chromatic or unclassified chords are tinted turquoise with a `chromatic-chord` lyric so they jump off the page.
@@ -299,7 +301,7 @@ Parsing (Step 2) now delivers structured summaries for every curated score, st
 - Combined with the embedding view, these artefacts allow rapid toggling between global stylistic trends and bar-level verification of how the heuristics interpret individual scores.
 
 ### Validation & Diagnostics
-- Ran the CLI end-to-end against the full corpus; console output lists the top 20 ANOVA hits, verifying consistent sample counts (≥31 pieces per composer for most metrics).
+- Ran the CLI end-to-end against the full corpus; console output lists the top 20 ANOVA hits, verifying consistent sample counts (36 pieces per composer for every metric after the Debussy expansion).
 - Confirmed Tukey fallback by executing on a SciPy-only environment (no `statsmodels`); the script now emits identical CSV schemas regardless of backend.
 - Spot-checked CSV contents to ensure meandiff signs align with composer ordering and that confidence intervals bracket the reported contrasts.
 - Generated the visualization suite to verify narratives: the bar chart corroborates the five most significant features, the symlog-scaled feature heatmap emphasizes Mozart’s dual proximity to Baroque and Impressionist voices, the normalized view confirms those contrasts once scales are standardised, and the new pair-level heatmaps separate sheer frequency of differences from their directional magnitude.

@@ -1,8 +1,8 @@
 # Phase 1 Report
 
 ## Project Metrics at a Glance
-- Filtered 254,077 catalogue entries down to 124 balanced solo piano works (31 per composer) covering 18,925 measures.
-- Parsed ~63.6k quarter-note durations, around 11.8 hours of music at 90 BPM, with average pieces spanning 153 measures and just over two staves.
+- Filtered 254,077 catalogue entries down to 144 balanced solo piano works (36 per composer) after expanding Debussy name matching and manually vetting the 14 newly admitted scores for solo-piano instrumentation.
+- Parsed ~73k quarter-note durations, around 13.5 hours of music at 90 BPM, with average pieces spanning roughly 160 measures and just over two staves.
 - Extracted 36 analytic descriptors grouped into harmonic (16), melodic (11), and rhythmic (9) feature families.
 - Evaluated 36 ANOVA hypotheses and 162 Tukey contrasts; the initial α=0.05 screen flagged 27 metrics and 56 composer pairings, but realizing that many simultaneous tests nearly guaranteed a false positive we kept that column for reference while adding Bonferroni (α/36≈0.0014) and Benjamini–Hochberg FDR (q<0.05) guards, leaving 11 and 26 metrics respectively and keeping those 56 pairings defensible.
 - Validated the most extreme rhythmic cases after introducing meter-aware syncopation detection: Debussy’s “La cathédrale engloutie” still shows the largest duration spread (std. note duration 1.63) from sustained pedal sonorities, and Bach’s chorale anthology remains the syncopation leader (ratio 0.356) because of suspension-rich half-bar ties across 11k note events.
@@ -33,14 +33,15 @@ We set out to assemble a high-quality, composer-balanced solo piano corpus from 
 - **Composer Ambiguity**: Multiple Mozart and Bach family members appear; resolved with stricter token filtering and arrangement keyword detection using regular expressions.
 - **Instrumentation Gaps**: Some metadata lists omit instruments; we added fallbacks that inspect instrumentation tags and descriptive text while still rejecting obvious ensemble cues.
 - **Filter Trade-offs**: Initial strict filters yielded too few pieces; iterative counts led us to focus on the trio of high-quality flags (license-safe, deduplicated, best unique arrangement) plus a rating threshold that we later relaxed after confirming it did not change the balanced counts.
+- **Alias Cleanup**: Revisiting Debussy-labelled rows uncovered 14 solo-piano scores rejected only because the composer string was truncated or misspelled. Allowing initials/typos while keeping arrangement/co-composer exclusions lifted every composer bucket to 36 without adding ensembles.
 
 # Step 1 Test Runs and Variants
-- `python3 src/corpus_curation.py --min-rating 0` → 31 pieces per composer (124 total). Mean rating ≈ 4.85, zero duplicates, all safety flags active.
+- `python3 src/corpus_curation.py --min-rating 0` → 36 pieces per composer (144 total). Mean rating ≈ 4.84, zero duplicates, all safety flags active.
 - Diagnostics: compared alternate variants (`--skip-license-filter`, `--skip-deduplicated-filter`, `--skip-unique-filter`, combinations, and unbalanced runs up to 685 works) by summarizing counts, ratings, duplicate titles, and instrumentation completeness.
 - Observed that relaxing filters increases corpus size but introduces licensing uncertainty, near duplicates, and severe composer imbalance (e.g., Bach 267 vs. Debussy 52 when fully unbalanced).
 
 # Step 1 Conclusion
-The balanced export with all safety filters active satisfies Step 1: it supplies 31 high-quality solo piano works per composer, keeps manual cleanup minimal, and positions us for fair cross-composer analysis in later phases. The larger unbalanced sets are retained only for reference; we recommend continuing with the balanced corpus for downstream feature extraction and modeling.
+The balanced export with all safety filters active satisfies Step 1: it now supplies 36 high-quality solo piano works per composer, keeps manual cleanup minimal, and positions us for fair cross-composer analysis in later phases. The larger unbalanced sets are retained only for reference; we recommend continuing with the balanced corpus for downstream feature extraction and modeling (the unbalanced run currently lands at 186 works spread 48/39/63/36 across Bach/Mozart/Chopin/Debussy).
 
 # Step 2: Parsing Summary
 
@@ -87,5 +88,6 @@ The balanced export with all safety filters active satisfies Step 1: it suppli
 # Phase 2 Enhancements: Embedding & Annotation
 
 - The embedding viewer (`feature_embedding.py`) standardises the feature matrix, drops the raw count columns listed above so dense chorales do not dominate, projects via PCA or t-SNE, and reports variance ratios plus per-feature loadings (`data/stats/pca_loadings.csv`). Composer centroids reveal the axes: PC1 tracks chromatic density and leap-heavy harmony (Mozart ≪ Bach < Chopin < Debussy), PC2 contrasts long, downbeat-emphasised phrases (Mozart high) against note-saturated textures (Bach low), and PC3 lifts the Romantic/Impressionist pair via oblique motion, cross-rhythms, and registral spread. Chopin therefore bridges the classical and modern worlds—his cadential syntax and phrase symmetry keep him near Bach/Mozart on PC2, while his chromatic colour and sustained pedal tones pull him toward Debussy on PC1/PC3. Debussy pushes those same traits to the limit (planed chords, unresolved dissonances, layered polyrhythms), landing in a separate tier. Because each cloud spans roughly two standard deviations per axis, flattening onto PC1×PC2 obscures these differences—PC3’s contrapuntal signal is what keeps Debussy/Chopin suspended above the classical cluster in 3D, while the 2D plot lets their footprints overlap.
+- A notable outlier emerged: *Mozart – Sonata in B♭ K 570 I* combines unusually stepwise melody with a high share of analyser-labelled “other” sonorities and frequent passing/appoggiatura dissonances. Those blended traits pull its PCA position to PC1 ≈ −2.5 and, with only a handful of close neighbours, t-SNE (perplexity = 30) pushes it far from the Mozart cluster. The score’s metadata checks out, so we interpret the separation as musical and will review the chord labelling with Olivia.
 - The annotation helper (`annotate_musicxml.py`) colour-codes dissonant material, stamps lyric labels (passing/appoggiatura/other/dissonant-chord), inserts chord symbols whose lyrics capture the Roman numerals when available, and highlights chromatic or unclassified harmonies with a turquoise tint and `chromatic-chord` lyric. It can invoke MuseScore’s CLI through a `{input}/{output}` template to emit shareable PDFs or PNGs alongside the annotated MusicXML.
 - `python3 src/generate_selected_annotations.py` batches the eight flagship annotated scores (two per composer) and supports the same renderer flags for one-command PDF/PNG exports.
