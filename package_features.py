@@ -100,7 +100,11 @@ def iter_figure_files(figure_root: Path) -> Iterable[Path]:
         return []
     if not figure_root.is_dir():
         raise NotADirectoryError(f"Expected {figure_root} to be a directory of figures")
-    return (path for path in figure_root.rglob("*") if path.is_file())
+    return (
+        path
+        for path in figure_root.rglob("*")
+        if path.is_file() and path.suffix.lower() != ".csv"
+    )
 
 
 def build_zip_archive(pdf_path: Path, figure_files: Iterable[Path], output_zip: Path) -> None:
