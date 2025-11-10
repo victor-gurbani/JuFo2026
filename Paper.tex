@@ -48,7 +48,7 @@
         {\color{titlecolor}\rule{\linewidth}{1pt}}
         \vspace{1.5cm}
         
-        {\fontsize{28}{34}\selectfont\color{titlecolor}\textbf{JuFo 2026}\par}
+        {\fontsize{28}{34}\selectfont\color{titlecolor}\textbf{Empirische Musikalische Kartographie} \par Die Analysierung der Landschaft harmonischer und melodischer Stile\par}
         
         \vspace{1.5cm}
         {\color{titlecolor}\rule{\linewidth}{1pt}}
@@ -59,12 +59,11 @@
         {\large\today\par}
         
         \vfill
-        
         % Optional: Add a simple decorative element
-        \begin{tikzpicture}[remember picture, overlay]
-            \draw[color=titlecolor, line width=0.5pt] 
-                ($(current page.center) + (-3,0)$) -- ($(current page.center) + (3,0)$);
-        \end{tikzpicture}
+        % \begin{tikzpicture}[remember picture, overlay]
+        %     \draw[color=titlecolor, line width=0.5pt] 
+        %         ($(current page.center) + (-3,0)$) -- ($(current page.center) + (3,0)$);
+        % \end{tikzpicture}
     \end{titlepage}
 }
 
@@ -76,7 +75,7 @@
 \newpage
 
 \section{Abstract}
-I curated a license-safe, composer-balanced corpus of 124 solo piano works spanning Bach, Mozart, Chopin, and Debussy from the 254{,}077-score PDMX archive, then engineered a three-pillar analytic pipeline that quantifies harmonic, melodic, and rhythmic practice per composer. Feature extraction with \texttt{music21} yields 36 descriptors whose distributions expose stylistic continuities and divergences, while automated significance tests highlight which metrics reliably separate eras. Interactive embeddings and colour-coded MusicXML renderings connect corpus-scale trends to score-level evidence: principal-component analysis shows Chopin bridging classical clarity and impressionist colour, whereas annotated scores reveal how our classifiers surface dissonances and chromatic harmonies directly inside MuseScore. The resulting dataset, figures, and tooling provide an integrated foundation for comparative analysis and reproducible storytelling about stylistic evolution from the Baroque through early modernism.
+I assembled a license-safe corpus of 144 solo-piano scores (36 each by Bach, Mozart, Chopin, and Debussy) from the 254{,}077-score PDMX archive and built an end-to-end toolkit that quantifies harmonic, melodic, and rhythmic practice across the four composers. The pipeline extracts 36 interpretable features with \texttt{music21}, evaluates stylistic separation via ANOVA/Tukey tests, and publishes interactive embeddings plus score-level overlays in MuseScore. Early results show 26 of the metrics remain statistically significant after false-discovery control: chromatic density, dissonance rates, and rhythmic entropy clearly distinguish Chopin and Debussy from the classical pair, while range- and cadence-driven measures keep Bach and Mozart clustered. Principal-component embeddings reinforce this narrative, placing Chopin between classical clarity and impressionist colour and isolating Debussy in a distinct third region. All data, plots, and scripts are packaged for reproducible exploration of stylistic evolution.
 
 \section{Two-Page Summary of Findings}
 
