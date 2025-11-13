@@ -29,6 +29,32 @@ from rhythmic_features import compute_rhythmic_features  # type: ignore[attr-def
 from score_parser import parse_score  # type: ignore[attr-defined]
 
 DEFAULT_OUTPUT_DIR = Path("tmp/pca_highlights")
+HIGHLIGHT_MARKER_COLORS: tuple[str, ...] = (
+    "#0d1b2a",
+    "#1b263b",
+    "#191919",
+    "#1d3557",
+    "#2c3e50",
+    "#3a0ca3",
+    "#4a148c",
+    "#311b92",
+    "#1a237e",
+    "#0b3d91",
+    "#004d40",
+    "#1b5e20",
+    "#3e2723",
+    "#4e342e",
+    "#5d4037",
+    "#3c1f0b",
+    "#370617",
+    "#5f0f40",
+    "#342ead",
+    "#2d132c",
+    "#1f2421",
+    "#143601",
+    "#2b2d42",
+    "#2f3e46",
+)
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -261,9 +287,8 @@ def build_cloud_figure(df: pd.DataFrame, highlight_df: pd.DataFrame) -> go.Figur
             )
         )
 
-    highlight_palette = px.colors.qualitative.Dark24
     for idx, (_, row) in enumerate(highlight_df.iterrows()):
-        color = highlight_palette[idx % len(highlight_palette)]
+        color = HIGHLIGHT_MARKER_COLORS[idx % len(HIGHLIGHT_MARKER_COLORS)]
         label = f"{row['composer_label']} - {row['title']}"
         fig.add_trace(
             go.Scatter3d(
