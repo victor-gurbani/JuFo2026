@@ -174,6 +174,7 @@ python3 src/feature_embedding.py \
 - Raw count-style features (`note_count`, `note_event_count`, `chord_event_count`, `chord_quality_total`, `roman_chord_count`, `dissonant_note_count`) are excluded by default so dense chorales no longer dominate the axes; density-style metrics (e.g., `harmonic_density_mean`) still participate after standardisation.
 - Supply `--clouds-output` to render a 3D Gaussian iso-surface view, and `--clouds-output-2d` for a companion filled-contour map that mirrors the scatter but suppresses individual points.
 - Add `--output-2d` when you want a browser-ready 2D scatter (first two axes) alongside the 3D view—handy for presentations that prefer flat plots.
+- The companion highlighter (`src/highlight_pca_piece.py`) can project external scores into the PCA space; for example, analysing Joe Hisaishi's "One Summer's Day (Spirited Away)" showed the piece landing between Chopin and Debussy in the clouds—slightly nearer to Chopin—mirroring its blend of Romantic and Impressionist traits (see `summerdayhighlight.png`).
 
 ## MusicXML Harmonic Annotation
 
