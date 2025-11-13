@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Highlight a single MusicXML piece within the PCA composer clouds."""
+"""Highlight one or more MusicXML pieces within the PCA composer clouds."""
 from __future__ import annotations
 
 import argparse
@@ -34,7 +34,7 @@ DEFAULT_OUTPUT_DIR = Path("tmp/pca_highlights")
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Create a composer-cloud PCA HTML and highlight a given MusicXML piece."
+            "Create a composer-cloud PCA HTML and highlight one or more MusicXML pieces."
         )
     )
     parser.add_argument(
@@ -73,14 +73,20 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--composer",
         type=str,
-        default="External",
-        help="Composer label to use for the highlighted piece (default: External).",
+        action="append",
+        default=None,
+        help=(
+            "Composer labels for highlighted pieces. Provide multiple times for multiple inputs; "
+            "defaults to 'External' when fewer values than pieces are supplied."),
     )
     parser.add_argument(
         "--title",
         type=str,
+        action="append",
         default=None,
-        help="Optional override title for the highlighted piece (defaults to file stem).",
+        help=(
+            "Custom titles for highlighted pieces. Provide multiple times matching the inputs; "
+            "defaults to each file's stem when omitted."),
     )
     return parser.parse_args()
 
@@ -166,7 +172,7 @@ def _compute_piece_metrics(path: Path) -> tuple[dict[str, object], dict[str, obj
     return harmonic_metrics, melodic_metrics, rhythmic_metrics
 
 
-def build_cloud_figure(df: pd.DataFrame, highlight_row: pd.Series) -> go.Figure:
+def build_cloud_figure(df: pd.DataFrame, highlight_df: pd.DataFrame) -> go.Figure:
     coords = df[["dim1", "dim2", "dim3"]].to_numpy()
     mins = coords.min(axis=0)
     maxs = coords.max(axis=0)
@@ -185,8 +191,8 @@ def build_cloud_figure(df: pd.DataFrame, highlight_row: pd.Series) -> go.Figure:
 
     fig = go.Figure()
 
-    highlight_mask = df.get("is_highlight", pd.Series(False, index=df.index))
-    highlight_mask = highlight_mask.astype(bool)
+    highlight_indices = set(highlight_df.index)
+    highlight_mask = df.index.to_series().isin(highlight_indices)
 
     for idx, composer in enumerate(sorted(df["composer_label"].unique())):
         composer_mask = df["composer_label"] == composer
@@ -255,58 +261,79 @@ def build_cloud_figure(df: pd.DataFrame, highlight_row: pd.Series) -> go.Figure:
             )
         )
 
-    fig.add_trace(
-        go.Scatter3d(
-            x=[highlight_row["dim1"]],
-            y=[highlight_row["dim2"]],
-            z=[highlight_row["dim3"]],
-            mode="markers",
-            marker=dict(
-                size=11,
-                color="#111111",
-                symbol="diamond",
-                line=dict(width=3, color="#FFFFFF"),
-            ),
-            name="Highlighted piece",
-            text=[f"{highlight_row['composer_label']} - {highlight_row['title']}"],
-            hovertemplate=(
-                "<b>%{text}</b><br>dim1=%{x:.2f}<br>dim2=%{y:.2f}<br>dim3=%{z:.2f}<extra></extra>"
-            ),
+    highlight_palette = px.colors.qualitative.Dark24
+    for idx, (_, row) in enumerate(highlight_df.iterrows()):
+        color = highlight_palette[idx % len(highlight_palette)]
+        label = f"{row['composer_label']} - {row['title']}"
+        fig.add_trace(
+            go.Scatter3d(
+                x=[row["dim1"]],
+                y=[row["dim2"]],
+                z=[row["dim3"]],
+                mode="markers",
+                marker=dict(
+                    size=12,
+                    color=color,
+                    symbol="diamond",
+                    line=dict(width=3, color="#FFFFFF"),
+                ),
+                name=label,
+                text=[label],
+                hovertemplate=(
+                    "<b>%{text}</b><br>dim1=%{x:.2f}<br>dim2=%{y:.2f}<br>dim3=%{z:.2f}<extra></extra>"
+                ),
+            )
         )
-    )
 
     fig.update_layout(
-        title="Composer Clouds (PCA) with Highlighted Piece",
+        title="Composer Clouds (PCA) with Highlighted Pieces",
         scene=dict(xaxis_title="dim1", yaxis_title="dim2", zaxis_title="dim3"),
         legend=dict(itemsizing="constant"),
     )
     return fig
 
 
-def determine_output_path(output: Path | None, musicxml: Path) -> Path:
+def determine_output_path(output: Path | None, musicxml_paths: list[Path]) -> Path:
     if output is not None:
         output.parent.mkdir(parents=True, exist_ok=True)
         return output
     DEFAULT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    slug = Path(musicxml).stem.replace(" ", "_")
+    first = musicxml_paths[0]
+    slug = Path(first).stem.replace(" ", "_")
     tmp_dir = Path(tempfile.mkdtemp(dir=DEFAULT_OUTPUT_DIR, prefix="highlight_"))
     return tmp_dir / f"{slug}_pca_cloud.html"
 
 
 def main() -> int:
     args = parse_arguments()
-    if not args.musicxml.exists():
-        print(f"MusicXML file not found: {args.musicxml}")
+    input_paths = args.musicxml
+    missing = [path for path in input_paths if not path.exists()]
+    if missing:
+        missing_str = "\n".join(str(path) for path in missing)
+        print(f"[error] The following MusicXML files were not found:\n{missing_str}")
         return 1
 
-    normalized_path = _normalize_path(args.musicxml)
-    title = args.title if args.title else args.musicxml.stem
+    composer_inputs = args.composer or []
+    title_inputs = args.title or []
 
-    try:
-        harmonic_metrics, melodic_metrics, rhythmic_metrics = _compute_piece_metrics(args.musicxml)
-    except Exception as exc:  # pragma: no cover - defensive catch for unforeseen parsing errors
-        print(f"[error] Failed to compute features for {args.musicxml}: {exc}")
-        return 1
+    composers: list[str] = []
+    titles: list[str] = []
+    normalized_paths: list[str] = []
+
+    for idx, path in enumerate(input_paths):
+        composer_value = composer_inputs[idx] if idx < len(composer_inputs) else "External"
+        title_value = title_inputs[idx] if idx < len(title_inputs) else path.stem
+        composers.append(composer_value)
+        titles.append(title_value)
+        normalized_paths.append(_normalize_path(path))
+
+    metrics_per_piece: list[tuple[dict[str, object], dict[str, object], dict[str, object]]] = []
+    for idx, path in enumerate(input_paths):
+        try:
+            metrics_per_piece.append(_compute_piece_metrics(path))
+        except Exception as exc:  # pragma: no cover - defensive catch for unforeseen parsing errors
+            print(f"[error] Failed to compute features for {path}: {exc}")
+            return 1
 
     try:
         harmonic_df = _load_features(args.harmonic)
@@ -316,17 +343,19 @@ def main() -> int:
         print(f"[error] {exc}")
         return 1
 
-    harmonic_df = _drop_existing_piece(harmonic_df, normalized_path)
-    melodic_df = _drop_existing_piece(melodic_df, normalized_path)
-    rhythmic_df = _drop_existing_piece(rhythmic_df, normalized_path)
+    for idx, normalized_path in enumerate(normalized_paths):
+        harmonic_df = _drop_existing_piece(harmonic_df, normalized_path)
+        melodic_df = _drop_existing_piece(melodic_df, normalized_path)
+        rhythmic_df = _drop_existing_piece(rhythmic_df, normalized_path)
 
-    harmonic_base = _base_row(harmonic_df, normalized_path, args.composer, title)
-    melodic_base = _base_row(melodic_df, normalized_path, args.composer, title)
-    rhythmic_base = _base_row(rhythmic_df, normalized_path, args.composer, title)
+        harmonic_base = _base_row(harmonic_df, normalized_path, composers[idx], titles[idx])
+        melodic_base = _base_row(melodic_df, normalized_path, composers[idx], titles[idx])
+        rhythmic_base = _base_row(rhythmic_df, normalized_path, composers[idx], titles[idx])
 
-    harmonic_df = _append_metrics(harmonic_df, harmonic_base, harmonic_metrics)
-    melodic_df = _append_metrics(melodic_df, melodic_base, melodic_metrics)
-    rhythmic_df = _append_metrics(rhythmic_df, rhythmic_base, rhythmic_metrics)
+        harmonic_metrics, melodic_metrics, rhythmic_metrics = metrics_per_piece[idx]
+        harmonic_df = _append_metrics(harmonic_df, harmonic_base, harmonic_metrics)
+        melodic_df = _append_metrics(melodic_df, melodic_base, melodic_metrics)
+        rhythmic_df = _append_metrics(rhythmic_df, rhythmic_base, rhythmic_metrics)
 
     combined = _merge_feature_tables(harmonic_df, melodic_df, rhythmic_df)
     matrix, _, _ = _prepare_feature_matrix(combined)
@@ -346,15 +375,22 @@ def main() -> int:
     combined["dim3"] = coords[:, 2]
 
     normalized_series = combined["mxl_path"].apply(_normalize_path_or_none)
-    highlight_mask = normalized_series == normalized_path
-    if not highlight_mask.any():
-        print("[error] Highlighted piece could not be located after feature merge.")
-        return 1
-    combined["is_highlight"] = highlight_mask
-    highlight_row = combined.loc[highlight_mask].iloc[0]
+    highlight_indices: list[int] = []
+    for path in normalized_paths:
+        matches = combined.index[normalized_series == path]
+        if len(matches) == 0:
+            print("[error] Highlighted piece could not be located after feature merge.")
+            return 1
+        highlight_indices.append(int(matches[0]))
 
-    figure = build_cloud_figure(combined, highlight_row)
-    output_path = determine_output_path(args.output, args.musicxml)
+    highlight_mask_series = combined.index.to_series().isin(highlight_indices)
+    combined["is_highlight"] = highlight_mask_series
+
+    highlight_frames = [combined.loc[[idx]] for idx in highlight_indices]
+    highlight_df = pd.concat(highlight_frames, ignore_index=False).copy()
+
+    figure = build_cloud_figure(combined, highlight_df)
+    output_path = determine_output_path(args.output, input_paths)
     figure.write_html(str(output_path), include_plotlyjs="cdn")
     print(f"Created PCA composer cloud with highlight at {output_path}")
     return 0
