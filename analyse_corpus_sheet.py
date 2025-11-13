@@ -38,6 +38,8 @@ class CorpusEntry:
     mxl_path: Path
     composer_norm: str
     title_norm: str
+    rating: float | None
+    instrument: str
 
     @classmethod
     def from_row(cls, row: dict, csv_dir: Path) -> "CorpusEntry":
@@ -50,7 +52,38 @@ class CorpusEntry:
             mxl_path=mxl_path,
             composer_norm=normalise_text(composer),
             title_norm=normalise_text(title),
+            rating=parse_rating(row.get("rating")),
+            instrument=parse_instrument(row),
         )
+
+
+def parse_rating(raw_value: object) -> float | None:
+    if raw_value is None:
+        return None
+    text = str(raw_value).strip()
+    if not text:
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def parse_instrument(row: dict) -> str:
+    candidate_keys: Sequence[str] = (
+        "instrument_names",
+        "instrument",
+        "instruments",
+        "instrumentation_tags",
+    )
+    for key in candidate_keys:
+        value = row.get(key)
+        if not value:
+            continue
+        text = str(value).strip()
+        if text:
+            return text
+    return "Unknown"
 
 
 def resolve_musicxml_path(row: dict, csv_dir: Path) -> Path:
@@ -197,7 +230,12 @@ def query_matches(entry: CorpusEntry, query: str) -> bool:
 
 
 def find_matches(entries: Iterable[CorpusEntry], query: str) -> List[CorpusEntry]:
-    return [entry for entry in entries if query_matches(entry, query)]
+    matches = [entry for entry in entries if query_matches(entry, query)]
+    return sorted(
+        matches,
+        key=lambda entry: entry.rating if entry.rating is not None else float("-inf"),
+        reverse=True,
+    )
 
 
 def slugify(text: str) -> str:
@@ -212,7 +250,12 @@ def choose_entry(matches: List[CorpusEntry]) -> CorpusEntry | None:
 
     print("\nMatches:")
     for idx, entry in enumerate(matches, start=1):
-        print(f"  {idx:2d}. {entry.composer} — {entry.title}")
+        rating_text = f"{entry.rating:.2f}" if entry.rating is not None else "N/A"
+        instrument_text = entry.instrument or "Unknown"
+        print(
+            f"  {idx:2d}. {entry.composer} — {entry.title} "
+            f"(rating {rating_text}, instrument {instrument_text})"
+        )
 
     while True:
         selection = input("Select a number to annotate (blank to cancel): ").strip()
