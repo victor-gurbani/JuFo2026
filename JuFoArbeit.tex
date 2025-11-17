@@ -231,42 +231,42 @@ Alle Skripte verwenden \texttt{argparse} für konfigurierbare Parameter, unterst
 \subsection{Signifikante Stil-Merkmale}
 26 Merkmale überschreiten nach FDR-Korrektur \(q<0{,}05\). Abbildung~\ref{fig:anova} zeigt die 15 stärksten Omnibus-Treffer; Abbildung~\ref{fig:pairwise} quantifiziert signifikante Paarunterschiede (Debussy--Mozart: 16 Merkmale, Bach--Mozart: 0).
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/significance/top_anova_bar.png}
+    \includegraphics[width=0.85\textwidth]{figures/significance/top_anova_bar.png}
     \caption{Die 15 signifikantesten Merkmale nach ANOVA-Tests (dargestellt als $-\log_{10}(p)$). Merkmale aus allen drei Säulen (harmonisch, melodisch, rhythmisch) zeigen hohe statistische Trennschärfe. Die stärksten Unterschiede ergeben sich bei melodischen Merkmalen wie \texttt{pitch\_range\_semitones} und harmonischen Merkmalen wie \texttt{dissonance\_ratio}.}\label{fig:anova}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/significance/tukey_pair_heatmap.png}
+    \includegraphics[width=0.85\textwidth]{figures/significance/tukey_pair_heatmap.png}
     \caption{Anzahl signifikanter Merkmale je Komponistenpaar (Tukey HSD). Die Heatmap quantifiziert die stilistische Distanz: Debussy--Mozart zeigen 16 unterschiedliche Merkmale, während Bach--Mozart statistisch nicht unterscheidbar sind (0 signifikante Differenzen). Dies untermauert die enge Verwandtschaft der klassischen Komponisten und die revolutionäre Isolation Debussys.}\label{fig:pairwise}
 \end{figure}
 
 Zur Vertiefung werden exemplarische Boxplots pro Säule gezeigt (Abbildungen~\ref{fig:dissonance}, \ref{fig:ambitus}, \ref{fig:rhyentropy}). Sie verdeutlichen die metrischen Unterschiede hinter den statistischen Tests.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/harmonic/boxplot_dissonance_ratio.png}
+    \includegraphics[width=0.65\textwidth]{figures/harmonic/boxplot_dissonance_ratio.png}
     \caption{Harmonisches Merkmal: Dissonanzanteile. Debussy und Chopin zeigen signifikant höhere Werte als Bach und Mozart, was die zunehmende Komplexität der harmonischen Sprache im 19.\ Jahrhundert widerspiegelt.}\label{fig:dissonance}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/melodic/boxplot_pitch_range_semitones.png}
+    \includegraphics[width=0.65\textwidth]{figures/melodic/boxplot_pitch_range_semitones.png}
     \caption{Melodisches Merkmal: Ambitus (Tonumfang) in Halbtonschritten. Romantische und impressionistische Werke nutzen deutlich größere Register, was erweiterte Ausdrucksmöglichkeiten des modernen Flügels widerspiegelt.}\label{fig:ambitus}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/rhythmic/boxplot_rhythmic_pattern_entropy.png}
+    \includegraphics[width=0.65\textwidth]{figures/rhythmic/boxplot_rhythmic_pattern_entropy.png}
     \caption{Rhythmisches Merkmal: Entropie der rhythmischen Muster. Debussy zeigt die höchste rhythmische Vielfalt, während Bach trotz kontrapunktischer Komplexität repetitive rhythmische Muster verwendet.}\label{fig:rhyentropy}
 \end{figure}
 
 \subsection{Die empirische musikalische Landkarte}
 Die PCA-Visualisierung (Abbildung~\ref{fig:clouds}) fasst die 26 Merkmale in drei Dimensionen zusammen. Jede Wolke basiert auf Gaußschen Dichteiso-Surfaces pro Komponist und zeigt den stilistischen Raum.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\textwidth]{figures/embeddings/composer_clouds_3d.png}
     \caption{3D-PCA-Projektion der 144 Werke im standardisierten 26-Merkmalsraum. Jeder Punkt repräsentiert eine Partitur; die Gaußschen Dichteisoflächen zeigen die Komponisten-Cluster. Die empirische Landkarte offenbart: (1)~Bach/Mozart bilden einen kompakten klassischen Cluster (niedrige PC1-Werte), (2)~Debussy ist als isolierte impressionistische Insel positioniert (hohe PC1- und PC3-Werte), (3)~Chopin fungiert als Brücke zwischen den Epochen.}\label{fig:clouds}
@@ -274,7 +274,7 @@ Die PCA-Visualisierung (Abbildung~\ref{fig:clouds}) fasst die 26 Merkmale in dre
 
 Tabelle~\ref{tab:loadings} interpretiert die Achsen über die stärkst korrelierten Merkmale.
 
-\begin{table}[H]
+\begin{table}[htbp]
     \centering
     \caption{Interpretation der PCA-Komponenten}\label{tab:loadings}
     \begin{tabular}{p{2.5cm}p{2.5cm}p{5cm}p{5cm}}
@@ -294,9 +294,9 @@ Tabelle~\ref{tab:loadings} interpretiert die Achsen über die stärkst korrelier
 \subsection{Externer Falltest}
 Mit \texttt{src/highlight\_pca\_piece.py} können externe Stücke in die PCA-Wolken projiziert werden. Die erweiterte CLI unterstützt mehrere MusikXMLs, frei belegbare Titel und dunkle Diamantmarker für gute Sichtbarkeit. Joe Hisaishis \emph{One Summer's Day} landet zwischen Chopin und Debussy, leicht näher bei Chopin (Abbildung~\ref{fig:hisaishi}), was die hybride Harmonik des Stücks bestätigt.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\textwidth]{summerdayhighlight.png}
+    \includegraphics[width=0.85\textwidth]{summerdayhighlight.png}
     \caption{Externer Validierungstest: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung bestätigt die Validität der Merkmalsextraktion: Hisaishi nutzt bekanntermaßen spätromantische Harmonik (Chopin-Nähe) kombiniert mit impressionistischen Klangfarben (Debussy-Nähe).}\label{fig:hisaishi}
 \end{figure}
 
@@ -568,5 +568,293 @@ Die 36 Merkmale erfassen komplementäre Dimensionen musikalischer Gestaltung:
 \end{itemize}
 
 Diese vollständige Dokumentation ermöglicht die Replikation und Erweiterung der Analyse auf neue Komponisten oder Repertoires.
+
+\section{Anhang B: Reproduzierbarkeits-Leitfaden}
+
+Dieser Anhang dokumentiert die vollständige Software-Pipeline zur exakten Replikation aller Ergebnisse. Alle Befehle und Skripte sind im Projekt-Repository verfügbar.
+
+\subsection{Systemvoraussetzungen und Ressourcenbedarf}
+
+\begin{itemize}
+    \item \textbf{Betriebssystem}: macOS, Linux oder Windows mit WSL
+    \item \textbf{Python}: Version 3.10 oder höher
+    \item \textbf{Speicherplatz}: 
+    \begin{itemize}
+        \item PDMX-Datensatz: $\sim$56 GB (254\,077 MusicXML-Partituren)
+        \item Python Virtual Environment: $\sim$600 MB
+        \item Zwischenergebnisse (Features, Statistiken, Visualisierungen): $\sim$50 MB
+    \end{itemize}
+    \item \textbf{Rechenzeit}: 2--3 Stunden für vollständigen Durchlauf auf modernem Laptop
+    \item \textbf{RAM}: Mindestens 8 GB empfohlen (16 GB für große Bach-Choralkompilationen)
+\end{itemize}
+
+\subsection{Automatisierte Installation mit Quickstart-Skript}
+
+Das Projekt enthält ein vollautomatisches Bash-Skript, das Installation und Analyse in einem Durchlauf erledigt.
+
+\subsubsection{Vollautomatischer Ablauf}
+
+\begin{verbatim}
+./quickstart.sh
+\end{verbatim}
+
+Das Skript führt automatisch folgende Schritte aus:
+\begin{enumerate}
+    \item \textbf{Abhängigkeitsprüfung}: Validiert Python-Installation und \texttt{requirements.txt}
+    \item \textbf{Datensatz-Download}: Bietet interaktiven Download von Zenodo (15571083) an, falls PDMX-Verzeichnis fehlt. Unterstützt \texttt{aria2c} für parallele Downloads (16 Verbindungen) mit Fallback auf \texttt{wget}
+    \item \textbf{Virtual Environment}: Erstellt isolierte Python-Umgebung im \texttt{venv/}-Verzeichnis
+    \item \textbf{Dependency-Installation}: Installiert \texttt{music21}, \texttt{pandas}, \texttt{numpy}, \texttt{scipy}, \texttt{scikit-learn}, \texttt{matplotlib}, \texttt{seaborn}, \texttt{plotly}
+    \item \textbf{Pipeline-Ausführung}: Führt alle 10 Analyseschritte sequenziell aus (siehe unten)
+\end{enumerate}
+
+\textbf{Alternative ohne Virtual Environment:}
+\begin{verbatim}
+./quickstart.sh --no-venv
+\end{verbatim}
+Nutzt System-Python-Installation (für conda-Nutzer oder vorinstallierte Abhängigkeiten).
+
+\subsection{Die 10-Stufen-Analysepipeline}
+
+Das Quickstart-Skript orchestriert folgende Schritte:
+
+\subsubsection{Stufe 1--2: Korpus-Kuratierung und Parsing}
+
+\textbf{[1/10] Korpus-Kuratierung}
+\begin{verbatim}
+python3 src/corpus_curation.py --min-rating 0
+\end{verbatim}
+\textit{Ausgabe}: \texttt{data/curated/solo\_piano\_corpus.csv} (144 Werke, balanciert), \texttt{solo\_piano\_mxl\_paths.txt}
+
+\textbf{[2/10] Struktur-Parsing}
+\begin{verbatim}
+python3 src/score_parser.py \
+    --output data/parsed/summaries.json
+\end{verbatim}
+\textit{Ausgabe}: JSON mit Taktzahl, Stimmenzahl, Dauern pro Partitur
+
+\subsubsection{Stufe 3--5: Merkmals-Extraktion}
+
+\textbf{[3/10] Harmonische Merkmale}
+\begin{verbatim}
+python3 src/harmonic_features.py \
+    --output-csv data/features/harmonic_features.csv
+\end{verbatim}
+\textit{Ausgabe}: 16 harmonische Deskriptoren + Boxplots in \texttt{figures/harmonic/}
+
+\textbf{[4/10] Melodische Merkmale}
+\begin{verbatim}
+python3 src/melodic_features.py \
+    --output-csv data/features/melodic_features.csv
+\end{verbatim}
+\textit{Ausgabe}: 11 melodische Deskriptoren + Boxplots in \texttt{figures/melodic/}
+
+\textbf{[5/10] Rhythmische Merkmale}
+\begin{verbatim}
+python3 src/rhythmic_features.py \
+    --output-csv data/features/rhythmic_features.csv
+\end{verbatim}
+\textit{Ausgabe}: 9 rhythmische Deskriptoren + Boxplots in \texttt{figures/rhythmic/}
+
+\subsubsection{Stufe 6: Dimensionsreduktion und Embedding}
+
+\textbf{[6/10] PCA- und t-SNE-Projektionen}
+\begin{verbatim}
+# PCA mit 3D/2D-Visualisierung
+python3 src/feature_embedding.py --method pca \
+    --output figures/embeddings/pca_3d.html \
+    --output-2d figures/embeddings/pca_2d.html \
+    --loadings-csv data/stats/pca_loadings.csv \
+    --clouds-output figures/embeddings/pca_clouds_3d.html \
+    --clouds-output-2d figures/embeddings/pca_clouds_2d.html
+
+# t-SNE mit angepassten Hyperparametern
+python3 src/feature_embedding.py --method tsne \
+    --perplexity 20 --tsne-composer-weight 4.0 \
+    --output figures/embeddings/tsne_3d.html \
+    --clouds-output figures/embeddings/tsne_clouds_3d.html
+\end{verbatim}
+\textit{Ausgabe}: Interaktive HTML-Scatter-Plots, Gaußsche Dichtewolken, PCA-Loadings
+
+\subsubsection{Stufe 7--8: Statistische Signifikanz}
+
+\textbf{[7/10] ANOVA und Tukey-HSD-Tests}
+\begin{verbatim}
+python3 src/significance_tests.py \
+    --anova-output data/stats/anova_summary.csv \
+    --tukey-output data/stats/tukey_hsd.csv
+\end{verbatim}
+\textit{Ausgabe}: F-Statistiken, p-Werte, Bonferroni/FDR-Flags, paarweise Vergleiche
+
+\textbf{[8/10] Signifikanz-Visualisierungen}
+\begin{verbatim}
+python3 src/significance_visualizations.py --top-n 15
+\end{verbatim}
+\textit{Ausgabe}: Bar-Charts, Heatmaps (Paar-Counts, Mean-Difference, Sym-Log) in \texttt{figures/significance/}
+
+\subsubsection{Stufe 9--10: Annotation und Aggregation}
+
+\textbf{[9/10] Annotierte Referenzpartituren}
+\begin{verbatim}
+python3 src/generate_selected_annotations.py
+\end{verbatim}
+\textit{Ausgabe}: 8 farbcodierte MusicXML-Dateien (2 pro Komponist) mit Dissonanz-Labels, Akkordsymbolen und optionalen PDF-Renderings
+
+\textbf{[10/10] Master-Aggregation}
+\begin{verbatim}
+python3 src/aggregate_metrics.py
+\end{verbatim}
+Validiert alle Outputs, druckt Korpus-Statistiken, verifiziert Konsistenz
+
+\subsection{Manuelle Einzelschritte und Debugging}
+
+\subsubsection{Schnelltests mit \texttt{--limit}}
+
+Jedes Feature-Extraktions-Skript unterstützt partielle Läufe:
+\begin{verbatim}
+python3 src/harmonic_features.py --limit 5 \
+    --output-csv /tmp/harmonic_test.csv
+\end{verbatim}
+Prozessiert nur die ersten 5 Partituren für Smoke-Tests.
+
+\subsubsection{Cached Runs mit \texttt{--features-from}}
+
+Wiederverwendung bereits berechneter Features ohne Neuberechnung:
+\begin{verbatim}
+python3 src/harmonic_features.py \
+    --features-from data/features/harmonic_features.csv \
+    --skip-plots
+\end{verbatim}
+Nutzt existierende CSV, erzeugt nur Statistiken (nützlich für iterative Visualisierungen).
+
+\subsubsection{Alternative Korpus-Varianten}
+
+Experimentiere mit unbalancierten oder entspannten Filtern:
+\begin{verbatim}
+python3 src/corpus_curation.py --min-rating 0 \
+    --skip-license-filter \
+    --max-per-composer 999 \
+    --output-csv data/curated/unbalanced_corpus.csv
+\end{verbatim}
+
+\subsection{Erweiterte Funktionen}
+
+\subsubsection{Externe Stück-Projektion}
+
+Projiziere beliebige MusicXML-Dateien in den PCA-Raum:
+\begin{verbatim}
+python3 src/highlight_pca_piece.py \
+    --pieces path/to/score.mxl \
+    --title "Joe Hisaishi - One Summer's Day" \
+    --composer "Joe Hisaishi" \
+    --output highlighted_projection.html
+\end{verbatim}
+Unterstützt mehrere Stücke gleichzeitig mit individuellen Labels.
+
+\subsubsection{MusicXML-Annotation mit MuseScore-Rendering}
+
+Erzeuge farbcodierte Analysepartituren mit automatischem PDF-Export:
+\begin{verbatim}
+python3 src/annotate_musicxml.py \
+    path/to/input.mxl \
+    path/to/output_annotated.mxl \
+    --renderer-template "mscore -o {output} {input}" \
+    --render-format pdf
+\end{verbatim}
+Färbt Durchgänge (orange), Appoggiaturen (violett), andere Dissonanzen (rot), chromatische Harmonien (türkis); fügt römische Ziffern als Akkordsymbole ein.
+
+\subsection{Validierung der Installation}
+
+\subsubsection{Erwartete Ergebnisse}
+
+Nach vollständigem Durchlauf sollten folgende Kennzahlen reproduziert werden:
+\begin{itemize}
+    \item \textbf{Korpusgröße}: Exakt 144 Werke (36 pro Komponist)
+    \item \textbf{Gesamtdauer}: $\sim$73\,000 Viertelnoten
+    \item \textbf{ANOVA-Treffer ($\alpha=0.05$)}: 27 Merkmale
+    \item \textbf{FDR-robuste Merkmale ($q<0.05$)}: 26 Merkmale
+    \item \textbf{PCA-Varianz (PC1--PC3)}: 47,3\%
+    \item \textbf{Tukey-Unterschiede Debussy--Mozart}: 16 signifikante Merkmale
+    \item \textbf{Tukey-Unterschiede Bach--Mozart}: 0 signifikante Merkmale
+\end{itemize}
+
+\subsubsection{Schnelle Integritätsprüfung}
+
+\begin{verbatim}
+# Test 1: Parsing-Integrität
+python3 src/score_parser.py --limit 5 \
+    --output /tmp/test_parse.json
+# Erwartung: 5 erfolgreiche Parses
+
+# Test 2: Feature-Extraktion
+python3 src/harmonic_features.py --limit 5 \
+    --output-csv /tmp/test_harmonic.csv
+# Erwartung: 5 Zeilen mit 16 Harmonie-Spalten
+
+# Test 3: Statistik-Pipeline
+python3 src/significance_tests.py --alpha 0.05
+# Erwartung: anova_summary.csv mit 36 Zeilen
+\end{verbatim}
+
+\subsection{Häufige Probleme und Lösungen}
+
+\begin{description}
+    \item[\texttt{music21} Parse-Fehler bei manchen Partituren] Einige MusicXML-Dateien enthalten Formatfehler oder sind Opus-Kompilationen. \textbf{Lösung}: Alle Skripte verwenden standardmäßig \texttt{--skip-errors}, um fehlerhafte Dateien zu überspringen. Für Debugging: \texttt{--no-skip-errors} aktivieren.
+    
+    \item[Matplotlib Backend-Fehler auf Headless-Systemen] Server ohne Display benötigen nicht-interaktives Backend. \textbf{Lösung}: \texttt{export MPLBACKEND=Agg} vor Ausführung setzen.
+    
+    \item[Speicherprobleme bei Bach-Choralkompilationen] Einige Bach-Werke enthalten 100+ Choräle in einer Datei. \textbf{Lösung}: \texttt{--limit} Parameter nutzen oder RAM auf mindestens 16 GB erhöhen.
+    
+    \item[Abweichende PCA-Ergebnisse trotz \texttt{random\_state=42}] Unterschiedliche \texttt{scikit-learn}-Versionen können minimal andere Rotationen erzeugen. \textbf{Lösung}: Exakte Versions-Pinning in \texttt{requirements.txt} (aktuell \texttt{scikit-learn==1.3.0}).
+    
+    \item[Zenodo-Download schlägt fehl] API-Rate-Limits oder Netzwerkprobleme. \textbf{Lösung}: Manueller Download von \url{https://zenodo.org/records/15571083}, Extraktion nach \texttt{15571083/}.
+\end{description}
+
+\subsection{Datenformat-Spezifikationen}
+
+\subsubsection{Korpus-CSV (\texttt{data/curated/solo\_piano\_corpus.csv})}
+\begin{itemize}
+    \item \texttt{composer\_label}: Normalisiert (Bach | Mozart | Chopin | Debussy)
+    \item \texttt{title}: Werktitel aus PDMX-Metadaten
+    \item \texttt{mxl}: Relativer Pfad zu MusicXML-Datei (z.\,B.\ \texttt{0/46/Qmaug5p...mxl})
+    \item \texttt{rating}: PDMX-Qualitätsbewertung (0.0--5.0)
+    \item \texttt{subset:*}: Boolsche Flags für PDMX-Subsets
+\end{itemize}
+
+\subsubsection{Feature-CSVs (\texttt{data/features/*.csv})}
+Einheitliches Format für alle drei Feature-Typen:
+\begin{itemize}
+    \item \texttt{composer}: Komponistenname (für Gruppierung in ANOVA)
+    \item \texttt{title}: Werktitel
+    \item Feature-Spalten: Numerische Werte (NaN bei Extraktionsfehlern)
+\end{itemize}
+
+\subsubsection{ANOVA-Ergebnisse (\texttt{data/stats/anova\_summary.csv})}
+\begin{itemize}
+    \item \texttt{feature}: Merkmalsname
+    \item \texttt{F\_statistic}: ANOVA-F-Wert
+    \item \texttt{p\_value}: Nicht-adjustierter p-Wert
+    \item \texttt{bonferroni\_sig}: Bonferroni-Signifikanz (nach $\alpha/36$)
+    \item \texttt{fdr\_sig}: Benjamini-Hochberg FDR-Signifikanz ($q<0.05$)
+\end{itemize}
+
+\subsubsection{Tukey-Ergebnisse (\texttt{data/stats/tukey\_hsd.csv})}
+\begin{itemize}
+    \item \texttt{feature}: Merkmalsname
+    \item \texttt{group1}, \texttt{group2}: Komponistenpaar
+    \item \texttt{meandiff}: Mittlere Differenz
+    \item \texttt{lower}, \texttt{upper}: 95\%-Konfidenzintervall
+    \item \texttt{reject}: Signifikanz (True/False)
+\end{itemize}
+
+\subsection{Software-Lizenzierung und Zitierung}
+
+\begin{itemize}
+    \item \textbf{PDMX-Datensatz}: Public Domain, verfügbar unter \url{https://zenodo.org/records/15571083}. Zitierung: \cite{PDMX2024}
+    \item \textbf{Analysecode}: Siehe \texttt{LICENSE}-Datei im Repository
+    \item \textbf{Extrahierte Features}: Abgeleitete Daten, frei verwendbar für akademische Zwecke unter Nennung dieser Arbeit
+    \item \textbf{Dependencies}: Alle verwendeten Bibliotheken (\texttt{music21}, \texttt{scikit-learn}, etc.) sind Open Source (BSD/MIT-Lizenzen)
+\end{itemize}
+
+Dieser Leitfaden ermöglicht vollständige Reproduktion aller Ergebnisse sowie deren Erweiterung auf neue Fragestellungen. Bei Problemen: GitHub-Issues im Repository oder Kontakt über die im Hauptdokument angegebene Adresse.
 
 \end{document}
