@@ -36,10 +36,10 @@
 % --- BODY ---
 
 \section*{1. Research Objective}
-Musicology traditionally relies on subjective description to categorize style—classifying Chopin as ``Romantic'' or Debussy as ``Impressionist'' based on qualitative listening. This project aims to replace intuition with rigorous measurement. By building an end-to-end computational pipeline, I sought to quantify the precise harmonic, melodic, and rhythmic shifts that define the transition from the Common Practice Period (Bach, Mozart) to the late 19th/early 20th century. My goal was to determine if an algorithm could ``hear'' the difference between eras without human bias.
+Musicology traditionally relies on subjective description to categorize style—classifying Chopin as ``Romantic'' or Debussy as ``Impressionist'' based on qualitative listening. This project aims to replace intuition with rigorous measurement. By building an end-to-end computational pipeline, the objective was to quantify the precise harmonic, melodic, and rhythmic shifts that define the transition from the Common Practice Period (Bach, Mozart) to the late 19th/early 20th century. The goal was to determine if an algorithm could ``hear'' the difference between eras without human bias.
 
 \section*{2. Methodology: The Computational Pipeline}
-I assembled a license-safe, balanced corpus of \textbf{144 solo piano scores} (36 each by Bach, Mozart, Chopin, and Debussy) selected from the PDMX archive. To process this dataset, I engineered a Python-based toolkit utilizing the \texttt{music21} library:
+A license-safe, balanced corpus of \textbf{144 solo piano scores} (36 each by Bach, Mozart, Chopin, and Debussy) was assembled from the PDMX archive. To process this dataset, a Python-based toolkit was engineered utilizing the \texttt{music21} library:
 
 \begin{itemize}[leftmargin=*, noitemsep, topsep=0pt]
         \item \textbf{Feature Extraction (36 Metrics):} The pipeline extracts interpretable descriptors across three domains:
@@ -48,7 +48,7 @@ I assembled a license-safe, balanced corpus of \textbf{144 solo piano scores} (3
                 \item \textit{Melodic:} \textbf{Pitch Entropy} (complexity of melodic line) and \textbf{Voice Independence}.
                 \item \textit{Rhythmic:} \textbf{Syncopation Ratio} and \textbf{Duration Standard Deviation} (quantifying rubato/fluidity).
         \end{itemize}
-        \item \textbf{Statistical Validation:} I applied one-way ANOVA and Tukey HSD post-hoc tests ($p < 0.05$) to identify which features successfully differentiate composers, correcting for False Discovery Rates (FDR) to ensure statistical rigor.
+        \item \textbf{Statistical Validation:} One-way ANOVA and Tukey HSD post-hoc tests ($p < 0.05$) were applied to identify which features successfully differentiate composers, correcting for False Discovery Rates (FDR) to ensure statistical rigor.
 \end{itemize}
 
 \section*{3. Key Findings}
@@ -70,11 +70,11 @@ Statistical analysis confirmed that \textbf{26 of the 36 metrics} are significan
 \end{itemize}
 
 \section*{4. Model Validation: The ``Ravel Test''}
-To test the predictive power of the model, I introduced an unseen piece outside the training corpus: \textbf{Maurice Ravel's \textit{String Quartet in F Major}}. 
+To test the predictive power of the model, an unseen piece outside the training corpus was introduced: \textbf{Maurice Ravel's \textit{String Quartet in F Major}}. 
 
 As shown in \textbf{Figure 1}, the model successfully mapped Ravel into the correct stylistic region without any manual tagging. Notably, Ravel is projected \textit{further} along the primary component axis than Debussy. This mathematically confirms the musicological theory that Ravel expanded upon Impressionist textures to create even more complex, fluid structures. This result demonstrates that the 36 engineered features are not just descriptive of the past, but predictive of future stylistic evolution.
 
 \section*{5. Significance}
-This project bridges the gap between art and data science, offering a reproducible framework for ``Computational Musicology''. By treating musical scores as data, we can validate historical theories with empirical evidence, proving that the ``feeling'' of a musical era is grounded in quantifiable, mathematical structural changes.
+This project bridges the gap between art and data science, offering a reproducible framework for ``Computational Musicology''. By treating musical scores as data, historical theories can be validated with empirical evidence, proving that the ``feeling'' of a musical era is grounded in quantifiable, mathematical structural changes.
 
 \end{document}
