@@ -66,7 +66,7 @@
         {\color{titlecolor}\rule{\linewidth}{1pt}}
         \vspace{1.5cm}
 
-        {\fontsize{28}{34}\selectfont\color{titlecolor}\textbf{JuFo 2026: Empirische Musikalische Kartographie} \par Die Analysierung der Landschaft harmonischer und melodischer Stile\par}
+        {\fontsize{28}{34}\selectfont\color{titlecolor}\textbf{Empirische Musikalische Kartographie} \par Eine quantitative Analyse der stilistischen Evolution von Bach bis Debussy\par}
 
         \vspace{1.5cm}
         {\color{titlecolor}\rule{\linewidth}{1pt}}
@@ -99,20 +99,20 @@
 \section{Fachliche Kurzfassung}
 Die stilistische Evolution von der kontrapunktischen Strenge des Barock bis zur klanglichen Farbigkeit des Impressionismus ist musikwissenschaftlich umfassend beschrieben, ihre empirische Quantifizierung stellt jedoch eine methodische Herausforderung dar. Dieses Projekt entwickelt eine \emph{Empirische Musikalische Kartographie}, die diese Lücke durch Integration moderner computergestützter Verfahren mit interpretierbarer Merkmalsextraktion schließt.
 
-Die Methodik basiert auf drei komplementären Säulen: (1)~Kuratierung eines lizenzsicheren, balancierten Solo-Klavierkorpus mit 144 Werken (je 36 von Johann Sebastian Bach, Wolfgang Amadeus Mozart, Frédéric Chopin und Claude Debussy) aus dem 254\,077 Partituren umfassenden PDMX-Archiv, (2)~Entwicklung einer Python-Pipeline zur Extraktion von 36 interpretierbaren harmonischen, melodischen und rhythmischen Merkmalen mittels \texttt{music21}, (3)~statistische Kartierung durch ANOVA, Tukey-HSD-Tests und Principal Component Analysis (PCA) mit rigoroser Kontrolle der Fehlentdeckungsrate (Benjamini--Hochberg FDR).
+Die Methodik basiert auf drei komplementären Säulen: (1)~Kuratierung eines lizenzsicheren, balancierten Klavierkorpus mit 144 Partituren (je 36 von Johann Sebastian Bach, Wolfgang Amadeus Mozart, Frédéric Chopin und Claude Debussy) aus dem 254\,077 Partituren umfassenden PDMX-Archiv, (2)~Entwicklung einer Python-Pipeline zur Extraktion von 36 interpretierbaren harmonischen, melodischen und rhythmischen Merkmalen mittels \texttt{music21},\footnote{Die Zahl 36 für Werke/Komponist und die Zahl 36 für Merkmale sind unabhängig; die Übereinstimmung ist zufällig.} (3)~statistische Kartierung durch ANOVA, Tukey-HSD-Tests und Principal Component Analysis (PCA) mit Korrektur für multiples Testen (Bonferroni und Benjamini--Hochberg FDR).
 
-Die Analyse identifiziert 26 statistisch robuste Metriken (FDR $q<0{,}05$), die stilistische Epochen separieren. Chromatische Dichte (\texttt{pitch\_class\_entropy}), Dissonanzraten (\texttt{dissonance\_ratio}) und rhythmische Entropie unterscheiden die romantisch-impressionistischen Komponisten Chopin und Debussy signifikant vom klassischen Paar Bach/Mozart. Umgekehrt bündeln kadenzielle Disziplin und Downbeat-Betonung die barocken und klassischen Werke.
+Die Analyse identifiziert 29 statistisch robuste Metriken (FDR $q<0{,}05$), die stilistische Unterschiede quantifizieren. Chromatische Dichte (\texttt{pitch\_class\_entropy}), Dissonanzraten (\texttt{dissonance\_ratio}) und rhythmische Entropie trennen insbesondere Debussy deutlich von Mozart; Chopin liegt im Merkmalsraum häufig zwischen den Gruppen.
 
 Die Signale sind dabei nicht nur qualitativ, sondern auch statistisch extrem stark: exemplarisch ergeben sich in der Einweg-ANOVA etwa für \texttt{pitch\_range\_semitones} $p<1{,}8\times 10^{-19}$ und für \texttt{dissonance\_ratio} $p<2{,}7\times 10^{-15}$; auch rhythmische Marker wie \texttt{std\_note\_duration} ($p\approx1{,}5\times10^{-10}$) und \texttt{rhythmic\_pattern\_entropy} ($p\approx5{,}0\times10^{-10}$) bleiben nach FDR-Korrektur robust.
 
-Die PCA-Projektion visualisiert diese Differenzierung als dreidimensionale Landkarte: Bach und Mozart bilden einen kompakten klassischen Cluster, Debussy erscheint als isolierte impressionistische Insel, Chopin positioniert sich als Brückenfigur zwischen den Epochen. Diese quantitative Verortung bestätigt erstmals empirisch die musikhistorische These von Chopins Scharnierfunktion: Er bewahrt klassische kadenzielle Strukturen, während er harmonisch-melodisch in Richtung Impressionismus innoviert.
+Die PCA-Projektion visualisiert diese Differenzierung als dreidimensionale Landkarte: Bach und Mozart liegen gemeinsam in der Common-Practice-Region (ähnliche PC1-Werte), werden jedoch entlang PC2 (Dichte/Klarheit) getrennt. Debussy erscheint als isolierte impressionistische Insel, Chopin positioniert sich als Brückenfigur zwischen den Epochen. Diese quantitative Verortung bestätigt empirisch die musikhistorische These von Chopins Scharnierfunktion: Er bewahrt klassische kadenzielle Strukturen, während er harmonisch-melodisch in Richtung Impressionismus innoviert.
 
 Alle Skripte, Daten und Visualisierungen sind dokumentiert und ermöglichen reproduzierbare Folgeuntersuchungen zur stilistischen Evolution in der westlichen Kunstmusik.
 
 \section{Motivation und Fragestellung}
 Ein musikalisch ungeschulter Zuhörer erkennt intuitiv den stilistischen Kontrast zwischen einer Fuge von Johann Sebastian Bach und einem Prélude von Claude Debussy. Bach repräsentiert kontrapunktische Präzision, klare metrische Strukturen und diatonische Harmonik; Debussy nutzt parallele Akkorde, pentatonische und ganztonale Skalen sowie polyrhythmische Schichtungen zur Erzeugung von Klangfarben. Zwischen diesen Polen liegt ein reiches Spektrum stilistischer Ausdrucksformen, das durch Wolfgang Amadeus Mozart (Klassik) und Frédéric Chopin (Romantik) repräsentiert wird.
 
-Ziel dieser Arbeit ist es, diese intuitive Unterscheidung so zu formalisieren, dass ein Algorithmus den Stilunterschied zwischen der Common-Practice-Periode (Bach/Mozart) und der späten Romantik bzw. dem Impressionismus (Chopin/Debussy) anhand transparenter, interpretierbarer Merkmale ``hören'' kann -- ohne Black-Box-Modell und ohne manuelle Stil-Zuschreibungen auf Notenebene.
+Ziel dieser Arbeit ist es, diese intuitive Unterscheidung so zu formalisieren, dass ein Algorithmus den Stilunterschied zwischen der Common-Practice-Periode (Bach/Mozart) und der späten Romantik bzw. dem Impressionismus (Chopin/Debussy) anhand transparenter, interpretierbarer Merkmale ``hören'' kann -- ohne Black-Box-Modell und ohne manuelle Annotation von Einzelereignissen.
 
 Während die musikwissenschaftliche Literatur diese Evolution qualitativ umfassend beschreibt, fehlt es an empirischen, interpretierbaren Quantifizierungen. Frühere computergestützte Ansätze litten unter zwei komplementären Schwächen: Vereinfachte Metriken (z.\,B.\ reine Notenstatistik) erlaubten nur oberflächliche Aussagen, während komplexe Black-Box-Modelle (neuronale Netze) zwar trennscharf, aber musikologisch intransparent waren.\footnote{Vgl.\ \cite{Simonetta2025} für eine systematische Übersicht über Composer-Identification-Ansätze.}
 
@@ -155,7 +155,7 @@ Frühe Versuche, diese Komponisten algorithmisch zu unterscheiden, wie Lin-Jengs
                 \toprule
         \textbf{Aspekt} & \textbf{Lin-Jeng (1987)} & \textbf{Diese Arbeit (2026)} \\
         \midrule
-        Korpus & Manuell kodierte Teilmenge & 144 auto-kuratierte Solo-Klavierwerke aus >250\,000 Partituren \\
+        Korpus & Manuell kodierte Teilmenge & 144 auto-kuratierte Solo-Klavierwerke aus $>$250\,000 Partituren \\
         Datenformat & DARMS & MusicXML / \texttt{music21}-Objekte \\
         Analyse & Prolog-Regeln, Mustererkennung & Python-Pipeline mit 36 Merkmalen, CLI-Tools \\
         Zielsetzung & Klassifikation & Statistische Kartographie (ANOVA \& PCA) \\
@@ -178,7 +178,7 @@ Die Pipeline wurde vollständig in Python~3.10 entwickelt (\texttt{pandas}, \tex
         \item Balancierung: Clipping auf die kleinste Anzahl gültiger Werke pro Komponist (36) verhindert Verzerrungen.
     
     \end{enumerate}
-    \item \textbf{Ergebnis}: 144 Werke, Ø 153 Takte, Ø 2,1 Stimmen, 73\,000 Viertelnoten (\textasciitilde13,5 Stunden bei 90 BPM).
+    \item \textbf{Ergebnis}: 144 Partituren, Ø 148{,}2 Takte, Ø 2,1 Stimmen, 71\,585 Viertelnoten (\textasciitilde13,3 Stunden bei 90 BPM).
 \end{itemize}
 
 Zwischendiagnostik (\texttt{--skip-}\,Flags, unterschiedliche Rating-Schwellen) wurde automatisiert protokolliert und zeigte, dass Lockerungen zwar die Stückzahl erhöhen, aber Lizenzrisiken und starke composer bias erzeugen.
@@ -187,7 +187,7 @@ Zwischendiagnostik (\texttt{--skip-}\,Flags, unterschiedliche Rating-Schwellen) 
 Für jede Partitur werden harmonische, melodische und rhythmische Deskriptoren erzeugt:\footnote{Details siehe \texttt{ShortArticle.md} und \texttt{Article.md}.}
 \begin{description}
     \item[Harmonik (16 Merkmale)] \texttt{music21.stream.Score.chordify()} erstellt einen Akkordstream; es folgen Berechnung von Akkordqualitätsanteilen, harmonischer Dichte, Modal-Interchange-Raten sowie Klassifikation nichtakkordischer Töne (Durchgänge, Vorhalte, Appoggiaturen). Roman-Numeral-Analysen liefern Kadenzenstatistiken.
-    \item[Melodik (11 Merkmale)] Stimmen werden expandiert, um Ambitus (\texttt{pitch\_range\_semitones}), Intervallstatistiken, Leap-Ratios und Pitch-Class-Entropie abzuleiten. Ein neues Bewegungsmodell vergleicht Sopran/Bass-Wechsel und liefert Anteile an Gegen-, Parallel- und Oblique-Motion.
+    \item[Melodik (11 Merkmale)] Stimmen werden expandiert, um Ambitus (\texttt{pitch\_range\_semitones}) und Tonklassenstatistiken zu erfassen. Intervall-basierte Melodik wird aus dem oberen System (erstes \texttt{Part} in MusicXML; Proxy für die rechte Hand/Sopranlage) abgeleitet, um Polyphonie nicht vollständig zu ``flatten''. Für Stimmführungsmetriken wird pro Zeitpunkt die höchste Note im oberen System mit der tiefsten Note im unteren System verglichen; daraus ergeben sich Anteile an Gegen-, Parallel- und Oblique-Motion.
     \item[Rhythmik (9 Merkmale)] Gleitfenster analysieren Dauerverteilungen, Downbeat-Betonung, Synkopationen, mikro-rhythmische Dichte und Cross-Rhythm-Mismatches zwischen Händen.
 \end{description}
 
@@ -201,7 +201,7 @@ Tabelle~\ref{tab:features} erklärt zentrale Merkmale, die später als signifika
         \textbf{Merkmal} & \textbf{Säule} & \textbf{Beschreibung} \\
         \midrule
         \texttt{pitch\_range\_semitones} & Melodik & Tonumfang zwischen tiefster und höchster Note eines Stücks (Halbtonschritte). \\
-        \texttt{dissonance\_ratio} & Harmonik & Anteil nichtakkordischer Noten (Durchgänge, Appoggiaturen, sonstige Dissonanzen). \\
+        \texttt{dissonance\_ratio} & Harmonik & Anteil dissonanter Akkord-Events im \texttt{chordify()}-Stream (\texttt{Chord.isConsonant()==False}). \\
         \texttt{pitch\_class\_entropy} & Melodik & Shannon-Entropie der verwendeten Tonklassen, Indikator für Chromatik. \\
         \texttt{rhythmic\_pattern\_entropy} & Rhythmik & Entropie eines Sliding-Window-Rhythmus-Profils, misst rhythmische Vielfalt. \\
         \texttt{std\_note\_duration} & Rhythmik & Standardabweichung der Notenlängen; höher bedeutet Mischung aus sehr kurzen und sehr langen Noten (Proxy für rubatohafte Fluidität). \\
@@ -215,8 +215,8 @@ Tabelle~\ref{tab:features} erklärt zentrale Merkmale, die später als signifika
 \begin{enumerate}
     \item \textbf{ANOVA}: Einweg-ANOVA pro Merkmal testet globale Mittelwertunterschiede zwischen vier Gruppen. Die 36 Tests wurden auf Mindeststichproben (36 Werke/Komponist) geprüft.
     \item \textbf{Tukey HSD}: Bei signifikanten ANOVA-Ergebnissen identifiziert Tukey HSD die betroffenen Komponistenpaare mit Konfidenzintervallen und adjustierten \textit{p}-Werten.
-    \item \textbf{Multiple-Testing-Korrektur}: Bonferroni erwies sich als zu konservativ (11 statt 27 Treffer). Daher kam Benjamini--Hochberg FDR (\(q<0{,}05\)) zum Einsatz, wodurch 26 robuste Merkmale verbleiben.\footnote{Vgl.\ \cite{Benjamini1995}.}
-    \item \textbf{PCA}: Die standardisierte 144×26-Matrix wurde mit PCA reduziert (Seed 42 für Reproduzierbarkeit). PC1--PC3 erklären 47{,}3\% der Varianz. Gaußsche Dichtewolken (Plotly-Isosurfaces) visualisieren Cluster. Wichtig: Reine Zählmerkmale (\texttt{note\_count}, \texttt{chord\_event\_count}, \texttt{roman\_chord\_count}, \texttt{dissonant\_note\_count}) wurden vor PCA entfernt, damit Dichte- und Verhältnismetriken die Achsen dominieren.
+    \item \textbf{Multiple-Testing-Korrektur}: Bonferroni ist bei 36 Tests streng (14 statt 29 Treffer bei \(\alpha=0{,}05\)). Benjamini--Hochberg FDR (\(q<0{,}05\)) bestätigt in der aktuellen Auswertung ebenfalls 29 Merkmale; im Export werden dennoch FDR-adjustierte \textit{p}-Werte berichtet.\footnote{Vgl.\ \cite{Benjamini1995}.}
+    \item \textbf{PCA}: Für die PCA wurden aus den 36 Merkmalen reine Zähl- und Größenmerkmale entfernt (\texttt{note\_count}, \texttt{note\_event\_count}, \texttt{chord\_event\_count}, \texttt{chord\_quality\_total}, \texttt{roman\_chord\_count}, \texttt{dissonant\_note\_count}), sodass eine standardisierte 144×30-Matrix entsteht. Die PCA wurde mit Seed 42 durchgeführt; PC1--PC3 erklären 48{,}2\% der Varianz (22{,}3\%, 16{,}1\%, 9{,}8\%). Gaußsche Dichtewolken (Plotly-Isosurfaces) visualisieren Cluster.
 \end{enumerate}
 
 \subsection{Software-Architektur und Reproduzierbarkeit}
@@ -235,18 +235,18 @@ Alle Skripte verwenden \texttt{argparse} für konfigurierbare Parameter, unterst
 
 \section{Ergebnisse}
 \subsection{Signifikante Stil-Merkmale}
-26 Merkmale überschreiten nach FDR-Korrektur \(q<0{,}05\). Abbildung~\ref{fig:anova} zeigt die 15 stärksten Omnibus-Treffer; Abbildung~\ref{fig:pairwise} quantifiziert signifikante Paarunterschiede (Debussy--Mozart: 16 Merkmale, Bach--Mozart: 0).
+29 Merkmale überschreiten nach FDR-Korrektur \(q<0{,}05\). Abbildung~\ref{fig:anova} zeigt die 15 stärksten Omnibus-Treffer; Abbildung~\ref{fig:pairwise} quantifiziert signifikante Paarunterschiede (Debussy--Mozart: 16 Merkmale, Bach--Mozart: 10; inklusive reiner Zähl-/Größenmetriken sind es 16).
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/significance/top_anova_bar.png}
-    \caption{Die 15 signifikantesten Merkmale nach ANOVA-Tests (dargestellt als $-\log_{10}(p)$). Merkmale aus allen drei Säulen (harmonisch, melodisch, rhythmisch) zeigen hohe statistische Trennschärfe. Die stärksten Unterschiede ergeben sich bei melodischen Merkmalen wie \texttt{pitch\_range\_semitones} und harmonischen Merkmalen wie \texttt{dissonance\_ratio}.}\label{fig:anova}
+    \caption{Die 15 signifikantesten Merkmale nach ANOVA-Tests (dargestellt als $-\log_{10}(p)$). Merkmale aus allen drei Säulen (Harmonik, Melodik, Rhythmik) zeigen hohe statistische Trennschärfe. Die stärksten Unterschiede ergeben sich u.\,a. bei melodischen Merkmalen wie Tonumfang (Halbtöne) und harmonischen Merkmalen wie Dissonanzanteil.}\label{fig:anova}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/significance/tukey_pair_heatmap.png}
-    \caption{Anzahl signifikanter Merkmale je Komponistenpaar (Tukey HSD). Die Heatmap quantifiziert die stilistische Distanz: Debussy--Mozart zeigen 16 unterschiedliche Merkmale, während Bach--Mozart statistisch nicht unterscheidbar sind (0 signifikante Differenzen). Dies untermauert die enge Verwandtschaft der klassischen Komponisten und die revolutionäre Isolation Debussys.}\label{fig:pairwise}
+    \caption{Anzahl signifikanter Merkmale je Komponistenpaar (Tukey HSD). Die Heatmap quantifiziert die stilistische Distanz: Debussy--Mozart zeigen 16 unterschiedliche Merkmale; Bach--Mozart unterscheiden sich in 10 Merkmalen (in dieser Darstellung ohne reine Zähl-/Größenmetriken; inklusive dieser sind es 16). Debussy bleibt in der Paarstatistik insgesamt am stärksten von Mozart separiert.}\label{fig:pairwise}
 \end{figure}
 
 Zur Vertiefung werden exemplarische Boxplots pro Säule gezeigt (Abbildungen~\ref{fig:dissonance}, \ref{fig:ambitus}, \ref{fig:rhyentropy}). Sie verdeutlichen die metrischen Unterschiede hinter den statistischen Tests.
@@ -270,12 +270,12 @@ Zur Vertiefung werden exemplarische Boxplots pro Säule gezeigt (Abbildungen~\re
 \end{figure}
 
 \subsection{Die empirische musikalische Landkarte}
-Die PCA-Visualisierung (Abbildung~\ref{fig:clouds}) fasst die 26 Merkmale in drei Dimensionen zusammen. Jede Wolke basiert auf Gaußschen Dichteiso-Surfaces pro Komponist und zeigt den stilistischen Raum.
+Die PCA-Visualisierung (Abbildung~\ref{fig:clouds}) fasst die 30 PCA-Eingangsmerkmale (36 Gesamtmerkmale abzüglich reiner Zähl-/Größenmerkmale) in drei Dimensionen zusammen. Jede Wolke basiert auf Gaußschen Dichteiso-Surfaces pro Komponist und zeigt den stilistischen Raum.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\textwidth]{figures/embeddings/composer_clouds_3d.png}
-    \caption{3D-PCA-Projektion der 144 Werke im standardisierten 26-Merkmalsraum. Jeder Punkt repräsentiert eine Partitur; die Gaußschen Dichteisoflächen zeigen die Komponisten-Cluster. Die empirische Landkarte offenbart: (1)~Bach/Mozart bilden einen kompakten klassischen Cluster (niedrige PC1-Werte), (2)~Debussy ist als isolierte impressionistische Insel positioniert (hohe PC1- und PC3-Werte), (3)~Chopin fungiert als Brücke zwischen den Epochen.}\label{fig:clouds}
+    \caption{3D-PCA-Projektion der 144 Partituren im standardisierten 30-Merkmalsraum. Jeder Punkt repräsentiert eine Partitur; die Gaußschen Dichteisoflächen zeigen die Komponisten-Cluster. Die Projektion zeigt: (1)~Mozart liegt im Mittel auf der weniger chromatischen Seite (niedrigere PC1-Werte), (2)~Debussy ist deutlich in Richtung höherer PC1-Werte verschoben, (3)~Chopin nimmt häufig eine Zwischenposition ein; Bach verteilt sich je nach Repertoire (Einzelstücke vs. Sammlungen) breiter.}\label{fig:clouds}
 \end{figure}
 
 Tabelle~\ref{tab:loadings} interpretiert die Achsen über die stärkst korrelierten Merkmale.
@@ -287,9 +287,9 @@ Tabelle~\ref{tab:loadings} interpretiert die Achsen über die stärkst korrelier
                 \toprule
         \textbf{Komponente} & \textbf{Varianz} & \textbf{Positive Ladungen (Auswahl)} & \textbf{Negative Ladungen (Auswahl)} \\
         \midrule
-        PC1 & 21.5\% & \texttt{dissonance\_ratio}, \texttt{pitch\_class\_entropy}, \texttt{melodic\_leap\_ratio} & \texttt{downbeat\_emphasis\_ratio} \\
-        PC2 & 15.5\% & \texttt{harmonic\_density\_mean}, \texttt{notes\_per\_beat} & \texttt{std\_note\_duration}, \texttt{cadence\_discipline} \\
-        PC3 & 10.3\% & \texttt{pitch\_range\_semitones}, \texttt{cross\_rhythm\_ratio} & \texttt{conjunct\_motion\_ratio} \\
+        PC1 & 22.3\% & \texttt{harmonic\_density\_mean}, \texttt{avg\_melodic\_interval}, \texttt{dissonance\_ratio} & \texttt{chord\_quality\_other\_pct}, \texttt{conjunct\_motion\_ratio} \\
+        PC2 & 16.1\% & \texttt{avg\_note\_duration}, \texttt{downbeat\_emphasis\_ratio}, \texttt{appoggiatura\_ratio} & \texttt{micro\_rhythmic\_density}, \texttt{notes\_per\_beat}, \texttt{other\_dissonance\_ratio} \\
+        PC3 & 9.8\% & \texttt{oblique\_motion\_ratio}, \texttt{cross\_rhythm\_ratio}, \texttt{rhythmic\_pattern\_entropy} & \texttt{parallel\_motion\_ratio}, \texttt{melodic\_leap\_ratio} \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -322,19 +322,19 @@ Ein zweiter, bewusst außerhalb des Trainingskorpus gewählter Test ist Maurice 
 \subsection{Interpretation der Landkarte}
 Die Achseninterpretation (Tabelle~\ref{tab:loadings}) ermöglicht eine musikologisch fundierte Deutung der empirischen Landkarte. Die drei Hauptkomponenten erfassen komplementäre Aspekte stilistischer Differenzierung:
 
-\textbf{PC1 (21,5\% Varianz) -- Chromatik und Dissonanz:} Diese Achse trennt primär nach harmonischer Komplexität. Positive Ladungen auf \texttt{dissonance\_ratio}, \texttt{pitch\_class\_entropy} und \texttt{melodic\_leap\_ratio} kennzeichnen Stücke mit hoher chromatischer Dichte und Dissonanzverwendung. Die negative Korrelation mit \texttt{downbeat\_emphasis\_ratio} zeigt, dass harmonische Komplexität oft mit rhythmischer Ambiguität einhergeht.
+\textbf{PC1 (22,3\% Varianz) -- Chromatik und Dissonanz:} Diese Achse trennt primär nach harmonischer Komplexität. Positive Ladungen auf \texttt{dissonance\_ratio}, \texttt{pitch\_class\_entropy} und \texttt{melodic\_leap\_ratio} kennzeichnen Stücke mit hoher chromatischer Dichte und Dissonanzverwendung. Die negative Korrelation mit \texttt{downbeat\_emphasis\_ratio} zeigt, dass harmonische Komplexität oft mit rhythmischer Ambiguität einhergeht.
 
-\textbf{PC2 (15,5\% Varianz) -- Dichte versus Klarheit:} Diese Achse kontrastiert note-dichte, rhythmisch komplexe Texturen (\texttt{harmonic\_density\_mean}, \texttt{notes\_per\_beat}) gegen kadenzielle Disziplin und lange Notenwerte. Sie erfasst den Unterschied zwischen kontrapunktischer Sättigung (Bach) und galanter Klarheit (Mozart).
+\textbf{PC2 (16,1\% Varianz) -- Dichte versus Klarheit:} Diese Achse kontrastiert note-dichte, rhythmisch komplexe Texturen (\texttt{harmonic\_density\_mean}, \texttt{notes\_per\_beat}) gegen kadenzielle Disziplin und lange Notenwerte. Sie erfasst den Unterschied zwischen kontrapunktischer Sättigung (Bach) und galanter Klarheit (Mozart).
 
-\textbf{PC3 (10,3\% Varianz) -- Registrale Textur:} Diese Achse misst vor allem den Tonumfang (\texttt{pitch\_range\_semitones}) und intervallische Vielfalt. Hohe Werte charakterisieren Werke, die den erweiterten Ambitus des modernen Flügels ausnutzen.
+\textbf{PC3 (9,8\% Varianz) -- Registrale Textur:} Diese Achse misst vor allem den Tonumfang (\texttt{pitch\_range\_semitones}) und intervallische Vielfalt. Hohe Werte charakterisieren Werke, die den erweiterten Ambitus des modernen Flügels ausnutzen.
 
 Aus dieser Interpretation ergibt sich die Cluster-Struktur:
 \begin{itemize}
-    \item \textbf{Bach \& Mozart} (klassischer Cluster): Beide Komponisten teilen niedrige PC1-Werte (geringe Chromatik, funktionale Harmonik) und moderate PC3-Werte (begrenzte Register). Der Tukey-Test findet 0 signifikante Unterschiede zwischen ihnen -- sie sind statistisch eine Einheit. Ihre Separation entlang PC2 reflektiert lediglich unterschiedliche Satztechniken: Bachs polyphone Dichte versus Mozarts homophone Transparenz.
+    \item \textbf{Bach \& Mozart} (klassische Region): Beide Komponisten liegen im PCA-Mittel auf der weniger chromatischen Seite (ähnliche PC1-Werte) im Vergleich zu Debussy -- das ist historisch plausibel und kein ``Versagen'' der Methode, sondern ein Hinweis auf gemeinsame Common-Practice-Regeln. Gleichzeitig zeigt die Trennung entlang PC2 konsistent texturale Unterschiede (kontrapunktische Dichte vs. homophone Transparenz). Im aktuellen Korpus ergibt der Tukey-Test 16 signifikante Unterschiede zwischen Bach und Mozart (davon 6 reine Zähl-/Größenmetriken wie \texttt{note\_count}, \texttt{chord\_event\_count}; ohne diese bleiben 10).
     
     \item \textbf{Debussy} (impressionistische Insel): Debussy ist auf allen drei Achsen extrempositioniert: höchste PC1-Werte (maximale Chromatik/Dissonanz), höchste PC3-Werte (extremer Ambitus) und spezifische PC2-Charakteristik. Diese dreifache Isolation quantifiziert seine revolutionäre Sonderstellung. Die 16 signifikanten Unterschiede zu Mozart (Abbildung~\ref{fig:pairwise}) untermauern, dass nahezu jede Dimension des musikalischen Raums betroffen ist.
     
-    \item \textbf{Chopin} (Brückenfigur): Chopins Position zwischen den Clustern ist nicht zufällig, sondern Resultat selektiver Innovation. Entlang PC2 behält er klassische kadenzielle Strukturen bei (Nähe zu Bach/Mozart), während er auf PC1 und PC3 in Richtung Debussy tendiert (erhöhte Chromatik, erweiterte Register). Die 12 signifikanten Übereinstimmungen mit Debussy bei gleichzeitiger Bewahrung von 4 klassischen Kennzeichen machen ihn zur quantifizierten Brücke.
+    \item \textbf{Chopin} (Zwischenregion): Chopin liegt im Merkmalsraum häufig zwischen Mozart und Debussy. In den paarweisen Tukey-Tests unterscheidet sich Chopin von Debussy in 4 Merkmalen, von Mozart in 8 und von Bach in 7. Diese Asymmetrie ist konsistent mit einer intermediären Position, ist aber korpusabhängig (siehe Limitationen).
 \end{itemize}
 
 \subsection{Chopins Rolle als Brücke}
@@ -343,11 +343,11 @@ Die zweite Forschungsfrage -- "Bestätigt die quantitative Landkarte Chopins Rol
 Die musikwissenschaftliche Literatur beschreibt Chopin als Innovator, der klassische Formen beibehielt, aber harmonisch revolutionierte.\footnote{\cite{ChopinTransformations}.} Die vorliegende Datenanalyse liefert erstmals einen messbaren Beweis für diese These:
 
 \begin{enumerate}
-    \item \textbf{Visueller Beweis:} In Abbildung~\ref{fig:clouds} überbrückt Chopins Wolke den geometrischen Raum zwischen dem Bach/Mozart-Cluster und Debussys Insel. Diese Position ist kein Artefakt der Dimensionsreduktion, sondern reproduzierbar in 2D-Projektionen und t-SNE-Einbettungen.
+    \item \textbf{Visueller Befund:} In Abbildung~\ref{fig:clouds} liegt Chopin im PCA-Raum zwischen Mozart (negativere PC1-Werte) und Debussy (positivere PC1-Werte). Eine ähnliche Grobstruktur zeigt sich auch in den erzeugten 2D-Projektionen und t-SNE-Visualisierungen; dennoch bleiben Form und Abstand der Wolken abhängig von Korpuszusammensetzung und Feature-Set.
     
     \item \textbf{Statistischer Beweis:} Der Tukey-Test identifiziert die spezifischen Merkmale, die Chopin mit beiden Epochen verbinden:
     \begin{itemize}
-        \item \emph{Klassische Kontinuität:} \texttt{downbeat\_emphasis\_ratio}, \texttt{cadence\_discipline}, metrische Klarheit
+        \item \emph{Klassische Kontinuität:} \texttt{downbeat\_emphasis\_ratio}, \texttt{std\_note\_duration}, metrische Klarheit
         \item \emph{Romantische Innovation:} \texttt{pitch\_class\_entropy} (essentielle Chromatik), \texttt{dissonance\_ratio}, \texttt{pitch\_range\_semitones}
     \end{itemize}
     
@@ -365,8 +365,9 @@ Die musikwissenschaftliche Literatur beschreibt Chopin als Innovator, der klassi
 
 \textbf{Bekannte Limitationen:}
 \begin{enumerate}
-    \item \textbf{Korpus-Beschränkung:} Fokus auf Solo-Klavierwerke. Orchestrale oder Vokalwerke könnten andere stilistische Signaturen zeigen.
-    \item \textbf{Erklärte Varianz:} PC1--PC3 erfassen 47,3\% der Gesamtvarianz. Die verbleibenden 52,7\% enthalten zusätzliche stilistische Information (z.\,B.\ formale Strukturen, Artikulation, Dynamik), die durch die 36 Merkmale nicht modelliert wird.
+    \item \textbf{Korpus-Beschränkung:} Der Korpus ist auf Klavier-basierte Partituren aus PDMX beschränkt. Einzelne Einträge sind Sammlungen (z.\,B. ganze Zyklen) oder Duo-/Arrangements (z.\,B. \textit{Piano Duo}); diese können Verteilungen und PCA-Cluster sichtbar beeinflussen.
+    \item \textbf{Normalisierung \& Stücklänge:} Zählmetriken werden in der Auswertung als Anteile oder durch Standardisierung in der PCA robust gemacht; Entropie-Maße (z.\,B. \texttt{pitch\_class\_entropy}, \texttt{rhythmic\_pattern\_entropy}) können bei sehr kurzen Stücken dennoch leicht stichprobenabhängig sein.
+    \item \textbf{Erklärte Varianz:} PC1--PC3 erfassen 48,2\% der Gesamtvarianz der extrahierten Merkmale. Die verbleibenden 51,8\% liegen in höheren Dimensionen (PC4 ff.). Das bedeutet, dass stilistische Details zwar in den 36 Merkmalen modelliert sind, jedoch aufgrund der komplexen Hochdimensionalität des Datenraums in der vereinfachten 3D-Visualisierung nicht vollständig dargestellt werden können.
     \item \textbf{Symbolische Limitierung:} Die Analyse basiert auf Notentexten, nicht auf Interpretationen. Performative Aspekte (Tempo-Rubato, Pedalisierung, Agogik) bleiben unberücksichtigt.
     \item \textbf{Historische Verzerrung:} Die Korpus-Balance reflektiert nicht die tatsächliche Produktivität der Komponisten (Bach schrieb mehr Werke als im Korpus vertreten).
 \end{enumerate}
@@ -378,9 +379,9 @@ Die statistischen Aggregate verbergen instruktive Extremfälle, die die Validit�
 
 \textbf{Rhythmische Extreme:}
 \begin{itemize}
-    \item \textbf{Debussy -- La cathédrale engloutie}: Zeigt die größte rhythmische Dispersion (\texttt{std\_note\_duration} = 1,63) im gesamten Korpus. Die alternierendan langen Pedalsonoritäten und kurzen ornamentalen Figuren erzeugen diese Varianz -- ein charakteristisches Merkmal impressionistischer Textur.
+    \item \textbf{Debussy -- La cathédrale engloutie}: Gehört im Korpus zu den Werken mit sehr hoher rhythmischer Dispersion (\texttt{std\_note\_duration}). Alternierende lange Pedalsonoritäten und kurze ornamentale Figuren erzeugen diese Varianz -- ein charakteristisches Merkmal impressionistischer Textur.
     
-    \item \textbf{Bach -- Choralsammlung}: Erreicht die höchste Synkopationsrate (0,356) durch suspensionsreiche Halbschlag-Überbin\-dungen über 11\,000 Events. Dies bestätigt, dass die Synkopationsdetektion musikalische Substanz erfasst, nicht nur metrische Artefakte.
+    \item \textbf{Bach -- Choralsammlungen}: Zeigen im Korpus teils hohe \texttt{syncopation\_ratio}-Werte durch suspensionsreiche Überbindungen. Dies dient als Plausibilitätscheck, dass die Synkopationsdetektion musikalische Substanz erfasst, nicht nur metrische Artefakte.
 \end{itemize}
 
 Diese Extremwerte wurden nach Verfeinerung der Meter-bewussten Synkopationserkennung revalidiert und bestätigen, dass die beobachteten Unterschiede genuine stilistische Signaturen sind.
@@ -393,9 +394,9 @@ Die zentrale Forschungsfrage -- "Kann ein kuratierter Satz interpretierbarer Mer
 
 \textbf{Empirische Bestätigungen:}
 \begin{enumerate}
-    \item \textbf{Identifikation signifikanter Merkmale:} 26 von 36 Metriken überschreiten die FDR-Schwelle. Die stärksten Separatoren -- \texttt{pitch\_range\_semitones}, \texttt{dissonance\_ratio}, \texttt{pitch\_class\_entropy} -- erfassen zentrale Dimensionen musikhistorischer Evolution.
+    \item \textbf{Identifikation signifikanter Merkmale:} 29 von 36 Metriken überschreiten die FDR-Schwelle. Die stärksten Separatoren -- \texttt{pitch\_range\_semitones}, \texttt{dissonance\_ratio}, \texttt{pitch\_class\_entropy} -- erfassen zentrale Dimensionen musikhistorischer Evolution.
     
-    \item \textbf{Bach/Mozart-Cluster:} Die statistische Ununterscheidbarkeit (0 Tukey-Differenzen) quantifiziert ihre gemeinsame klassische Sprache und bestätigt musikwissenschaftliche Epochen-Kategorisierungen.
+    \item \textbf{Bach/Mozart-Cluster:} Trotz stilistischer Nähe zeigt der Tukey-HSD-Test im aktuellen Korpus 16 signifikante Unterschiede zwischen Bach und Mozart (bzw. 10, wenn reine Zähl-/Größenmetriken ausgeschlossen werden). Das stützt eher die These einer teilweisen Überlappung im Merkmalsraum als eine vollständige statistische Ununterscheidbarkeit.
     
     \item \textbf{Debussy-Isolation:} 16 signifikante Unterschiede zu Mozart belegen Debussys revolutionären Sonderstatus. Die PCA positioniert ihn als isolierte "impressionistische Insel".
     
@@ -416,7 +417,7 @@ Die entwickelte Infrastruktur bietet Ansatzpunkte für vielfältige Erweiterunge
 
 \textbf{Methodische Erweiterungen:}
 \begin{itemize}
-    \item \textbf{Machine Learning:} Training interpretierbarer Klassifikatoren (Random Forest, Gradient Boosting) auf dem 26-Merkmalsraum. Vergleich mit Lin-Jengs regelbasierten Ansätzen und modernen Deep-Learning-Methoden zur Bewertung von Interpretierbarkeit versus Genauigkeit. Die bereits entwickelte PCA-Basis ermöglicht direkten Übergang zu überwachtem Lernen.
+    \item \textbf{Machine Learning:} Training interpretierbarer Klassifikatoren (Random Forest, Gradient Boosting) auf dem 30-Merkmalsraum (PCA-Eingangsmerkmale). Vergleich mit Lin-Jengs regelbasierten Ansätzen und modernen Deep-Learning-Methoden zur Bewertung von Interpretierbarkeit versus Genauigkeit. Die bereits entwickelte PCA-Basis ermöglicht direkten Übergang zu überwachtem Lernen.
     \item \textbf{Temporale Modellierung:} Integration von Markov-Modellen oder rekurrenten Netzen zur Erfassung sequenzieller Muster (z.\,B.\ charakteristische Akkordprogressionen, melodische Gesten). Die aktuelle Merkmalsmenge erfasst Statistiken über ganze Werke; sequenzielle Analysen könnten Formteile differenzieren.
     \item \textbf{Merkmals-Engineering:} Ergänzung um Dynamik-, Artikulations- und Pedal-Informationen (sofern in MusicXML kodiert). Die \texttt{music21}-Infrastruktur unterstützt diese Erweiterungen ohne Architektur-Änderungen.
     \item \textbf{Erweiterte Dissonanzklassifikation:} Differenzierung zwischen vorbereiteten/nicht vorbereiteten Dissonanzen, Erfassung von Auflösungsrichtungen (aufwärts/abwärts), Quantifizierung von Suspensions-Ketten.
@@ -474,14 +475,14 @@ Alle Prozentsätze relativ zu \texttt{chord\_quality\_total}:
     
     \item[\texttt{chord\_quality\_augmented\_pct}] Anteil übermäßiger Dreiklänge. Selten; meist chromatische Durchgangsharmonien.
     
-    \item[\texttt{chord\_quality\_other\_pct}] Nicht-terzenbasierte Akkorde (Quart-/Sekundschichtungen, Vorhalte, Cluster). Hohe Werte bei Debussy.
+    \item[\texttt{chord\_quality\_other\_pct}] Nicht-terzenbasierte Akkorde (Quart-/Sekundschichtungen, Vorhalte, Cluster). Hohe Werte bei Debussy (z.\,B.\ \emph{Debussy: Prelude Book 2 No 12 Feux d'artifice}: 77{,}8\%).
 \end{description}
 
 \subsubsection*{Textur und Konsonanz}
 \begin{description}
-    \item[\texttt{harmonic\_density\_mean}] Durchschnittliche Anzahl verschiedener Tonklassen pro Akkord. Werte >4 deuten auf erweiterte Harmonien hin.
+    \item[\texttt{harmonic\_density\_mean}] Durchschnittliche Anzahl verschiedener Tonklassen pro Akkord. Werte nahe 4 deuten auf erweiterte Harmonien hin (z.\,B.\ \emph{Chopin: Étude Op.\,10 Nr.\,11}: 3{,}785).
     
-    \item[\texttt{dissonance\_ratio}] Anteil dissonanter Akkorde nach \texttt{music21.isConsonant()}. Misst vertikale Spannungsfrequenz.
+    \item[\texttt{dissonance\_ratio}] Anteil dissonanter Akkorde nach \texttt{music21.isConsonant()}. Misst vertikale Spannungsfrequenz (z.\,B.\ \emph{Debussy: Pour remercier la pluie au matin}: 0{,}845 vs.\ \emph{Mozart: Tuba Mirum}: 0{,}000).
 \end{description}
 
 \subsubsection*{Nichtakkordische Töne}
@@ -502,44 +503,44 @@ Bezogen auf die melodische Hauptstimme; Nenner ist \texttt{dissonant\_note\_coun
     
     \item[\texttt{deceptive\_cadence\_ratio}] Häufigkeit von Trugschlüssen (V--vi statt V--I).
     
-    \item[\texttt{modal\_interchange\_ratio}] Anteil modaler Mischklänge (z.\,B.\ bVI in Dur aus parallelem Moll).
+    \item[\texttt{modal\_interchange\_ratio}] Anteil modaler Mischklänge (z.\,B.\ bVI in Dur aus parallelem Moll; z.\,B.\ \emph{Debussy: Petite suite}: 0{,}265).
 \end{description}
 
 \subsection{Melodische Merkmale (11)}
 
 \subsubsection*{Registrale Merkmale}
 \begin{description}
-    \item[\texttt{note\_count}] Gesamtzahl melodischer Events (inkl.\ expandierter Akkordtöne).
+    \item[\texttt{note\_count}] Gesamtzahl melodischer Events (inkl.\ expandierter Akkordtöne). Beispiele: \emph{Bach: chorale harmonisations 241--371} 30\,349 Events; \emph{Mozart: Thema K.\,331} 55 Events.
     
-    \item[\texttt{pitch\_range\_semitones}] Ambitus in Halbtönen zwischen tiefster und höchster Note. Mozart: $\sim$50, Debussy: $\sim$70.
+    \item[\texttt{pitch\_range\_semitones}] Ambitus in Halbtönen zwischen tiefster und höchster Note. Beispiele: \emph{Mozart: Tuba Mirum} 22 Halbtöne; \emph{Debussy: Feux d'artifice} 84 Halbtöne.
 \end{description}
 
 \subsubsection*{Intervallik}
 \begin{description}
-    \item[\texttt{avg\_melodic\_interval}] Mittlere Intervallgröße (absolut, Halbtöne) aufeinanderfolgender Noten. Mozart: 3,4 (schrittdominant), Debussy: 4,8 (sprungreich).
+    \item[\texttt{avg\_melodic\_interval}] Mittlere Intervallgröße (absolut, Halbtöne) aufeinanderfolgender Noten (z.\,B.\ \emph{Chopin: Étude Op.\,10 Nr.\,11}: 8{,}99).
     
     \item[\texttt{melodic\_interval\_std}] Standardabweichung der Intervallgrößen. Hohe Werte zeigen Wechsel zwischen Schritten und großen Sprüngen (Chopin).
     
-    \item[\texttt{conjunct\_motion\_ratio}] Anteil schrittweiser Intervalle ($\leq$Ganzton). Mozart: 0,52; Debussy: 0,38.
+    \item[\texttt{conjunct\_motion\_ratio}] Anteil schrittweiser Intervalle ($\leq$Ganzton).
     
     \item[\texttt{melodic\_leap\_ratio}] Anteil von Sprüngen ($>$Ganzton). Komplementär zu \texttt{conjunct\_motion\_ratio}.
 \end{description}
 
 \subsubsection*{Tonklassenverteilung}
 \begin{description}
-    \item[\texttt{pitch\_class\_entropy}] Shannon-Entropie der 12-Ton-Verteilung (Basis 2). Misst chromatische Dichte: Mozart 2,96 (diatonisch), Chopin 3,25 (chromatisch).
+    \item[\texttt{pitch\_class\_entropy}] Shannon-Entropie der 12-Ton-Verteilung (Basis 2). Misst chromatische Dichte (z.\,B.\ \emph{Mozart: Thema K.\,331}: 2{,}296 vs.\ \emph{Chopin: 24 Préludes Op.\,28 (Gesamt)}: 3{,}566).
 \end{description}
 
 \subsubsection*{Zweistimmige Interaktion}
 Sopran (oberstes System) vs.\ Bass (unterstes System):
 \begin{description}
-    \item[\texttt{voice\_independence\_index}] Netto-Balance zwischen Gegen- und Parallelbewegung: $(\text{contrary}  - \text{parallel}) / \text{total}$. Bach: $-0{,}13$ (leicht parallel-dominant).
+    \item[\texttt{voice\_independence\_index}] Netto-Balance zwischen Gegen- und Parallelbewegung: $(\text{contrary}  - \text{parallel}) / \text{total}$ (z.\,B.\ \emph{Chopin: Prélude Op.\,28 Nr.\,16}: $-1{,}0$; \emph{Debussy: Le petit nègre}: 0{,}667).
     
-    \item[\texttt{contrary\_motion\_ratio}] Anteil gegenläufiger Bewegung. Bach Choräle: 0,31.
+    \item[\texttt{contrary\_motion\_ratio}] Anteil gegenläufiger Bewegung.
     
-    \item[\texttt{parallel\_motion\_ratio}] Anteil gleichgerichteter Bewegung. Bach: 0,43.
+    \item[\texttt{parallel\_motion\_ratio}] Anteil gleichgerichteter Bewegung.
     
-    \item[\texttt{oblique\_motion\_ratio}] Anteil oblique Bewegung (eine Stimme statisch). Chopin Nocturnes: >0,5 (linke Hand hält).
+    \item[\texttt{oblique\_motion\_ratio}] Anteil oblique Bewegung (eine Stimme statisch).
 \end{description}
 
 \subsection{Rhythmische Merkmale (9)}
@@ -548,30 +549,30 @@ Sopran (oberstes System) vs.\ Bass (unterstes System):
 \begin{description}
     \item[\texttt{note\_event\_count}] Gesamtzahl rhythmischer Events.
     
-    \item[\texttt{avg\_note\_duration}] Mittlere Notendauer (Viertelnoten-Einheiten). Bach: 0,62; Debussy: 0,46 (kürzere Noten).
+    \item[\texttt{avg\_note\_duration}] Mittlere Notendauer (Viertelnoten-Einheiten).
     
-    \item[\texttt{std\_note\_duration}] Standardabweichung der Dauern. Debussy: 0,38 (hohe Varianz durch Pedalklänge vs.\ Figurationen).
+    \item[\texttt{std\_note\_duration}] Standardabweichung der Dauern.
 \end{description}
 
 \subsubsection*{Metrische Aktivität}
 \begin{description}
-    \item[\texttt{notes\_per\_beat}] Durchschnittliche Events pro Schlag. Bach Präludium C-Dur: 5,8 (dichte Sechzehntel).
+    \item[\texttt{notes\_per\_beat}] Durchschnittliche Events pro Schlag (z.\,B.\ \emph{Chopin: Étude Op.\,25 Nr.\,11 ``Winter Wind''}: 14{,}06 vs.\ \emph{Chopin: Nocturne n20}: 0{,}63).
     
-    \item[\texttt{downbeat\_emphasis\_ratio}] Anteil starker Schläge (\texttt{beatStrength} $\geq 0{,}75$). Mozart: 0,41.
+    \item[\texttt{downbeat\_emphasis\_ratio}] Anteil starker Schläge (\texttt{beatStrength} $\geq 0{,}75$).
     
-    \item[\texttt{syncopation\_ratio}] Anteil synkopischer Einträge (schwache Zeit, übergebunden über nächsten Schlag). Debussy: 0,18.
+    \item[\texttt{syncopation\_ratio}] Anteil synkopischer Einträge (schwache Zeit, übergebunden über nächsten Schlag; z.\,B.\ \emph{Debussy: Nocturne}: 0{,}211; \emph{Bach: Chorale harmonisations (Compilation)}: 0{,}356).
 \end{description}
 
 \subsubsection*{Muster-Komplexität}
 \begin{description}
-    \item[\texttt{rhythmic\_pattern\_entropy}] Shannon-Entropie von Dauer-Trigrammen. Hohe Werte (Debussy: 5,1) zeigen diverse rhythmische Zellen.
+    \item[\texttt{rhythmic\_pattern\_entropy}] Shannon-Entropie von Dauer-Trigrammen. Hohe Werte zeigen diverse rhythmische Zellen (z.\,B.\ \emph{Debussy: Nocturne}: 6{,}90 vs.\ \emph{Chopin: Étude Op.\,25 Nr.\,8}: 0{,}34).
     
-    \item[\texttt{micro\_rhythmic\_density}] Anteil 4-Noten-Fenster, in denen $\geq$3 Noten schnell sind ($\leq$Sechzehntel). Liszt: 0,74.
+    \item[\texttt{micro\_rhythmic\_density}] Anteil 4-Noten-Fenster, in denen $\geq$3 Noten schnell sind ($\leq$Sechzehntel) (z.\,B.\ \emph{Bach: Prelude BWV 1006}: 0{,}984).
 \end{description}
 
 \subsubsection*{Polyrhythmik}
 \begin{description}
-    \item[\texttt{cross\_rhythm\_ratio}] Anteil der Takte, in denen obere und untere Systeme verschiedene Dauernnenner verwenden. Chopin: 0,63 (häufige Unterteilungs-Konflikte).
+    \item[\texttt{cross\_rhythm\_ratio}] Anteil der Takte, in denen obere und untere Systeme verschiedene Dauernnenner verwenden (z.\,B.\ \emph{Debussy: Feuilles mortes}: 1{,}0).
 \end{description}
 
 \subsection{Zusammenfassung der Merkmals-Interpretation}
@@ -786,13 +787,13 @@ Färbt Durchgänge (orange), Appoggiaturen (violett), andere Dissonanzen (rot), 
 
 Nach vollständigem Durchlauf sollten folgende Kennzahlen reproduziert werden:
 \begin{itemize}
-    \item \textbf{Korpusgröße}: Exakt 144 Werke (36 pro Komponist)
-    \item \textbf{Gesamtdauer}: $\sim$73\,000 Viertelnoten
-    \item \textbf{ANOVA-Treffer ($\alpha=0.05$)}: 27 Merkmale
-    \item \textbf{FDR-robuste Merkmale ($q<0.05$)}: 26 Merkmale
-    \item \textbf{PCA-Varianz (PC1--PC3)}: 47,3\%
+    \item \textbf{Korpusgröße}: Exakt 144 Partituren (36 pro Komponist)
+    \item \textbf{Gesamtdauer}: 71\,585 Viertelnoten (\textasciitilde13,3 Stunden bei 90 BPM)
+    \item \textbf{ANOVA-Treffer ($\alpha=0.05$)}: 29 Merkmale
+    \item \textbf{FDR-robuste Merkmale ($q<0.05$)}: 29 Merkmale
+    \item \textbf{PCA-Varianz (PC1--PC3)}: 48,2\% (22,3\% + 16,1\% + 9,8\%)
     \item \textbf{Tukey-Unterschiede Debussy--Mozart}: 16 signifikante Merkmale
-    \item \textbf{Tukey-Unterschiede Bach--Mozart}: 0 signifikante Merkmale
+    \item \textbf{Tukey-Unterschiede Bach--Mozart}: 10 signifikante Merkmale (bzw. 16 inklusive Zähl-/Größenmetriken)
 \end{itemize}
 
 \subsubsection{Schnelle Integritätsprüfung}
@@ -822,7 +823,7 @@ python3 src/significance_tests.py --alpha 0.05
     
     \item[Speicherprobleme bei Bach-Choralkompilationen] Einige Bach-Werke enthalten 100+ Choräle in einer Datei. \textbf{Lösung}: \texttt{--limit} Parameter nutzen oder RAM auf mindestens 16 GB erhöhen.
     
-    \item[Abweichende PCA-Ergebnisse trotz \texttt{random\_state=42}] Unterschiedliche \texttt{scikit-learn}-Versionen können minimal andere Rotationen erzeugen. \textbf{Lösung}: Exakte Versions-Pinning in \texttt{requirements.txt} (aktuell \texttt{scikit-learn==1.3.0}).
+    \item[Abweichende PCA-Ergebnisse trotz \texttt{random\_state=42}] Unterschiedliche \texttt{scikit-learn}-Versionen können minimal andere Rotationen erzeugen. \textbf{Lösung}: Für exakte Replikation Versionen pinnen (z.\,B. via \texttt{pip freeze > requirements-lock.txt}) und die Analyse in einer frischen Umgebung ausführen.
     
     \item[Zenodo-Download schlägt fehl] API-Rate-Limits oder Netzwerkprobleme. \textbf{Lösung}: Manueller Download von \url{https://zenodo.org/records/15571083}, Extraktion nach \texttt{15571083/}.
 \end{description}
