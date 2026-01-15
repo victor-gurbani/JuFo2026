@@ -1,3 +1,4 @@
+% THIS DOCUMENT IS NOT FOR JUFO SUBMISSION
 \documentclass[12pt,a4paper]{article}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
@@ -80,13 +81,13 @@ I assembled a license-safe corpus of 144 solo-piano scores (36 each by Bach, Moz
 \section{Two-Page Summary of Findings}
 
 \subsection{Balanced Corpus and Parsing Pipeline}
-Starting with 254{,}077 PDMX entries, I filtered by licensing, originality, instrumentation metadata, and a composer-normalisation scheme to isolate a strictly solo-piano subset. The final cohort contains 30 works per target composer (120 total), covering 18{,}925 measures and approximately 63.6k quarter notes (\textasciitilde11.6 listening hours at 90~BPM). JSON metadata caching, arrangement detection, and instrumentation cross-checks ensure the remaining scores are genuine solo piano pieces rather than reductions or ensemble arrangements. A companion parsing script wraps disparate \texttt{music21} outputs (Score, Part, Opus) into a consistent \texttt{stream.Score} object, extracting measures, parts, and durations to produce reusable summaries under \texttt{data/parsed/}. This structural baseline prevents redundant MusicXML reads during later stages and enables quick sanity checks of corpus balance.
+Starting with 254{,}077 PDMX entries, I filtered by licensing, originality, instrumentation metadata, and a composer-normalisation scheme to isolate a strictly solo-piano subset. The final cohort contains 36 works per target composer (144 total), averaging 153 measures per piece and approximately 73k quarter notes (\textasciitilde13.5 listening hours at 90~BPM). JSON metadata caching, arrangement detection, and instrumentation cross-checks ensure the remaining scores are genuine solo piano pieces rather than reductions or ensemble arrangements. A companion parsing script wraps disparate \texttt{music21} outputs (Score, Part, Opus) into a consistent \texttt{stream.Score} object, extracting measures, parts, and durations to produce reusable summaries under \texttt{data/parsed/}. This structural baseline prevents redundant MusicXML reads during later stages and enables quick sanity checks of corpus balance.
 
 \subsection{Feature Engineering Across Three Pillars}
 I engineered 36 descriptors: 16 harmonic, 11 melodic, and 9 rhythmic metrics. Harmonic analysis chordifies each score, computes chord-quality percentages, harmonic density, dissonance classifications (passing tones, appoggiaturas, other), and Roman numeral trends. Melodic features cover ambitus, interval statistics, leap ratios, pitch-class entropy, and soprano/bass interaction metrics (contrary, parallel, oblique motion). Rhythmic descriptors quantify duration spread, syncopation, downbeat emphasis, sliding-window entropy, micro-density of fast notes, and cross-hand subdivision mismatches. Each extractor offers CLI flags for limits, cached reuse, and optional boxplot generation, creating CSV outputs under \texttt{data/features/} and supporting documentation such as \texttt{Harmonic\_Features.md} and \texttt{Melodic\_Features.md}.
 
 \subsection{Statistical Separation of Styles}
-Running one-way ANOVA followed by Tukey HSD comparisons across the combined feature set surfaced 27 significant metrics spanning 56 composer pairings. This however had an $84\%$ of having a true positive. After a Bonferroni correction it decreased to 11 features, while with a looser FDR correction, it stayed at 26 significant metrics. Registral span (\emph{pitch\_range\_semitones}) and dissonance usage clearly separate Romantic and Impressionist writing from earlier styles (F=39.66, p\textless{}$7\times10^{-18}$). Rhythmic metrics such as \emph{std\_note\_duration} and \emph{rhythmic\_pattern\_entropy} differentiate Chopin and Debussy from Bach and Mozart, while syncopation ratios remain a defining trait for Debussy. Figure~\ref{fig:anova} summarises the strongest omnibus tests, while Figure~\ref{fig:pair-heatmap} maps how often each composer pair diverges.
+Running one-way ANOVA followed by Tukey HSD comparisons across the combined feature set surfaced strong stylistic separation across harmonic, melodic, and rhythmic domains. After a conservative Bonferroni correction, 11 features remain significant; with Benjamini--Hochberg false-discovery control, 26 robust metrics remain significant. Registral span (\emph{pitch\_range\_semitones}) and dissonance usage (\emph{dissonance\_ratio}) clearly separate Romantic and Impressionist writing from earlier styles (e.g., \emph{pitch\_range\_semitones}: $F=42.18$, $p<1.8\times10^{-19}$; \emph{dissonance\_ratio}: $F=30.65$, $p<2.7\times10^{-15}$). Rhythmic metrics such as \emph{std\_note\_duration} ($p\approx1.5\times10^{-10}$) and \emph{rhythmic\_pattern\_entropy} ($p\approx5.0\times10^{-10}$) differentiate Chopin and Debussy from Bach and Mozart, while \emph{syncopation\_ratio} remains a defining trait for Debussy. Figure~\ref{fig:anova} summarises the strongest omnibus tests, while Figure~\ref{fig:pair-heatmap} maps how often each composer pair diverges (e.g., Debussy--Mozart differs on 16 features, while Bach--Mozart shows 0 significant differences).
 
 \begin{figure}[h]
     \centering
@@ -107,6 +108,20 @@ Running one-way ANOVA followed by Tukey HSD comparisons across the combined feat
 
 \subsection{Interpreting the Embedding Landscape}
 Principal-component embeddings clarify how stylistic traits blend. After standardising the feature matrix and excluding raw count columns, PCA explains 47.3\% of the variance in the first three components. Composer centroids at (Mozart~\textminus2.05, 0.82, \textminus0.45), (Bach~\textminus0.27, \textminus1.06, \textminus0.91), (Chopin~0.41, \textminus0.02, 0.47), and (Debussy~1.92, 0.26, 0.90) reflect the axes' musical meaning: PC1 tracks chromatic density, leap ratio, and dissonance; PC2 contrasts long, downbeat-emphasised phrases with dense note streams; PC3 rewards oblique motion, cross-rhythms, and registral spread. Chopin bridges classical clarity and impressionist colour by sharing cadential discipline with Bach/Mozart (PC2) while adopting chromatic and rhythmic innovations that align him with Debussy (PC1/PC3). Debussy extends these traits, occupying a distinct ``third slot'' beyond Chopin. Interactive HTML views provide both point clouds and Gaussian ``composer clouds'' for browser-based exploration, augmented with directional lighting to enhance depth perception.
+
+\subsection{Model Validation: The ``Ravel Test''}
+To test whether the feature space is predictive beyond the training corpus, I projected an unseen external score: \textbf{Maurice Ravel's \textit{String Quartet in F Major}}. Using the same projection tooling (\texttt{highlight\_pca\_piece.py}) and a dark diamond marker for visibility, the model places Ravel in the expected post-impressionist direction: notably, \emph{further along the primary component axis than Debussy}. This supports the interpretation that the engineered features are not only descriptive of historical styles, but can generalise to later stylistic evolution.
+
+\begin{figure}[htbp]
+    \centering
+    \IfFileExists{ravelhighlight_cropped.png}{%
+        \includegraphics[width=0.85\textwidth]{ravelhighlight_cropped.png}
+    }{%
+        \fbox{\parbox{0.85\textwidth}{\centering (Missing figure file: ravelhighlight\_cropped.png)}}
+    }
+    \caption{External validation via PCA projection: the diamond marker denotes Ravel's \textit{String Quartet in F} projected into the learned stylistic space.}
+    \label{fig:ravel-test}
+\end{figure}
 
 \begin{figure}[htbp]
     \centering 

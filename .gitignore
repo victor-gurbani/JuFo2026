@@ -10,7 +10,7 @@ data/curated/solo_piano_*
 !data/curated/solo_piano_mxl_paths.txt
 
 __pycache__/
-# figures/
+figures/
 venv/
 
 # LaTeX

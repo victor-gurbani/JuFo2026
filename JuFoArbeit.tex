@@ -18,6 +18,7 @@
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage{wrapfig} % For text wrapping around figures
+\usepackage{microtype}
 
 % Better figure placement defaults
 \setcounter{topnumber}{2}
@@ -102,12 +103,16 @@ Die Methodik basiert auf drei komplementären Säulen: (1)~Kuratierung eines liz
 
 Die Analyse identifiziert 26 statistisch robuste Metriken (FDR $q<0{,}05$), die stilistische Epochen separieren. Chromatische Dichte (\texttt{pitch\_class\_entropy}), Dissonanzraten (\texttt{dissonance\_ratio}) und rhythmische Entropie unterscheiden die romantisch-impressionistischen Komponisten Chopin und Debussy signifikant vom klassischen Paar Bach/Mozart. Umgekehrt bündeln kadenzielle Disziplin und Downbeat-Betonung die barocken und klassischen Werke.
 
+Die Signale sind dabei nicht nur qualitativ, sondern auch statistisch extrem stark: exemplarisch ergeben sich in der Einweg-ANOVA etwa für \texttt{pitch\_range\_semitones} $p<1{,}8\times 10^{-19}$ und für \texttt{dissonance\_ratio} $p<2{,}7\times 10^{-15}$; auch rhythmische Marker wie \texttt{std\_note\_duration} ($p\approx1{,}5\times10^{-10}$) und \texttt{rhythmic\_pattern\_entropy} ($p\approx5{,}0\times10^{-10}$) bleiben nach FDR-Korrektur robust.
+
 Die PCA-Projektion visualisiert diese Differenzierung als dreidimensionale Landkarte: Bach und Mozart bilden einen kompakten klassischen Cluster, Debussy erscheint als isolierte impressionistische Insel, Chopin positioniert sich als Brückenfigur zwischen den Epochen. Diese quantitative Verortung bestätigt erstmals empirisch die musikhistorische These von Chopins Scharnierfunktion: Er bewahrt klassische kadenzielle Strukturen, während er harmonisch-melodisch in Richtung Impressionismus innoviert.
 
 Alle Skripte, Daten und Visualisierungen sind dokumentiert und ermöglichen reproduzierbare Folgeuntersuchungen zur stilistischen Evolution in der westlichen Kunstmusik.
 
 \section{Motivation und Fragestellung}
 Ein musikalisch ungeschulter Zuhörer erkennt intuitiv den stilistischen Kontrast zwischen einer Fuge von Johann Sebastian Bach und einem Prélude von Claude Debussy. Bach repräsentiert kontrapunktische Präzision, klare metrische Strukturen und diatonische Harmonik; Debussy nutzt parallele Akkorde, pentatonische und ganztonale Skalen sowie polyrhythmische Schichtungen zur Erzeugung von Klangfarben. Zwischen diesen Polen liegt ein reiches Spektrum stilistischer Ausdrucksformen, das durch Wolfgang Amadeus Mozart (Klassik) und Frédéric Chopin (Romantik) repräsentiert wird.
+
+Ziel dieser Arbeit ist es, diese intuitive Unterscheidung so zu formalisieren, dass ein Algorithmus den Stilunterschied zwischen der Common-Practice-Periode (Bach/Mozart) und der späten Romantik bzw. dem Impressionismus (Chopin/Debussy) anhand transparenter, interpretierbarer Merkmale ``hören'' kann -- ohne Black-Box-Modell und ohne manuelle Stil-Zuschreibungen auf Notenebene.
 
 Während die musikwissenschaftliche Literatur diese Evolution qualitativ umfassend beschreibt, fehlt es an empirischen, interpretierbaren Quantifizierungen. Frühere computergestützte Ansätze litten unter zwei komplementären Schwächen: Vereinfachte Metriken (z.\,B.\ reine Notenstatistik) erlaubten nur oberflächliche Aussagen, während komplexe Black-Box-Modelle (neuronale Netze) zwar trennscharf, aber musikologisch intransparent waren.\footnote{Vgl.\ \cite{Simonetta2025} für eine systematische Übersicht über Composer-Identification-Ansätze.}
 
@@ -199,7 +204,8 @@ Tabelle~\ref{tab:features} erklärt zentrale Merkmale, die später als signifika
         \texttt{dissonance\_ratio} & Harmonik & Anteil nichtakkordischer Noten (Durchgänge, Appoggiaturen, sonstige Dissonanzen). \\
         \texttt{pitch\_class\_entropy} & Melodik & Shannon-Entropie der verwendeten Tonklassen, Indikator für Chromatik. \\
         \texttt{rhythmic\_pattern\_entropy} & Rhythmik & Entropie eines Sliding-Window-Rhythmus-Profils, misst rhythmische Vielfalt. \\
-        \texttt{std\_note\_duration} & Rhythmik & Standardabweichung der Notenlängen, höher bedeutet Mischung aus sehr kurzen und sehr langen Noten. \\
+        \texttt{std\_note\_duration} & Rhythmik & Standardabweichung der Notenlängen; höher bedeutet Mischung aus sehr kurzen und sehr langen Noten (Proxy für rubatohafte Fluidität). \\
+        \texttt{syncopation\_ratio} & Rhythmik & Synkopationsanteil (Offbeat-Ereignisse relativ zu metrisch starken Positionen). \\
         \texttt{downbeat\_emphasis\_ratio} & Rhythmik & Anteil der Ereignisse auf Downbeats, misst metrische Klarheit. \\
         \bottomrule
     \end{tabular}
@@ -219,7 +225,7 @@ Die gesamte Analysepipeline wurde als modulares CLI-System implementiert, das vo
 \begin{itemize}
     \item \textbf{Korpus-Kuratierung} (\texttt{corpus\_curation.py}): Filtert PDMX-Metadaten nach Komponist, Lizenz, Besetzung und Qualität; balanciert auf kleinste Gruppengröße.
     \item \textbf{Struktur-Parsing} (\texttt{score\_parser.py}): Extrahiert Takt-, Stimmen- und Dauernangaben mittels \texttt{music21.converter.parse}; behandelt Score/Part/Opus-Varianten robust.
-    \item \textbf{Merkmals-Extraktion}: Drei spezialisierte Module (\texttt{harmonic\\_features.py}, \texttt{melodic\\_features.py}, \texttt{rhythmic\\_features.py}) erzeugen jeweils CSV-Tabellen mit Komponisten-Labels.
+    \item \textbf{Merkmals-Extraktion}: Drei spezialisierte Module (\texttt{harmonic\_features.py}, \texttt{melodic\_features.py}, \texttt{rhythmic\_features.py}) erzeugen jeweils CSV-Tabellen mit Komponisten-Labels.
     \item \textbf{Statistische Analyse} (\texttt{significance\_tests.py}): Führt ANOVA/Tukey-HSD durch, wendet FDR-Korrektur an, exportiert Ergebnistabellen.
     \item \textbf{Visualisierung}: Automatisierte Boxplot-Generierung pro Merkmal, PCA-Wolken-Rendering (\texttt{feature\_embedding.py}), Signifikanz-Heatmaps (\texttt{significance\_visualizations.py}).
     \item \textbf{Master-Skript}: \texttt{aggregate\_metrics.py} orchestriert die gesamte Pipeline in einem Aufruf.
@@ -298,6 +304,18 @@ Mit \texttt{src/highlight\_pca\_piece.py} können externe Stücke in die PCA-Wol
     \centering
     \includegraphics[width=0.85\textwidth]{summerdayhighlight.png}
     \caption{Externer Validierungstest: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung bestätigt die Validität der Merkmalsextraktion: Hisaishi nutzt bekanntermaßen spätromantische Harmonik (Chopin-Nähe) kombiniert mit impressionistischen Klangfarben (Debussy-Nähe).}\label{fig:hisaishi}
+\end{figure}
+
+Ein zweiter, bewusst außerhalb des Trainingskorpus gewählter Test ist Maurice Ravels \emph{Streichquartett in F-Dur}. In der gleichen Projektion (Diamantmarker) landet Ravel in der erwarteten post-impressionistischen Richtung -- insbesondere entlang der Primärachse sogar \emph{jenseits} des Debussy-Clusters. Damit zeigt der Ansatz, dass die Merkmalslandkarte nicht nur retrospektiv beschreibend ist, sondern auch eine plausible Einordnung späterer Stilentwicklungen erlaubt.
+
+\begin{figure}[htbp]
+    \centering
+    \IfFileExists{ravelhighlight_cropped.png}{%
+        \includegraphics[width=0.85\textwidth]{ravelhighlight_cropped.png}
+    }{%
+        \fbox{\parbox{0.85\textwidth}{\centering (Missing figure file: ravelhighlight\_cropped.png)}}
+    }
+    \caption{Externer Validierungstest: Projektion von Ravels \emph{Streichquartett in F-Dur} (Diamantmarker) in die PCA-Wolken.}\label{fig:ravel}
 \end{figure}
 
 \section{Ergebnisdiskussion}
