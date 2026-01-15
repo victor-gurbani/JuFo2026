@@ -27,6 +27,43 @@ DEFAULT_EXCLUDE = [
 BANDS = ["Bach", "Mozart", "Chopin", "Debussy"]
 
 
+_FEATURE_LABELS: Dict[str, str] = {
+    "pitch_range_semitones": "Tonumfang (Halbtöne)",
+    "dissonance_ratio": "Dissonanzanteil",
+    "chromaticism_ratio": "Chromatikanteil",
+    "non_chord_tone_ratio": "Nichtakkordtöne (Anteil)",
+    "harmonic_density_mean": "Harmonische Dichte (Mittel)",
+    "notes_per_beat": "Noten pro Schlag",
+    "mean_melodic_interval": "Mittleres Melodieintervall",
+    "melodic_leap_ratio": "Melodische Sprünge (Anteil)",
+    "pitch_class_entropy": "Tonklassen-Entropie",
+    "rhythmic_pattern_entropy": "Rhythmus-Entropie",
+    "syncopation_ratio": "Synkopationsanteil",
+}
+
+
+def _humanize_feature_name(name: str) -> str:
+    name = str(name)
+    if name in _FEATURE_LABELS:
+        return _FEATURE_LABELS[name]
+
+    # Reasonable fallback for long-tail features:
+    # snake_case -> Title Case (keep common abbreviations readable)
+    tokens = [token for token in name.replace("_", " ").split() if token]
+    tokens = [token.upper() if token.lower() in {"pc", "pca", "fdr"} else token for token in tokens]
+    return " ".join(token.capitalize() if not token.isupper() else token for token in tokens)
+
+
+def _humanize_source(name: str) -> str:
+    lookup = {
+        "harmonic": "Harmonik",
+        "melodic": "Melodik",
+        "rhythmic": "Rhythmik",
+        "significance": "Signifikanz",
+    }
+    return lookup.get(str(name).lower(), str(name))
+
+
 def load_csv(path: Path) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(f"File not found: {path}")
@@ -76,11 +113,16 @@ def plot_top_anova(anova: pd.DataFrame, figure_dir: Path, top_n: int) -> Path:
     if top.empty:
         raise ValueError("No ANOVA rows available to plot.")
 
+    top = top.copy()
+    top["feature_label"] = top["feature"].map(_humanize_feature_name)
+    top["source_label"] = top["source"].map(_humanize_source)
+
     plt.figure(figsize=(8, max(4, top_n * 0.35)))
-    sns.barplot(data=top, y="feature", x="neg_log_p", hue="source", dodge=False)
-    plt.xlabel(r"$-\log_{10}(p)$")
-    plt.ylabel("Feature")
-    plt.title("Top ANOVA Features by Significance")
+    order = top.sort_values("p_value", ascending=True)["feature_label"].tolist()
+    sns.barplot(data=top, y="feature_label", x="neg_log_p", hue="source_label", dodge=False, order=order)
+    plt.xlabel(r"Signifikanz $(-\log_{10}(p))$")
+    plt.ylabel("Merkmal")
+    plt.title("Top-ANOVA-Merkmale nach Signifikanz")
     plt.tight_layout()
     figure_dir.mkdir(parents=True, exist_ok=True)
     output_path = figure_dir / "top_anova_bar.png"

@@ -29,6 +29,40 @@ CLOUD_GRID_SIZE = 22
 CLOUD_ISO_FRACTION = 0.22
 
 
+def _axis_titles(method: str) -> tuple[str, str, str]:
+    if method == "pca":
+        return (
+            "PC1 (Chromatik/Dissonanz)",
+            "PC2 (Dichte/Klarheit)",
+            "PC3 (Registral/Textur)",
+        )
+    return ("dim1", "dim2", "dim3")
+
+
+def _write_plotly_figure(fig: go.Figure, output_path: Path, write_html_also: bool = True) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    suffix = output_path.suffix.lower()
+    if suffix == ".html":
+        fig.write_html(str(output_path), include_plotlyjs="cdn")
+        return
+    if suffix in {".png", ".pdf", ".svg"}:
+        try:
+            fig.write_image(str(output_path))
+        except ValueError as exc:
+            raise ValueError(
+                "Static image export requires the 'kaleido' package. "
+                "Install it (e.g., pip install kaleido) or write to .html instead."
+            ) from exc
+
+        # Backwards compatible behavior: historically this script always produced HTML.
+        # If the user requests a static image, also write a companion HTML next to it.
+        if write_html_also:
+            html_path = output_path.with_suffix(".html")
+            fig.write_html(str(html_path), include_plotlyjs="cdn")
+        return
+    raise ValueError(f"Unsupported output format: {output_path} (use .html or .png)")
+
+
 def _load_features(path: Path) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(f"Features file not found: {path}")
@@ -91,8 +125,14 @@ def _compute_projection(
     raise ValueError(f"Unsupported projection method: {method}")
 
 
-def _plot_embedding(df: pd.DataFrame, coords: np.ndarray, output_path: Path) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def _plot_embedding(
+    df: pd.DataFrame,
+    coords: np.ndarray,
+    output_path: Path,
+    axis_titles: tuple[str, str, str],
+    title: str,
+    write_html_also: bool,
+) -> None:
     plot_df = df.copy()
     plot_df[["dim1", "dim2", "dim3"]] = coords
 
@@ -113,13 +153,23 @@ def _plot_embedding(df: pd.DataFrame, coords: np.ndarray, output_path: Path) -> 
         title="Feature Embedding (3D)",
     )
     fig.update_traces(marker=dict(size=6, opacity=0.8))
-    fig.write_html(str(output_path), include_plotlyjs="cdn")
+    fig.update_layout(
+        title=title,
+        scene=dict(xaxis_title=axis_titles[0], yaxis_title=axis_titles[1], zaxis_title=axis_titles[2]),
+    )
+    _write_plotly_figure(fig, output_path, write_html_also=write_html_also)
 
 
-def _plot_embedding_2d(df: pd.DataFrame, coords: np.ndarray, output_path: Path) -> None:
+def _plot_embedding_2d(
+    df: pd.DataFrame,
+    coords: np.ndarray,
+    output_path: Path,
+    axis_titles: tuple[str, str],
+    title: str,
+    write_html_also: bool,
+) -> None:
     if coords.shape[1] < 2:
         raise ValueError("Projection returned fewer than two dimensions; cannot create 2D scatter.")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     plot_df = df.copy()
     plot_df[["dim1", "dim2"]] = coords[:, :2]
 
@@ -138,8 +188,8 @@ def _plot_embedding_2d(df: pd.DataFrame, coords: np.ndarray, output_path: Path) 
         title="Feature Embedding (2D)",
     )
     fig.update_traces(marker=dict(size=8, opacity=0.8))
-    fig.update_layout(xaxis_title="dim1", yaxis_title="dim2")
-    fig.write_html(str(output_path), include_plotlyjs="cdn")
+    fig.update_layout(title=title, xaxis_title=axis_titles[0], yaxis_title=axis_titles[1])
+    _write_plotly_figure(fig, output_path, write_html_also=write_html_also)
 
 
 def _gaussian_pdf(points: np.ndarray, mean: np.ndarray, cov: np.ndarray) -> np.ndarray:
@@ -158,8 +208,14 @@ def _gaussian_pdf(points: np.ndarray, mean: np.ndarray, cov: np.ndarray) -> np.n
     return np.exp(-0.5 * exponent) / norm_const
 
 
-def _plot_composer_clouds(df: pd.DataFrame, coords: np.ndarray, output_path: Path) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def _plot_composer_clouds(
+    df: pd.DataFrame,
+    coords: np.ndarray,
+    output_path: Path,
+    axis_titles: tuple[str, str, str],
+    title: str,
+    write_html_also: bool,
+) -> None:
     mins = coords.min(axis=0)
     maxs = coords.max(axis=0)
     padding = (maxs - mins) * 0.1
@@ -193,6 +249,22 @@ def _plot_composer_clouds(df: pd.DataFrame, coords: np.ndarray, output_path: Pat
             continue
         iso = float(vmax * CLOUD_ISO_FRACTION)
         color = palette[idx % len(palette)]
+
+        fig.add_trace(
+            go.Scatter3d(
+                x=comp_coords[:, 0],
+                y=comp_coords[:, 1],
+                z=comp_coords[:, 2],
+                mode="markers",
+                marker=dict(size=2, color=color, opacity=0.35),
+                name=str(composer),
+                showlegend=False,
+                hovertemplate=(
+                    "Composer: %{customdata[0]}<br>Title: %{customdata[1]}<extra></extra>"
+                ),
+                customdata=df.loc[mask, ["composer_label", "title"]].values,
+            )
+        )
         fig.add_trace(
             go.Isosurface(
                 x=X.ravel(),
@@ -214,17 +286,23 @@ def _plot_composer_clouds(df: pd.DataFrame, coords: np.ndarray, output_path: Pat
         )
 
     fig.update_layout(
-        title="Composer Clouds (3D)",
-        scene=dict(xaxis_title="dim1", yaxis_title="dim2", zaxis_title="dim3"),
+        title=title,
+        scene=dict(xaxis_title=axis_titles[0], yaxis_title=axis_titles[1], zaxis_title=axis_titles[2]),
         legend=dict(itemsizing="constant"),
     )
-    fig.write_html(str(output_path), include_plotlyjs="cdn")
+    _write_plotly_figure(fig, output_path, write_html_also=write_html_also)
 
 
-def _plot_composer_clouds_2d(df: pd.DataFrame, coords: np.ndarray, output_path: Path) -> None:
+def _plot_composer_clouds_2d(
+    df: pd.DataFrame,
+    coords: np.ndarray,
+    output_path: Path,
+    axis_titles: tuple[str, str],
+    title: str,
+    write_html_also: bool,
+) -> None:
     if coords.shape[1] < 2:
         raise ValueError("Projection returned fewer than two dimensions; cannot create 2D clouds.")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     coords_2d = coords[:, :2]
     mins = coords_2d.min(axis=0)
     maxs = coords_2d.max(axis=0)
@@ -275,12 +353,12 @@ def _plot_composer_clouds_2d(df: pd.DataFrame, coords: np.ndarray, output_path: 
         )
 
     fig.update_layout(
-        title="Composer Clouds (2D)",
-        xaxis_title="dim1",
-        yaxis_title="dim2",
+        title=title,
+        xaxis_title=axis_titles[0],
+        yaxis_title=axis_titles[1],
         legend=dict(itemsizing="constant"),
     )
-    fig.write_html(str(output_path), include_plotlyjs="cdn")
+    _write_plotly_figure(fig, output_path, write_html_also=write_html_also)
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -332,13 +410,13 @@ def parse_arguments() -> argparse.Namespace:
         "--output",
         type=Path,
         default=DEFAULT_OUTDIR / "embedding_3d.html",
-        help="Destination HTML file for the interactive scatter.",
+        help="Destination .html or .png for the 3D scatter (when using a static format, an .html is also written).",
     )
     parser.add_argument(
         "--output-2d",
         type=Path,
         default=None,
-        help="Optional HTML file for a 2D scatter version of the embedding.",
+        help="Optional .html or .png for a 2D scatter version of the embedding (static formats also write .html).",
     )
     parser.add_argument(
         "--loadings-csv",
@@ -351,15 +429,20 @@ def parse_arguments() -> argparse.Namespace:
         type=Path,
         default=None,
         help=(
-            "Optional HTML file for smoothed composer clouds. Useful for PCA embeddings "
-            "to compare overall footprint per composer."
+            "Optional .html or .png for smoothed composer clouds. Useful for PCA embeddings "
+            "to compare overall footprint per composer (static formats also write .html)."
         ),
     )
     parser.add_argument(
         "--clouds-output-2d",
         type=Path,
         default=None,
-        help="Optional HTML file for a 2D composer cloud view mirroring the point scatter.",
+        help="Optional .html or .png for a 2D composer cloud view mirroring the point scatter (static formats also write .html).",
+    )
+    parser.add_argument(
+        "--no-html",
+        action="store_true",
+        help="Do not emit companion .html files when writing static images.",
     )
     return parser.parse_args()
 
@@ -396,10 +479,28 @@ def main() -> int:
         print(
             f"Applied composer weight {args.tsne_composer_weight:.2f} to t-SNE input to encourage per-composer clustering."
         )
-    _plot_embedding(combined, coords, args.output)
+
+    axis_titles = _axis_titles(args.method)
+    base_title = "PCA-Projektion" if args.method == "pca" else "t-SNE-Projektion"
+    write_html_also = not args.no_html
+    _plot_embedding(
+        combined,
+        coords,
+        args.output,
+        axis_titles,
+        f"{base_title} (3D)",
+        write_html_also,
+    )
 
     if args.output_2d is not None:
-        _plot_embedding_2d(combined, coords, args.output_2d)
+        _plot_embedding_2d(
+            combined,
+            coords,
+            args.output_2d,
+            axis_titles[:2],
+            f"{base_title} (2D)",
+            write_html_also,
+        )
         print(f"2D embedding written to {args.output_2d}")
 
     print(f"Embedding generated for {len(combined)} pieces using {len(feature_cols)} features -> {args.output}")
@@ -422,10 +523,24 @@ def main() -> int:
     elif args.method == "tsne":
         print("t-SNE axes are non-linear embeddings; absolute directions are not individually interpretable.")
     if args.clouds_output is not None:
-        _plot_composer_clouds(combined, coords, args.clouds_output)
+        _plot_composer_clouds(
+            combined,
+            coords,
+            args.clouds_output,
+            axis_titles,
+            "Komponistenwolken (3D)",
+            write_html_also,
+        )
         print(f"Composer cloud view written to {args.clouds_output}")
     if args.clouds_output_2d is not None:
-        _plot_composer_clouds_2d(combined, coords, args.clouds_output_2d)
+        _plot_composer_clouds_2d(
+            combined,
+            coords,
+            args.clouds_output_2d,
+            axis_titles[:2],
+            "Komponistenwolken (2D)",
+            write_html_also,
+        )
         print(f"2D composer cloud view written to {args.clouds_output_2d}")
     return 0
 

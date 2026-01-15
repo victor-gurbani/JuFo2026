@@ -19,6 +19,7 @@
 \usepackage{float}
 \usepackage{wrapfig} % For text wrapping around figures
 \usepackage{microtype}
+\usepackage[ngerman]{babel}
 
 % Better figure placement defaults
 \setcounter{topnumber}{2}
@@ -184,10 +185,11 @@ Die Pipeline wurde vollständig in Python~3.10 entwickelt (\texttt{pandas}, \tex
 Zwischendiagnostik (\texttt{--skip-}\,Flags, unterschiedliche Rating-Schwellen) wurde automatisiert protokolliert und zeigte, dass Lockerungen zwar die Stückzahl erhöhen, aber Lizenzrisiken und starke composer bias erzeugen.
 
 \subsection{Methode: Die Drei-Säulen-Feature-Pipeline}
-Für jede Partitur werden harmonische, melodische und rhythmische Deskriptoren erzeugt:\footnote{Details siehe \texttt{ShortArticle.md} und \texttt{Article.md}.}
+Für jede Partitur werden harmonische, melodische und rhythmische Deskriptoren erzeugt:
+
 \begin{description}
     \item[Harmonik (16 Merkmale)] \texttt{music21.stream.Score.chordify()} erstellt einen Akkordstream; es folgen Berechnung von Akkordqualitätsanteilen, harmonischer Dichte, Modal-Interchange-Raten sowie Klassifikation nichtakkordischer Töne (Durchgänge, Vorhalte, Appoggiaturen). Roman-Numeral-Analysen liefern Kadenzenstatistiken.
-    \item[Melodik (11 Merkmale)] Stimmen werden expandiert, um Ambitus (\texttt{pitch\_range\_semitones}) und Tonklassenstatistiken zu erfassen. Intervall-basierte Melodik wird aus dem oberen System (erstes \texttt{Part} in MusicXML; Proxy für die rechte Hand/Sopranlage) abgeleitet, um Polyphonie nicht vollständig zu ``flatten''. Für Stimmführungsmetriken wird pro Zeitpunkt die höchste Note im oberen System mit der tiefsten Note im unteren System verglichen; daraus ergeben sich Anteile an Gegen-, Parallel- und Oblique-Motion.
+    \item[Melodik (11 Merkmale)] Stimmen werden expandiert, um Ambitus (\texttt{pitch\_range\_semitones}) und Tonklassenstatistiken zu erfassen. Intervall-basierte Melodik wird aus dem oberen System (erstes \texttt{Part} in MusicXML; Proxy für die rechte Hand/Sopranlage) abgeleitet, um Polyphonie nicht vollständig zu ``flatten''. Für Stimmführungsmetriken wird pro Zeitpunkt die höchste Note im oberen System mit der tiefsten Note im unteren System verglichen; daraus ergeben sich Anteile an Gegen-, Parallel- und Oblique-Motion. Die Gegenbewegung (\texttt{contrary\_motion\_ratio}) erfasst explizit Richtungsunabhängigkeit und hilft, Begleitfiguren wie Alberti-Bässe von kontrapunktischer Stimmführung zu unterscheiden.
     \item[Rhythmik (9 Merkmale)] Gleitfenster analysieren Dauerverteilungen, Downbeat-Betonung, Synkopationen, mikro-rhythmische Dichte und Cross-Rhythm-Mismatches zwischen Händen.
 \end{description}
 
@@ -196,7 +198,8 @@ Tabelle~\ref{tab:features} erklärt zentrale Merkmale, die später als signifika
 \begin{table}[H]
     \centering
     \caption{Ausgewählte interpretierbare Merkmale}\label{tab:features}
-    \begin{tabular}{p{3.5cm}p{2.5cm}p{7.5cm}}
+    \makebox[\textwidth][c]{
+    \begin{tabular}{p{5.0cm}p{2.0cm}p{9.5cm}}
                 \toprule
         \textbf{Merkmal} & \textbf{Säule} & \textbf{Beschreibung} \\
         \midrule
@@ -209,6 +212,7 @@ Tabelle~\ref{tab:features} erklärt zentrale Merkmale, die später als signifika
         \texttt{downbeat\_emphasis\_ratio} & Rhythmik & Anteil der Ereignisse auf Downbeats, misst metrische Klarheit. \\
         \bottomrule
     \end{tabular}
+    }
 \end{table}
 
 \subsection{Statistische Analysemethode}
@@ -254,19 +258,19 @@ Zur Vertiefung werden exemplarische Boxplots pro Säule gezeigt (Abbildungen~\re
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.65\textwidth]{figures/harmonic/boxplot_dissonance_ratio.png}
-    \caption{Harmonisches Merkmal: Dissonanzanteile. Debussy und Chopin zeigen signifikant höhere Werte als Bach und Mozart, was die zunehmende Komplexität der harmonischen Sprache im 19.\ Jahrhundert widerspiegelt.}\label{fig:dissonance}
+    \caption{Harmonisches Merkmal: Dissonanzanteile. Debussy und Chopin zeigen signifikant höhere Werte als Bach und Mozart, was die zunehmende Komplexität der harmonischen Sprache im 19.\ Jahrhundert widerspiegelt. Box: Interquartilsabstand (IQR), Linie: Median.}\label{fig:dissonance}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.65\textwidth]{figures/melodic/boxplot_pitch_range_semitones.png}
-    \caption{Melodisches Merkmal: Ambitus (Tonumfang) in Halbtonschritten. Romantische und impressionistische Werke nutzen deutlich größere Register, was erweiterte Ausdrucksmöglichkeiten des modernen Flügels widerspiegelt.}\label{fig:ambitus}
+    \caption{Melodisches Merkmal: Ambitus (Tonumfang) in Halbtonschritten. Romantische und impressionistische Werke nutzen deutlich größere Register, was erweiterte Ausdrucksmöglichkeiten des modernen Flügels widerspiegelt. Box: Interquartilsabstand (IQR), Linie: Median.}\label{fig:ambitus}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.65\textwidth]{figures/rhythmic/boxplot_rhythmic_pattern_entropy.png}
-    \caption{Rhythmisches Merkmal: Entropie der rhythmischen Muster. Debussy zeigt die höchste rhythmische Vielfalt, während Bach trotz kontrapunktischer Komplexität repetitive rhythmische Muster verwendet.}\label{fig:rhyentropy}
+    \caption{Rhythmisches Merkmal: Entropie der rhythmischen Muster. Debussy zeigt die höchste rhythmische Vielfalt, während Bach trotz kontrapunktischer Komplexität repetitive rhythmische Muster verwendet. Box: Interquartilsabstand (IQR), Linie: Median.}\label{fig:rhyentropy}
 \end{figure}
 
 \subsection{Die empirische musikalische Landkarte}
@@ -303,7 +307,7 @@ Mit \texttt{src/highlight\_pca\_piece.py} können externe Stücke in die PCA-Wol
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{summerdayhighlight.png}
-    \caption{Externer Validierungstest: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung bestätigt die Validität der Merkmalsextraktion: Hisaishi nutzt bekanntermaßen spätromantische Harmonik (Chopin-Nähe) kombiniert mit impressionistischen Klangfarben (Debussy-Nähe).}\label{fig:hisaishi}
+    \caption{Externer Validierungstest: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung illustriert die Generalisierungsfähigkeit der Merkmalsextraktion: Hisaishi nutzt bekanntermaßen spätromantische Harmonik (Chopin-Nähe) kombiniert mit impressionistischen Klangfarben (Debussy-Nähe).}\label{fig:hisaishi}
 \end{figure}
 
 Ein zweiter, bewusst außerhalb des Trainingskorpus gewählter Test ist Maurice Ravels \emph{Streichquartett in F-Dur}. In der gleichen Projektion (Diamantmarker) landet Ravel in der erwarteten post-impressionistischen Richtung -- insbesondere entlang der Primärachse sogar \emph{jenseits} des Debussy-Clusters. Damit zeigt der Ansatz, dass die Merkmalslandkarte nicht nur retrospektiv beschreibend ist, sondern auch eine plausible Einordnung späterer Stilentwicklungen erlaubt.
@@ -326,7 +330,7 @@ Die Achseninterpretation (Tabelle~\ref{tab:loadings}) ermöglicht eine musikolog
 
 \textbf{PC2 (16,1\% Varianz) -- Dichte versus Klarheit:} Diese Achse kontrastiert note-dichte, rhythmisch komplexe Texturen (\texttt{harmonic\_density\_mean}, \texttt{notes\_per\_beat}) gegen kadenzielle Disziplin und lange Notenwerte. Sie erfasst den Unterschied zwischen kontrapunktischer Sättigung (Bach) und galanter Klarheit (Mozart).
 
-\textbf{PC3 (9,8\% Varianz) -- Registrale Textur:} Diese Achse misst vor allem den Tonumfang (\texttt{pitch\_range\_semitones}) und intervallische Vielfalt. Hohe Werte charakterisieren Werke, die den erweiterten Ambitus des modernen Flügels ausnutzen.
+\textbf{PC3 (9,8\% Varianz) -- Registrale Textur:} Diese Achse misst vor allem den Tonumfang (\texttt{pitch\_range\_semitones}) und intervallische Vielfalt. Hohe Werte charakterisieren Werke, die den erweiterten Ambitus des modernen Flügels ausnutzen. Dieser Anstieg reflektiert nicht nur stilistische Ambitionen, sondern auch die technologische Evolution des Instrumentenbaus (vom Cembalo zum modernen 88-Tasten-Flügel).
 
 Aus dieser Interpretation ergibt sich die Cluster-Struktur:
 \begin{itemize}
@@ -338,7 +342,7 @@ Aus dieser Interpretation ergibt sich die Cluster-Struktur:
 \end{itemize}
 
 \subsection{Chopins Rolle als Brücke}
-Die zweite Forschungsfrage -- "Bestätigt die quantitative Landkarte Chopins Rolle als Brückenfigur?" -- kann empirisch beantwortet werden: \textbf{Ja, mit quantifiziertem Mechanismus.}
+Die zweite Forschungsfrage -- ``Bestätigt die quantitative Landkarte Chopins Rolle als Brückenfigur?'' -- kann empirisch beantwortet werden: \newline\textbf{Ja, mit quantifiziertem Mechanismus.}
 
 Die musikwissenschaftliche Literatur beschreibt Chopin als Innovator, der klassische Formen beibehielt, aber harmonisch revolutionierte.\footnote{\cite{ChopinTransformations}.} Die vorliegende Datenanalyse liefert erstmals einen messbaren Beweis für diese These:
 
@@ -375,7 +379,7 @@ Die musikwissenschaftliche Literatur beschreibt Chopin als Innovator, der klassi
 Diese Limitationen sind transparent dokumentiert und bieten Ansatzpunkte für zukünftige Erweiterungen.
 
 \subsection{Bemerkenswerte Einzelbeispiele}
-Die statistischen Aggregate verbergen instruktive Extremfälle, die die Validität der Merkmalsextraktion belegen:
+Die statistischen Aggregate verbergen instruktive Extremfälle, die die Generalisierungsfähigkeit der Merkmalsextraktion illustrieren:
 
 \textbf{Rhythmische Extreme:}
 \begin{itemize}
@@ -390,7 +394,7 @@ Diese Extremwerte wurden nach Verfeinerung der Meter-bewussten Synkopationserken
 \subsection{Fazit}
 Die zentrale Forschungsfrage -- "Kann ein kuratierter Satz interpretierbarer Merkmale eine empirische Landkarte erstellen, die stilistische Trennung und Evolution quantifiziert?" -- wurde umfassend beantwortet.
 
-\textbf{Methodischer Erfolg:} Die entwickelte Pipeline kombiniert moderne Werkzeuge (PDMX-Archiv, \texttt{music21}, Python-Statistik) mit musikologischer Interpretierbarkeit. Im Gegensatz zu früheren Ansätzen (Lin-Jeng 1987) ermöglicht sie skalierbare, reproduzierbare Analyse bei gleichzeitiger Transparenz.
+\textbf{Methodischer Erfolg:} Die entwickelte Pipeline kombiniert moderne Werkzeuge (PDMX-Archiv, \texttt{music21}, Python-Statistik) mit musikologischer Interpretierbarkeit. Im Gegensatz zu früheren Ansätzen (\cite{LinJeng1987}) ermöglicht sie skalierbare, reproduzierbare Analyse bei gleichzeitiger Transparenz.
 
 \textbf{Empirische Bestätigungen:}
 \begin{enumerate}
