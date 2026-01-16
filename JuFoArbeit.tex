@@ -1,5 +1,6 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
 \usepackage[margin=2.0cm]{geometry} 
@@ -24,6 +25,7 @@
 \usepackage{wrapfig} % For text wrapping around figures
 \usepackage{microtype}
 \usepackage[ngerman]{babel}
+\usepackage{csquotes}
 \usepackage[backend=biber,style=ieee,sorting=nyt]{biblatex}
 \addbibresource{references.bib}
 
@@ -125,6 +127,7 @@
 \begin{document}
 
 \maketitle
+\hypersetup{pageanchor=false}
 \pagenumbering{roman}
 \newpage
 
@@ -133,6 +136,7 @@
 \newpage
 \setcounter{page}{1}
 \pagenumbering{arabic}
+\hypersetup{pageanchor=true}
 
 \section{Fachliche Kurzfassung}
 Die stilistische Evolution von der kontrapunktischen Strenge des Barock bis zur klanglichen Farbigkeit des Impressionismus ist musikwissenschaftlich umfassend beschrieben, ihre empirische Quantifizierung stellt jedoch eine methodische Herausforderung dar. Dieses Projekt entwickelt eine \emph{Empirische Musikalische Kartographie}, die diese Lücke durch Integration moderner computergestützter Verfahren mit interpretierbarer Merkmalsextraktion schließt.
@@ -150,7 +154,7 @@ Alle Skripte, Daten und Visualisierungen sind dokumentiert und ermöglichen repr
 \section{Motivation und Fragestellung}
 Ein musikalisch ungeschulter Zuhörer erkennt intuitiv den stilistischen Kontrast zwischen einer Fuge von Johann Sebastian Bach und einem Prélude von Claude Debussy. Bach repräsentiert kontrapunktische Präzision, klare metrische Strukturen und diatonische Harmonik; Debussy nutzt parallele Akkorde, pentatonische und ganztonale Skalen sowie polyrhythmische Schichtungen zur Erzeugung von Klangfarben. Zwischen diesen Polen liegt ein reiches Spektrum stilistischer Ausdrucksformen, das durch Wolfgang Amadeus Mozart (Klassik) und Frédéric Chopin (Romantik) repräsentiert wird.
 
-Ziel dieser Arbeit ist es, diese intuitive Unterscheidung so zu formalisieren, dass ein Algorithmus den Stilunterschied zwischen der Common-Practice-Periode (Bach/Mozart) und der späten Romantik bzw. dem Impressionismus (Chopin/Debussy) anhand transparenter, interpretierbarer Merkmale ``hören'' kann -- ohne Black-Box-Modell und ohne manuelle Annotation von Einzelereignissen.
+Ziel dieser Arbeit ist es, diese intuitive Unterscheidung so zu formalisieren, dass ein Algorithmus den Stilunterschied zwischen der Common-Practice-Periode (Bach/Mozart) und der späten Romantik bzw. dem Impressionismus (Chopin/Debussy) anhand transparenter, interpretierbarer Merkmale \enquote{hören} kann -- ohne Black-Box-Modell und ohne manuelle Annotation von Einzelereignissen.
 
 Während die musikwissenschaftliche Literatur diese Evolution qualitativ umfassend beschreibt, fehlt es an empirischen, interpretierbaren Quantifizierungen. Frühere computergestützte Ansätze litten unter zwei komplementären Schwächen: Vereinfachte Metriken (z.\,B.\ reine Notenstatistik) erlaubten nur oberflächliche Aussagen, während komplexe Black-Box-Modelle (neuronale Netze) zwar trennscharf, aber musikologisch intransparent waren.\footnote{Vgl.\ \cite{Simonetta2025} für eine systematische Übersicht über Composer-Identification-Ansätze.}
 
@@ -226,7 +230,7 @@ Für jede Partitur werden harmonische, melodische und rhythmische Deskriptoren e
 
 \begin{description}
     \item[Harmonik (16 Merkmale)] \texttt{music21.stream.Score.chordify()} erstellt einen Akkordstream; es folgen Berechnung von Akkordqualitätsanteilen, harmonischer Dichte, Modal-Interchange-Raten sowie Klassifikation nichtakkordischer Töne (Durchgänge, Vorhalte, Appoggiaturen). Roman-Numeral-Analysen liefern Kadenzenstatistiken.
-    \item[Melodik (11 Merkmale)] Stimmen werden expandiert, um Ambitus (\texttt{pitch\_range\_semitones}) und Tonklassenstatistiken zu erfassen. Intervall-basierte Melodik wird aus dem oberen System (erstes \texttt{Part} in MusicXML; Proxy für die rechte Hand/Sopranlage) abgeleitet, um Polyphonie nicht vollständig zu ``flatten''. Für Stimmführungsmetriken wird pro Zeitpunkt die höchste Note im oberen System mit der tiefsten Note im unteren System verglichen; daraus ergeben sich Anteile an Gegen-, Parallel- und Oblique-Motion. Die Gegenbewegung (\texttt{contrary\_motion\_ratio}) erfasst explizit Richtungsunabhängigkeit und hilft, Begleitfiguren wie Alberti-Bässe von kontrapunktischer Stimmführung zu unterscheiden.
+    \item[Melodik (11 Merkmale)] Stimmen werden expandiert, um Ambitus (\texttt{pitch\_range\_semitones}) und Tonklassenstatistiken zu erfassen. Intervall-basierte Melodik wird aus dem oberen System (erstes \texttt{Part} in MusicXML; Proxy für die rechte Hand/Sopranlage) abgeleitet, um Polyphonie nicht vollständig zu \enquote{flatten}. Für Stimmführungsmetriken wird pro Zeitpunkt die höchste Note im oberen System mit der tiefsten Note im unteren System verglichen; daraus ergeben sich Anteile an Gegen-, Parallel- und Oblique-Motion. Die Gegenbewegung (\texttt{contrary\_motion\_ratio}) erfasst explizit Richtungsunabhängigkeit und hilft, Begleitfiguren wie Alberti-Bässe von kontrapunktischer Stimmführung zu unterscheiden.
     \item[Rhythmik (9 Merkmale)] Gleitfenster analysieren Dauerverteilungen, Downbeat-Betonung, Synkopationen, mikro-rhythmische Dichte und Cross-Rhythm-Mismatches zwischen Händen.
 \end{description}
 
@@ -383,7 +387,7 @@ Die Achseninterpretation (Tabelle~\ref{tab:loadings}) ermöglicht eine musikolog
 
 Aus dieser Interpretation ergibt sich die Cluster-Struktur:
 \begin{itemize}
-    \item \textbf{Bach \& Mozart} (klassische Region): Beide Komponisten liegen im PCA-Mittel auf der weniger chromatischen Seite (ähnliche PC1-Werte) im Vergleich zu Debussy -- das ist historisch plausibel und kein ``Versagen'' der Methode, sondern ein Hinweis auf gemeinsame Common-Practice-Regeln. Gleichzeitig zeigt die Trennung entlang PC2 konsistent texturale Unterschiede (kontrapunktische Dichte vs. homophone Transparenz). Im aktuellen Korpus ergibt der Tukey-Test 16 signifikante Unterschiede zwischen Bach und Mozart (davon 6 reine Zähl-/Größenmetriken wie \texttt{note\_count}, \texttt{chord\_event\_count}; ohne diese bleiben 10).
+    \item \textbf{Bach \& Mozart} (klassische Region): Beide Komponisten liegen im PCA-Mittel auf der weniger chromatischen Seite (ähnliche PC1-Werte) im Vergleich zu Debussy -- das ist historisch plausibel und kein \enquote{Versagen} der Methode, sondern ein Hinweis auf gemeinsame Common-Practice-Regeln. Gleichzeitig zeigt die Trennung entlang PC2 konsistent texturale Unterschiede (kontrapunktische Dichte vs. homophone Transparenz). Im aktuellen Korpus ergibt der Tukey-Test 16 signifikante Unterschiede zwischen Bach und Mozart (davon 6 reine Zähl-/Größenmetriken wie \texttt{note\_count}, \texttt{chord\_event\_count}; ohne diese bleiben 10).
     
     \item \textbf{Debussy} (impressionistische Insel): Debussy ist auf allen drei Achsen extrempositioniert: höchste PC1-Werte (maximale Chromatik/Dissonanz), höchste PC3-Werte (extremer Ambitus) und spezifische PC2-Charakteristik. Diese dreifache Isolation quantifiziert seine revolutionäre Sonderstellung. Die 16 signifikanten Unterschiede zu Mozart (Abbildung~\ref{fig:pairwise}) untermauern, dass nahezu jede Dimension des musikalischen Raums betroffen ist.
     
@@ -391,7 +395,7 @@ Aus dieser Interpretation ergibt sich die Cluster-Struktur:
 \end{itemize}
 
 \subsection{Chopins Rolle als Brücke}
-Die zweite Forschungsfrage -- ``Bestätigt die quantitative Landkarte Chopins Rolle als Brückenfigur?'' -- kann empirisch beantwortet werden: \newline\textbf{Ja, mit quantifiziertem Mechanismus.}
+Die zweite Forschungsfrage -- \enquote{Bestätigt die quantitative Landkarte Chopins Rolle als Brückenfigur?} -- kann empirisch beantwortet werden: \newline\textbf{Ja, mit quantifiziertem Mechanismus.}
 
 Die musikwissenschaftliche Literatur beschreibt Chopin als Innovator, der klassische Formen beibehielt, aber harmonisch revolutionierte.\footnote{\cite{ChopinTransformations}.} Die vorliegende Datenanalyse liefert erstmals einen messbaren Beweis für diese These:
 
@@ -404,7 +408,7 @@ Die musikwissenschaftliche Literatur beschreibt Chopin als Innovator, der klassi
         \item \emph{Romantische Innovation:} \texttt{pitch\_class\_entropy} (essentielle Chromatik), \texttt{dissonance\_ratio}, \texttt{pitch\_range\_semitones}
     \end{itemize}
     
-    \item \textbf{Historischer Kontext:} Die Daten stützen die These, dass Debussys Innovationen ohne Chopins Vorarbeit weniger plausibel gewesen wären. Chopin "öffnete" den stilistischen Raum: Er zeigte, dass Chromatik und Dissonanz mit klassischen Formen kompatibel sind. Debussy radikalisierte dann diese Tendenzen und löste die verbliebenen klassischen Strukturen auf.
+    \item \textbf{Historischer Kontext:} Die Daten stützen die These, dass Debussys Innovationen ohne Chopins Vorarbeit weniger plausibel gewesen wären. Chopin \enquote{öffnete} den stilistischen Raum: Er zeigte, dass Chromatik und Dissonanz mit klassischen Formen kompatibel sind. Debussy radikalisierte dann diese Tendenzen und löste die verbliebenen klassischen Strukturen auf.
 \end{enumerate}
 
 \subsection{Reproduzierbarkeit und Limitationen}
@@ -441,7 +445,7 @@ Diese Extremwerte wurden nach Verfeinerung der Meter-bewussten Synkopationserken
 
 \section{Fazit und Ausblick}
 \subsection{Fazit}
-Die zentrale Forschungsfrage -- "Kann ein kuratierter Satz interpretierbarer Merkmale eine empirische Landkarte erstellen, die stilistische Trennung und Evolution quantifiziert?" -- wurde umfassend beantwortet.
+Die zentrale Forschungsfrage -- \enquote{Kann ein kuratierter Satz interpretierbarer Merkmale eine empirische Landkarte erstellen, die stilistische Trennung und Evolution quantifiziert?} -- wurde umfassend beantwortet.
 
 \textbf{Methodischer Erfolg:} Die entwickelte Pipeline kombiniert moderne Werkzeuge (PDMX-Archiv, \texttt{music21}, Python-Statistik) mit musikologischer Interpretierbarkeit. Im Gegensatz zu früheren Ansätzen (\cite{LinJeng1987}) ermöglicht sie skalierbare, reproduzierbare Analyse bei gleichzeitiger Transparenz.
 
@@ -451,7 +455,7 @@ Die zentrale Forschungsfrage -- "Kann ein kuratierter Satz interpretierbarer Mer
     
     \item \textbf{Bach/Mozart-Cluster:} Trotz stilistischer Nähe zeigt der Tukey-HSD-Test im aktuellen Korpus 16 signifikante Unterschiede zwischen Bach und Mozart (bzw. 10, wenn reine Zähl-/Größenmetriken ausgeschlossen werden). Das stützt eher die These einer teilweisen Überlappung im Merkmalsraum als eine vollständige statistische Ununterscheidbarkeit.
     
-    \item \textbf{Debussy-Isolation:} 16 signifikante Unterschiede zu Mozart belegen Debussys revolutionären Sonderstatus. Die PCA positioniert ihn als isolierte "impressionistische Insel".
+    \item \textbf{Debussy-Isolation:} 16 signifikante Unterschiede zu Mozart belegen Debussys revolutionären Sonderstatus. Die PCA positioniert ihn als isolierte \enquote{impressionistische Insel}.
     
     \item \textbf{Chopins Brückenrolle:} Erstmals quantitativ belegt. Chopin bewahrt klassische kadenzielle Strukturen, während er harmonisch-melodisch in Richtung Impressionismus innoviert. Die PCA-Wolke visualisiert diese doppelte Verortung.
 \end{enumerate}
@@ -488,6 +492,7 @@ Ein übergeordnetes Langzeitziel ist die Verbindung symbolischer Analyse (Notent
 Das entwickelte Annotationswerkzeug (\texttt{annotate\_musicxml.py}) könnte in musikpädagogischen Kontexten eingesetzt werden, um Schülern harmonische Analysen und Dissonanzbehandlung visuell zu vermitteln.
 
 \clearpage
+\hypersetup{pageanchor=false}
 \pagenumbering{gobble}
 \section{Quellen- und Literaturverzeichnis}
 \textbf{Hinweis zum Zitierstil:} Dieses Dokument verwendet durchgehend den IEEE-Stil als Standard in Mathematik und Informatik; vgl. \cite{IEEEStyle}.
@@ -498,6 +503,7 @@ Die Konzeption des Projekts, die Literaturrecherche, die komplette Python-Progra
 
 \newpage
 \pagenumbering{Roman}
+\hypersetup{pageanchor=true}
 \setcounter{page}{1}
 \appendix
 \section{Anhang: Vollständige Merkmalsdokumentation}
@@ -605,7 +611,7 @@ Sopran (oberstes System) vs.\ Bass (unterstes System):
 
 \subsubsection*{Metrische Aktivität}
 \begin{description}
-    \item[\texttt{notes\_per\_beat}] Durchschnittliche Events pro Schlag (z.\,B.\ \emph{Chopin: Étude Op.\,25 Nr.\,11 ``Winter Wind''}: 14{,}06 vs.\ \emph{Chopin: Nocturne n20}: 0{,}63).
+    \item[\texttt{notes\_per\_beat}] Durchschnittliche Events pro Schlag (z.\,B.\ \emph{Chopin: Étude Op.\,25 Nr.\,11 \enquote{Winter Wind}}: 14{,}06 vs.\ \emph{Chopin: Nocturne n20}: 0{,}63).
     
     \item[\texttt{downbeat\_emphasis\_ratio}] Anteil starker Schläge (\texttt{beatStrength} $\geq 0{,}75$).
     
