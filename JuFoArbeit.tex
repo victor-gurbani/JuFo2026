@@ -1,7 +1,9 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
-\usepackage[margin=1in]{geometry}
+\usepackage[margin=2.0cm]{geometry} 
+\usepackage{setspace}    
+\setstretch{1.1}
 \usepackage{enumitem}
 \usepackage{hyperref}
 \usepackage{url}
@@ -33,6 +35,36 @@
 
 % Define colors
 \definecolor{titlecolor}{RGB}{0, 51, 102}
+\definecolor{codebg}{RGB}{245, 245, 245}
+\definecolor{codecomment}{RGB}{92, 99, 112}
+\definecolor{codekeyword}{RGB}{30, 64, 175}
+\definecolor{codestring}{RGB}{14, 116, 144}
+
+% Month-year without day
+\newcommand{\monthyear}{%
+    \ifcase\month\or Januar\or Februar\or M\"arz\or April\or Mai\or Juni\or Juli\or August\or September\or Oktober\or November\or Dezember\fi\space \number\year
+}
+
+\lstdefinestyle{code}{
+    language=bash,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codekeyword},
+    commentstyle=\color{codecomment},
+    stringstyle=\color{codestring},
+    backgroundcolor=\color{codebg},
+    showstringspaces=false,
+    inputencoding=utf8,
+    breaklines=true,
+    frame=single,
+    framerule=0.4pt,
+    rulecolor=\color{black!20},
+    xleftmargin=0.4em,
+    xrightmargin=0.4em,
+    aboveskip=0.8em,
+    belowskip=0.8em,
+    literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {Ä}{{\"A}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1 {ß}{{\ss}}1 {–}{{--}}1
+}
+\lstset{style=code}
 
 % Fix headheight warning
 \setlength{\headheight}{14.5pt}
@@ -76,7 +108,7 @@
         
         {\Large\textbf{Victor Gurbani}\par}
         \vspace{0.5cm}
-        {\large\today\par}
+        {\large \monthyear\par}
         
         \vfill
         % Optional: Add a simple decorative element
@@ -90,13 +122,14 @@
 \begin{document}
 
 \maketitle
-\setcounter{page}{1}
-\pagenumbering{arabic}
+\pagenumbering{roman}
 \newpage
 
     \tableofcontents
 
 \newpage
+\setcounter{page}{1}
+\pagenumbering{arabic}
 
 \section{Fachliche Kurzfassung}
 Die stilistische Evolution von der kontrapunktischen Strenge des Barock bis zur klanglichen Farbigkeit des Impressionismus ist musikwissenschaftlich umfassend beschrieben, ihre empirische Quantifizierung stellt jedoch eine methodische Herausforderung dar. Dieses Projekt entwickelt eine \emph{Empirische Musikalische Kartographie}, die diese Lücke durch Integration moderner computergestützter Verfahren mit interpretierbarer Merkmalsextraktion schließt.
@@ -282,7 +315,7 @@ Die PCA-Visualisierung (Abbildung~\ref{fig:clouds}) fasst die 30 PCA-Eingangsmer
     \href{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}{%
         \includegraphics[width=0.95\textwidth]{figures/embeddings/composer_clouds_3d.png}
     }
-    \caption{3D-PCA-Projektion der 144 Partituren im standardisierten 30-Merkmalsraum. Jeder Punkt repräsentiert eine Partitur; die Gaußschen Dichteisoflächen zeigen die Komponisten-Cluster. Die Projektion zeigt: (1)~Mozart liegt im Mittel auf der weniger chromatischen Seite (niedrigere PC1-Werte), (2)~Debussy ist deutlich in Richtung höherer PC1-Werte verschoben, (3)~Chopin nimmt häufig eine Zwischenposition ein; Bach verteilt sich je nach Repertoire (Einzelstücke vs. Sammlungen) breiter.}\label{fig:clouds}
+    \caption{3D-PCA-Projektion der 144 Partituren im standardisierten 30-Merkmalsraum. Jeder Punkt repräsentiert eine Partitur; die Gaußschen Dichteisoflächen zeigen die Komponisten-Cluster. Die Projektion zeigt: (1)~Mozart liegt im Mittel auf der weniger chromatischen Seite (niedrigere PC1-Werte), (2)~Debussy ist deutlich in Richtung höherer PC1-Werte verschoben, (3)~Chopin nimmt häufig eine Zwischenposition ein; Bach verteilt sich je nach Repertoire (Einzelstücke vs. Sammlungen) breiter. \emph{Klickbar für interaktive Ansicht.}}\label{fig:clouds}
 \end{figure}
 
 \noindent Interaktive Version der Abbildung der PCA-Wolken: \href{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}{\faLink\ composer\_clouds\_3d.html}.
@@ -314,7 +347,7 @@ Mit \texttt{src/highlight\_pca\_piece.py} können externe Stücke in die PCA-Wol
     \href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}{%
         \includegraphics[width=0.85\textwidth]{summerdayhighlight.png}
     }
-    \caption{Externer Validierungstest: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung illustriert die Generalisierungsfähigkeit der Merkmalsextraktion: Hisaishi nutzt bekanntermaßen spätromantische Harmonik (Chopin-Nähe) kombiniert mit impressionistischen Klangfarben (Debussy-Nähe).}\label{fig:hisaishi}
+    \caption{Externer Validierungstest: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung illustriert die Generalisierungsfähigkeit der Merkmalsextraktion: Hisaishi nutzt bekanntermaßen spätromantische Harmonik (Chopin-Nähe) kombiniert mit impressionistischen Klangfarben (Debussy-Nähe). \emph{Klickbar für interaktive Ansicht.}}\label{fig:hisaishi}
 \end{figure}
 
 \noindent Interaktive Version der Abbildung (Hisaishi): \href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}{\faLink\ one\_summers\_day\_pca\_cloud.html}.
@@ -330,7 +363,7 @@ Ein zweiter, bewusst außerhalb des Trainingskorpus gewählter Test ist Maurice 
     }{%
         \fbox{\parbox{0.85\textwidth}{\centering (Missing figure file: ravelhighlight\_cropped.png)}}
     }
-    \caption{Externer Validierungstest: Projektion von Ravels \emph{Streichquartett in F-Dur} (Diamantmarker) in die PCA-Wolken.}\label{fig:ravel}
+    \caption{Externer Validierungstest: Projektion von Ravels \emph{Streichquartett in F-Dur} (Diamantmarker) in die PCA-Wolken. \emph{Klickbar für interaktive Ansicht.}}\label{fig:ravel}
 \end{figure}
 
 Interaktive Projektion (Ravel): \href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html}{\faLink\ ravel\_string\_quartet\_pca\_cloud.html}.
@@ -451,8 +484,12 @@ Ein übergeordnetes Langzeitziel ist die Verbindung symbolischer Analyse (Notent
 \textbf{Pädagogische Anwendungen:}
 Das entwickelte Annotationswerkzeug (\texttt{annotate\_musicxml.py}) könnte in musikpädagogischen Kontexten eingesetzt werden, um Schülern harmonische Analysen und Dissonanzbehandlung visuell zu vermitteln.
 
+\clearpage
+\pagenumbering{gobble}
 \section{Quellen- und Literaturverzeichnis}
+\textbf{Hinweis zum Zitierstil:} Dieses Dokument verwendet durchgehend den IEEE-Stil als Standard in Mathematik und Informatik; vgl. \cite{IEEEStyle}.
 \begin{thebibliography}{99}
+    \bibitem{IEEEStyle} IEEE, ``IEEE Reference Guide,'' 2023. [Online]. Verfügbar: \url{https://ieeeauthorcenter.ieee.org/wp-content/uploads/IEEE-Reference-Guide.pdf}
     \bibitem{Benjamini1995} Y. Benjamini und Y. Hochberg, ``Controlling the false discovery rate: a practical and powerful approach to multiple testing,'' \emph{Journal of the Royal Stat. Society Series B}, vol. 57, no. 1, pp. 289--300, 1995.
     \bibitem{Cuthbert2010} M. S. A. Cuthbert und C. Ariza, ``music21: A Toolkit for Computer-Aided Musicology,'' in \emph{Proceedings of the 11th ISMIR}, 2010.
     \bibitem{PDMX2024} P. Long, Z. Novack, J. McAuley und T. Berg-Kirkpatrick, ``PDMX: A Large-Scale Public Domain MusicXML Dataset for Symbolic Music Processing,'' \emph{arXiv:2409.10831}, 2024.
@@ -464,9 +501,11 @@ Das entwickelte Annotationswerkzeug (\texttt{annotate\_musicxml.py}) könnte in 
 \end{thebibliography}
 
 \section*{Angaben zu Unterstützungsleistungen}
-Die Konzeption des Projekts, die Literaturrecherche, die komplette Python-Programmierung (Korpus-Kuratierung, Parsing, Merkmalsextraktion, Statistik, Visualisierung) sowie die Auswertung und Dokumentation wurden von mir, Victor Gurbani, eigenständig erbracht. Verwendet wurden ausschließlich die in Abschnitt~7 genannten Open-Source-Bibliotheken und öffentlichen Datensätze. Mein Projektbetreuer unterstützte durch regelmäßige Feedbackgespräche zur wissenschaftlichen Methodik und zur Struktur der schriftlichen Arbeit. Es erfolgte keine finanzielle oder materielle Unterstützung durch Unternehmen oder Forschungseinrichtungen.
+Die Konzeption des Projekts, die Literaturrecherche, die komplette Python-Programmierung (Korpus-Kuratierung, Parsing, Merkmalsextraktion, Statistik, Visualisierung) sowie die Auswertung und Dokumentation wurden von mir, Victor Gurbani, eigenständig erbracht. Verwendet wurden ausschließlich die in Abschnitt~7 genannten Open-Source-Bibliotheken und öffentlichen Datensätze. 
 
 \newpage
+\pagenumbering{Roman}
+\setcounter{page}{1}
 \appendix
 \section{Anhang: Vollständige Merkmalsdokumentation}
 
@@ -630,9 +669,9 @@ Das Projekt enthält ein vollautomatisches Bash-Skript, das Installation und Ana
 
 \subsubsection{Vollautomatischer Ablauf}
 
-\begin{verbatim}
+\begin{lstlisting}
 ./quickstart.sh
-\end{verbatim}
+\end{lstlisting}
 
 Das Skript führt automatisch folgende Schritte aus:
 \begin{enumerate}
@@ -644,9 +683,9 @@ Das Skript führt automatisch folgende Schritte aus:
 \end{enumerate}
 
 \textbf{Alternative ohne Virtual Environment:}
-\begin{verbatim}
+\begin{lstlisting}
 ./quickstart.sh --no-venv
-\end{verbatim}
+\end{lstlisting}
 Nutzt System-Python-Installation (für conda-Nutzer oder vorinstallierte Abhängigkeiten).
 
 \subsection{Die 10-Stufen-Analysepipeline}
@@ -656,45 +695,45 @@ Das Quickstart-Skript orchestriert folgende Schritte:
 \subsubsection{Stufe 1--2: Korpus-Kuratierung und Parsing}
 
 \textbf{[1/10] Korpus-Kuratierung}
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/corpus_curation.py --min-rating 0
-\end{verbatim}
+\end{lstlisting}
 \textit{Ausgabe}: \texttt{data/curated/solo\_piano\_corpus.csv} (144 Werke, balanciert), \texttt{solo\_piano\_mxl\_paths.txt}
 
 \textbf{[2/10] Struktur-Parsing}
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/score_parser.py \
     --output data/parsed/summaries.json
-\end{verbatim}
+\end{lstlisting}
 \textit{Ausgabe}: JSON mit Taktzahl, Stimmenzahl, Dauern pro Partitur
 
 \subsubsection{Stufe 3--5: Merkmals-Extraktion}
 
 \textbf{[3/10] Harmonische Merkmale}
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/harmonic_features.py \
     --output-csv data/features/harmonic_features.csv
-\end{verbatim}
+\end{lstlisting}
 \textit{Ausgabe}: 16 harmonische Deskriptoren + Boxplots in \texttt{figures/harmonic/}
 
 \textbf{[4/10] Melodische Merkmale}
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/melodic_features.py \
     --output-csv data/features/melodic_features.csv
-\end{verbatim}
+\end{lstlisting}
 \textit{Ausgabe}: 11 melodische Deskriptoren + Boxplots in \texttt{figures/melodic/}
 
 \textbf{[5/10] Rhythmische Merkmale}
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/rhythmic_features.py \
     --output-csv data/features/rhythmic_features.csv
-\end{verbatim}
+\end{lstlisting}
 \textit{Ausgabe}: 9 rhythmische Deskriptoren + Boxplots in \texttt{figures/rhythmic/}
 
 \subsubsection{Stufe 6: Dimensionsreduktion und Embedding}
 
 \textbf{[6/10] PCA- und t-SNE-Projektionen}
-\begin{verbatim}
+\begin{lstlisting}
 # PCA mit 3D/2D-Visualisierung
 python3 src/feature_embedding.py --method pca \
     --output figures/embeddings/pca_3d.html \
@@ -708,37 +747,37 @@ python3 src/feature_embedding.py --method tsne \
     --perplexity 20 --tsne-composer-weight 4.0 \
     --output figures/embeddings/tsne_3d.html \
     --clouds-output figures/embeddings/tsne_clouds_3d.html
-\end{verbatim}
+\end{lstlisting}
 \textit{Ausgabe}: Interaktive HTML-Scatter-Plots, Gaußsche Dichtewolken, PCA-Loadings
 
 \subsubsection{Stufe 7--8: Statistische Signifikanz}
 
 \textbf{[7/10] ANOVA und Tukey-HSD-Tests}
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/significance_tests.py \
     --anova-output data/stats/anova_summary.csv \
     --tukey-output data/stats/tukey_hsd.csv
-\end{verbatim}
+\end{lstlisting}
 \textit{Ausgabe}: F-Statistiken, p-Werte, Bonferroni/FDR-Flags, paarweise Vergleiche
 
 \textbf{[8/10] Signifikanz-Visualisierungen}
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/significance_visualizations.py --top-n 15
-\end{verbatim}
+\end{lstlisting}
 \textit{Ausgabe}: Bar-Charts, Heatmaps (Paar-Counts, Mean-Difference, Sym-Log) in \texttt{figures/significance/}
 
 \subsubsection{Stufe 9--10: Annotation und Aggregation}
 
 \textbf{[9/10] Annotierte Referenzpartituren}
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/generate_selected_annotations.py
-\end{verbatim}
+\end{lstlisting}
 \textit{Ausgabe}: 8 farbcodierte MusicXML-Dateien (2 pro Komponist) mit Dissonanz-Labels, Akkordsymbolen und optionalen PDF-Renderings
 
 \textbf{[10/10] Master-Aggregation}
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/aggregate_metrics.py
-\end{verbatim}
+\end{lstlisting}
 Validiert alle Outputs, druckt Korpus-Statistiken, verifiziert Konsistenz
 
 \subsection{Manuelle Einzelschritte und Debugging}
@@ -746,56 +785,56 @@ Validiert alle Outputs, druckt Korpus-Statistiken, verifiziert Konsistenz
 \subsubsection{Schnelltests mit \texttt{--limit}}
 
 Jedes Feature-Extraktions-Skript unterstützt partielle Läufe:
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/harmonic_features.py --limit 5 \
     --output-csv /tmp/harmonic_test.csv
-\end{verbatim}
+\end{lstlisting}
 Prozessiert nur die ersten 5 Partituren für Smoke-Tests.
 
 \subsubsection{Cached Runs mit \texttt{--features-from}}
 
 Wiederverwendung bereits berechneter Features ohne Neuberechnung:
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/harmonic_features.py \
     --features-from data/features/harmonic_features.csv \
     --skip-plots
-\end{verbatim}
+\end{lstlisting}
 Nutzt existierende CSV, erzeugt nur Statistiken (nützlich für iterative Visualisierungen).
 
 \subsubsection{Alternative Korpus-Varianten}
 
 Experimentiere mit unbalancierten oder entspannten Filtern:
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/corpus_curation.py --min-rating 0 \
     --skip-license-filter \
     --max-per-composer 999 \
     --output-csv data/curated/unbalanced_corpus.csv
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Erweiterte Funktionen}
 
 \subsubsection{Externe Stück-Projektion}
 
 Projiziere beliebige MusicXML-Dateien in den PCA-Raum:
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/highlight_pca_piece.py \
     --pieces path/to/score.mxl \
     --title "Joe Hisaishi - One Summer's Day" \
     --composer "Joe Hisaishi" \
     --output highlighted_projection.html
-\end{verbatim}
+\end{lstlisting}
 Unterstützt mehrere Stücke gleichzeitig mit individuellen Labels.
 
 \subsubsection{MusicXML-Annotation mit MuseScore-Rendering}
 
 Erzeuge farbcodierte Analysepartituren mit automatischem PDF-Export:
-\begin{verbatim}
+\begin{lstlisting}
 python3 src/annotate_musicxml.py \
     path/to/input.mxl \
     path/to/output_annotated.mxl \
     --renderer-template "mscore -o {output} {input}" \
     --render-format pdf
-\end{verbatim}
+\end{lstlisting}
 Färbt Durchgänge (orange), Appoggiaturen (violett), andere Dissonanzen (rot), chromatische Harmonien (türkis); fügt römische Ziffern als Akkordsymbole ein.
 
 \subsection{Validierung der Installation}
@@ -815,7 +854,7 @@ Nach vollständigem Durchlauf sollten folgende Kennzahlen reproduziert werden:
 
 \subsubsection{Schnelle Integritätsprüfung}
 
-\begin{verbatim}
+\begin{lstlisting}
 # Test 1: Parsing-Integrität
 python3 src/score_parser.py --limit 5 \
     --output /tmp/test_parse.json
@@ -829,7 +868,7 @@ python3 src/harmonic_features.py --limit 5 \
 # Test 3: Statistik-Pipeline
 python3 src/significance_tests.py --alpha 0.05
 # Erwartung: anova_summary.csv mit 36 Zeilen
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Häufige Probleme und Lösungen}
 
@@ -884,25 +923,27 @@ Einheitliches Format für alle drei Feature-Typen:
 
 \section{Anhang C: Online-Links und Indexseiten}
 
+\newcommand{\linkurl}[1]{\href{#1}{\textcolor{blue}{\underline{\nolinkurl{#1}}}}}
+
 Alle Abbildungen im PDF sind klickbar und führen zu den interaktiven Online-Versionen. Zur Sicherheit sind alle Links hier gesammelt aufgeführt (für Leserinnen und Leser ohne PDF-Link-Unterstützung).
 
 \subsection{Index-Startseiten}
 \begin{itemize}
-    \item \textbf{Gesamtindex der Abbildungen}: \url{https://victor-gurbani.github.io/JuFo2026/figures/}
-    \item \textbf{Embeddings (PCA/t-SNE)}: \url{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/}
-    \item \textbf{Highlights (externe Stücke)}: \url{https://victor-gurbani.github.io/JuFo2026/figures/highlights/}
-    \item \textbf{Signifikanz-Plots}: \url{https://victor-gurbani.github.io/JuFo2026/figures/significance/}
-    \item \textbf{Harmonische Boxplots}: \url{https://victor-gurbani.github.io/JuFo2026/figures/harmonic/}
-    \item \textbf{Melodische Boxplots}: \url{https://victor-gurbani.github.io/JuFo2026/figures/melodic/}
-    \item \textbf{Rhythmische Boxplots}: \url{https://victor-gurbani.github.io/JuFo2026/figures/rhythmic/}
-    \item \textbf{Annotierte MusicXML-Dateien}: \url{https://victor-gurbani.github.io/JuFo2026/figures/annotated/}
+    \item \textbf{Gesamtindex der Abbildungen}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/}
+    \item \textbf{Embeddings (PCA/t-SNE)}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/}
+    \item \textbf{Highlights (externe Stücke)}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/highlights/}
+    \item \textbf{Signifikanz-Plots}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/significance/}
+    \item \textbf{Harmonische Boxplots}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/harmonic/}
+    \item \textbf{Melodische Boxplots}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/melodic/}
+    \item \textbf{Rhythmische Boxplots}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/rhythmic/}
+    \item \textbf{Annotierte MusicXML-Dateien}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/annotated/}
 \end{itemize}
 
 \subsection{Direktlinks zu interaktiven Kernansichten}
 \begin{itemize}
-    \item \textbf{PCA-Komponistenwolken (3D)}: \url{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}
-    \item \textbf{Highlight: One Summer's Day (Hisaishi)}: \url{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}
-    \item \textbf{Highlight: Ravel String Quartet (F-Dur)}: \url{https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html}
+    \item \textbf{PCA-Komponistenwolken (3D)}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}
+    \item \textbf{Highlight: One Summer's Day (Hisaishi)}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}
+    \item \textbf{Highlight: Ravel String Quartet (F-Dur)}: \newline\linkurl{https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html}
 \end{itemize}
 
 \subsection{Software-Lizenzierung und Zitierung}
@@ -915,6 +956,6 @@ Alle Abbildungen im PDF sind klickbar und führen zu den interaktiven Online-Ver
     \item \textbf{Dependencies}: Alle verwendeten Bibliotheken (\texttt{music21}, \texttt{scikit-learn}, etc.) sind Open Source (BSD/MIT-Lizenzen)
 \end{itemize}
 
-Dieser Leitfaden ermöglicht vollständige Reproduktion aller Ergebnisse sowie deren Erweiterung auf neue Fragestellungen. Bei Problemen: GitHub-Issues im Repository oder Kontakt über die im Hauptdokument angegebene Adresse.
+Dieser Leitfaden ermöglicht vollständige Reproduktion aller Ergebnisse sowie deren Erweiterung auf neue Fragestellungen. Bei Problemen: GitHub-Issues im Repository oder Kontakt über verfügbare Adresse.
 
 \end{document}
