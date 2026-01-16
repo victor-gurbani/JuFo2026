@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Embeddings – JuFo2026</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#0f172a; --card:#111827; --text:#f8fafc; --muted:#9ca3af; --accent:#38bdf8; }
+    @media (prefers-color-scheme: light) { :root { --bg:#f8fafc; --card:#fff; --text:#0f172a; --muted:#6b7280; --accent:#0ea5e9; } }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:var(--bg); color:var(--text); }
+    header { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 1rem; }
+    header a { color:var(--accent); text-decoration:none; }
+    main { max-width:1100px; margin:0 auto; padding:0 1.5rem 2.5rem; }
+    .grid { display:grid; gap:1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .card { background:var(--card); border-radius:1rem; padding:0.9rem; border:1px solid color-mix(in srgb, var(--text) 8%, transparent); }
+    iframe, img { width:100%; height:220px; border:0; border-radius:0.75rem; background:#0b1020; object-fit:cover; }
+    .title { display:block; margin-top:0.6rem; color:var(--accent); text-decoration:none; font-weight:600; }
+    .meta { color:var(--muted); font-size:0.85rem; margin-top:0.2rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Embeddings</h1>
+    <p><a href="../index.html">← Back to Figure Index</a></p>
+  </header>
+  <main>
+    <div class="grid" id="grid"></div>
+  </main>
+  <script>
+    const items = [
+      { title: "Composer Clouds (3D)", href: "composer_clouds_3d.html", preview: true, thumb: "composer_clouds_3d.png" },
+      { title: "Composer Clouds (2D)", href: "composer_clouds_2d.html" },
+      { title: "PCA 3D", href: "pca_3d.html" },
+      { title: "PCA 2D", href: "pca_2d.html" },
+      { title: "PCA Clouds 3D", href: "pca_clouds_3d.html" },
+      { title: "PCA Clouds 2D", href: "pca_clouds_2d.html" },
+      { title: "t-SNE 3D", href: "tsne_3d.html" },
+      { title: "t-SNE 2D", href: "tsne_2d.html" },
+      { title: "t-SNE Clouds 3D", href: "tsne_clouds_3d.html" },
+      { title: "t-SNE Clouds 2D", href: "tsne_clouds_2d.html" },
+      { title: "t-SNE Test 3D", href: "tsne_test_3d.html" },
+      { title: "t-SNE Test 2D", href: "tsne_test_2d.html" },
+      { title: "t-SNE Test Clouds 3D", href: "tsne_test_clouds_3d.html" },
+      { title: "t-SNE Test Clouds 2D", href: "tsne_test_clouds_2d.html" },
+      { title: "Embedding 3D", href: "embedding_3d.html" },
+      { title: "Stereo Viewer", href: "stereo_viewer.html" },
+      { title: "Tmp Embed Test", href: "_tmp_embed_test.html", thumb: "_tmp_embed_test.png" }
+    ];
+
+    const grid = document.getElementById("grid");
+    items.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      if (item.preview) {
+        const iframe = document.createElement("iframe");
+        iframe.src = item.href;
+        iframe.loading = "lazy";
+        iframe.title = item.title;
+        card.appendChild(iframe);
+      } else if (item.thumb) {
+        const img = document.createElement("img");
+        img.src = item.thumb;
+        img.alt = item.title;
+        img.loading = "lazy";
+        card.appendChild(img);
+      }
+
+      const link = document.createElement("a");
+      link.className = "title";
+      link.href = item.href;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = item.title;
+      card.appendChild(link);
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = "Interactive";
+      card.appendChild(meta);
+
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

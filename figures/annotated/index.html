@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Annotated Scores – JuFo2026</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#0f172a; --card:#111827; --text:#f8fafc; --muted:#9ca3af; --accent:#38bdf8; }
+    @media (prefers-color-scheme: light) { :root { --bg:#f8fafc; --card:#fff; --text:#0f172a; --muted:#6b7280; --accent:#0ea5e9; } }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:var(--bg); color:var(--text); }
+    header, main { max-width:900px; margin:0 auto; padding:2rem 1.5rem; }
+    header a { color:var(--accent); text-decoration:none; }
+    ul { list-style:none; padding:0; margin:1rem 0 0; display:grid; gap:0.7rem; }
+    li { background:var(--card); padding:0.9rem 1rem; border-radius:0.9rem; border:1px solid color-mix(in srgb, var(--text) 10%, transparent); }
+    a.file { color:var(--accent); text-decoration:none; font-weight:600; }
+    small { color:var(--muted); display:block; margin-top:0.3rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Annotated MusicXML</h1>
+    <p><a href="../index.html">← Back to Figure Index</a></p>
+  </header>
+  <main>
+    <ul id="list"></ul>
+  </main>
+  <script>
+    const items = [
+      { title: "Bach – Fugue in C Major BWV 846", file: "Bach_Fugue_in_C_Major_BWV_846_annotated.mxl" },
+      { title: "Bach – Toccata and Fugue in D Minor", file: "Bach_Toccata_and_Fugue_in_D_Minor_annotated.mxl" },
+      { title: "Chopin – Ballade No. 1", file: "Chopin_Ballade_No1_annotated.mxl" },
+      { title: "Chopin – Étude Op. 25 No. 11", file: "Chopin_Etude_Op25_No11_annotated.mxl" },
+      { title: "Debussy – Clair de Lune", file: "Debussy_Clair_de_Lune_annotated.mxl" },
+      { title: "Debussy – La cathédrale engloutie", file: "La_cathedrale_engloutie_annotated.mxl" },
+      { title: "Mozart – Lacrimosa (Requiem)", file: "Mozart_Lacrimosa_Requiem_annotated.mxl" },
+      { title: "Mozart – Sonata K545, 3rd Movement", file: "Mozart_Sonata_K545_3rd_Movement_annotated.mxl" }
+    ];
+
+    const list = document.getElementById("list");
+    items.forEach((item) => {
+      const li = document.createElement("li");
+      const link = document.createElement("a");
+      link.className = "file";
+      link.href = item.file;
+      link.textContent = item.title;
+      li.appendChild(link);
+
+      const meta = document.createElement("small");
+      meta.textContent = item.file;
+      li.appendChild(meta);
+
+      list.appendChild(li);
+    });
+  </script>
+</body>
+</html>

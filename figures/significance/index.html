@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Significance – JuFo2026</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#0f172a; --card:#111827; --text:#f8fafc; --muted:#9ca3af; --accent:#38bdf8; }
+    @media (prefers-color-scheme: light) { :root { --bg:#f8fafc; --card:#fff; --text:#0f172a; --muted:#6b7280; --accent:#0ea5e9; } }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:var(--bg); color:var(--text); }
+    header, main { max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+    header a { color:var(--accent); text-decoration:none; }
+    .grid { display:grid; gap:1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .card { background:var(--card); border-radius:1rem; padding:0.8rem; border:1px solid color-mix(in srgb, var(--text) 8%, transparent); }
+    img { width:100%; border-radius:0.75rem; object-fit:cover; }
+    .title { display:block; margin-top:0.6rem; color:var(--accent); text-decoration:none; font-weight:600; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Significance</h1>
+    <p><a href="../index.html">← Back to Figure Index</a></p>
+  </header>
+  <main>
+    <div class="grid" id="grid"></div>
+  </main>
+  <script>
+    const items = [
+      "top_anova_bar.png",
+      "tukey_pair_heatmap.png",
+      "tukey_pair_mean_difference.png",
+      "tukey_pair_mean_abs_difference.png",
+      "tukey_feature_heatmap.png",
+      "tukey_feature_heatmap_normalized.png"
+    ];
+
+    const grid = document.getElementById("grid");
+    items.forEach((file) => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const img = document.createElement("img");
+      img.src = file;
+      img.alt = file;
+      img.loading = "lazy";
+      card.appendChild(img);
+
+      const link = document.createElement("a");
+      link.className = "title";
+      link.href = file;
+      link.textContent = file.replace(/_/g, " ").replace(".png", "");
+      card.appendChild(link);
+
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

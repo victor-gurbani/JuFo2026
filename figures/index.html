@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JuFo2026 – Figure Index</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --card: #111827;
+      --muted: #9ca3af;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --muted: #6b7280;
+        --text: #0f172a;
+        --accent: #0ea5e9;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      padding: 2.5rem 1.5rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.8rem, 2vw + 1rem, 3rem);
+    }
+    header p {
+      margin: 0.2rem 0;
+      color: var(--muted);
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    nav a {
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 20%, transparent);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+    section {
+      background: color-mix(in srgb, var(--card) 85%, transparent);
+      padding: 1.5rem;
+      border-radius: 1.25rem;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+    }
+    section h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+    }
+    section p {
+      margin-top: 0.35rem;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .card {
+      background: color-mix(in srgb, var(--card) 95%, transparent);
+      border-radius: 1rem;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    }
+    .card img {
+      width: 100%;
+      border-radius: 0.75rem;
+      object-fit: cover;
+      border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    }
+    .card iframe {
+      width: 100%;
+      height: 220px;
+      border: 0;
+      border-radius: 0.75rem;
+      background: #0b1020;
+    }
+    .card a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem 1rem 3rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>JuFo2026 Figure Gallery</h1>
+    <p>Interactive embeddings, statistical plots, and annotated exemplars.</p>
+    <nav>
+      <a href="#embeddings">Embeddings</a>
+      <a href="#highlights">Highlights</a>
+      <a href="#significance">Significance</a>
+      <a href="#harmonic">Harmonic</a>
+      <a href="#melodic">Melodic</a>
+      <a href="#rhythmic">Rhythmic</a>
+      <a href="#annotated">Annotated</a>
+    </nav>
+  </header>
+  <main id="content"></main>
+  <footer>
+    Generated for GitHub Pages · Repository: <a href="https://github.com/victor-gurbani/JuFo2026/">victor-gurbani/JuFo2026</a>
+  </footer>
+
+  <script>
+    const sections = [
+      {
+        id: "embeddings",
+        title: "Embeddings (interactive)",
+        description: "3D/2D PCA and t-SNE views with cloud overlays.",
+        items: [
+          { title: "Composer Clouds (3D)", href: "embeddings/composer_clouds_3d.html", preview: true, thumb: "embeddings/composer_clouds_3d.png", type: "html" },
+          { title: "Composer Clouds (2D)", href: "embeddings/composer_clouds_2d.html", type: "html" },
+          { title: "PCA 3D", href: "embeddings/pca_3d.html", type: "html" },
+          { title: "PCA 2D", href: "embeddings/pca_2d.html", type: "html" },
+          { title: "PCA Clouds 3D", href: "embeddings/pca_clouds_3d.html", type: "html" },
+          { title: "PCA Clouds 2D", href: "embeddings/pca_clouds_2d.html", type: "html" },
+          { title: "t-SNE 3D", href: "embeddings/tsne_3d.html", type: "html" },
+          { title: "t-SNE 2D", href: "embeddings/tsne_2d.html", type: "html" },
+          { title: "t-SNE Clouds 3D", href: "embeddings/tsne_clouds_3d.html", type: "html" },
+          { title: "t-SNE Clouds 2D", href: "embeddings/tsne_clouds_2d.html", type: "html" },
+          { title: "t-SNE Test 3D", href: "embeddings/tsne_test_3d.html", type: "html" },
+          { title: "t-SNE Test 2D", href: "embeddings/tsne_test_2d.html", type: "html" },
+          { title: "t-SNE Test Clouds 3D", href: "embeddings/tsne_test_clouds_3d.html", type: "html" },
+          { title: "t-SNE Test Clouds 2D", href: "embeddings/tsne_test_clouds_2d.html", type: "html" },
+          { title: "Embedding 3D", href: "embeddings/embedding_3d.html", type: "html" },
+          { title: "Stereo Viewer", href: "embeddings/stereo_viewer.html", type: "html" },
+          { title: "Tmp Embed Test", href: "embeddings/_tmp_embed_test.html", thumb: "embeddings/_tmp_embed_test.png", type: "html" }
+        ]
+      },
+      {
+        id: "highlights",
+        title: "Highlights",
+        description: "External pieces projected into the PCA cloud.",
+        items: [
+          { title: "Ravel – String Quartet in F Major", href: "highlights/ravel_string_quartet_pca_cloud.html", preview: true, type: "html" },
+          { title: "Hisaishi – One Summer's Day", href: "highlights/one_summers_day_pca_cloud.html", preview: true, type: "html" }
+        ]
+      },
+      {
+        id: "significance",
+        title: "Significance",
+        description: "ANOVA and Tukey-HSD summaries.",
+        items: [
+          { title: "Top ANOVA", href: "significance/top_anova_bar.png", type: "image" },
+          { title: "Tukey Pair Heatmap", href: "significance/tukey_pair_heatmap.png", type: "image" },
+          { title: "Tukey Pair Mean Difference", href: "significance/tukey_pair_mean_difference.png", type: "image" },
+          { title: "Tukey Pair Mean Abs Difference", href: "significance/tukey_pair_mean_abs_difference.png", type: "image" },
+          { title: "Tukey Feature Heatmap", href: "significance/tukey_feature_heatmap.png", type: "image" },
+          { title: "Tukey Feature Heatmap (Normalized)", href: "significance/tukey_feature_heatmap_normalized.png", type: "image" }
+        ]
+      },
+      {
+        id: "harmonic",
+        title: "Harmonic Features",
+        description: "Boxplots of harmonic descriptors.",
+        items: [
+          { title: "Dissonance Ratio", href: "harmonic/boxplot_dissonance_ratio.png", type: "image" },
+          { title: "Appoggiatura Ratio", href: "harmonic/boxplot_appoggiatura_ratio.png", type: "image" },
+          { title: "Passing Tone Ratio", href: "harmonic/boxplot_passing_tone_ratio.png", type: "image" },
+          { title: "Other Dissonance Ratio", href: "harmonic/boxplot_other_dissonance_ratio.png", type: "image" },
+          { title: "Harmonic Density Mean", href: "harmonic/boxplot_harmonic_density_mean.png", type: "image" },
+          { title: "Modal Interchange Ratio", href: "harmonic/boxplot_modal_interchange_ratio.png", type: "image" },
+          { title: "Deceptive Cadence Ratio", href: "harmonic/boxplot_deceptive_cadence_ratio.png", type: "image" },
+          { title: "Chord Quality Major", href: "harmonic/boxplot_chord_quality_major_pct.png", type: "image" },
+          { title: "Chord Quality Minor", href: "harmonic/boxplot_chord_quality_minor_pct.png", type: "image" },
+          { title: "Chord Quality Diminished", href: "harmonic/boxplot_chord_quality_diminished_pct.png", type: "image" },
+          { title: "Chord Quality Augmented", href: "harmonic/boxplot_chord_quality_augmented_pct.png", type: "image" },
+          { title: "Chord Quality Other", href: "harmonic/boxplot_chord_quality_other_pct.png", type: "image" }
+        ]
+      },
+      {
+        id: "melodic",
+        title: "Melodic Features",
+        description: "Boxplots of melodic descriptors.",
+        items: [
+          { title: "Pitch Range (Semitones)", href: "melodic/boxplot_pitch_range_semitones.png", type: "image" },
+          { title: "Pitch Class Entropy", href: "melodic/boxplot_pitch_class_entropy.png", type: "image" },
+          { title: "Avg Melodic Interval", href: "melodic/boxplot_avg_melodic_interval.png", type: "image" },
+          { title: "Melodic Interval Std", href: "melodic/boxplot_melodic_interval_std.png", type: "image" },
+          { title: "Melodic Leap Ratio", href: "melodic/boxplot_melodic_leap_ratio.png", type: "image" },
+          { title: "Conjunct Motion Ratio", href: "melodic/boxplot_conjunct_motion_ratio.png", type: "image" },
+          { title: "Contrary Motion Ratio", href: "melodic/boxplot_contrary_motion_ratio.png", type: "image" },
+          { title: "Parallel Motion Ratio", href: "melodic/boxplot_parallel_motion_ratio.png", type: "image" },
+          { title: "Oblique Motion Ratio", href: "melodic/boxplot_oblique_motion_ratio.png", type: "image" },
+          { title: "Voice Independence Index", href: "melodic/boxplot_voice_independence_index.png", type: "image" }
+        ]
+      },
+      {
+        id: "rhythmic",
+        title: "Rhythmic Features",
+        description: "Boxplots of rhythmic descriptors.",
+        items: [
+          { title: "Rhythmic Pattern Entropy", href: "rhythmic/boxplot_rhythmic_pattern_entropy.png", type: "image" },
+          { title: "Cross Rhythm Ratio", href: "rhythmic/boxplot_cross_rhythm_ratio.png", type: "image" },
+          { title: "Notes Per Beat", href: "rhythmic/boxplot_notes_per_beat.png", type: "image" },
+          { title: "Micro Rhythmic Density", href: "rhythmic/boxplot_micro_rhythmic_density.png", type: "image" },
+          { title: "Downbeat Emphasis Ratio", href: "rhythmic/boxplot_downbeat_emphasis_ratio.png", type: "image" },
+          { title: "Avg Note Duration", href: "rhythmic/boxplot_avg_note_duration.png", type: "image" },
+          { title: "Std Note Duration", href: "rhythmic/boxplot_std_note_duration.png", type: "image" },
+          { title: "Syncopation Ratio", href: "rhythmic/boxplot_syncopation_ratio.png", type: "image" }
+        ]
+      },
+      {
+        id: "annotated",
+        title: "Annotated MusicXML",
+        description: "Annotated reference scores (MusicXML).",
+        items: [
+          { title: "Bach – Fugue in C Major BWV 846", href: "annotated/Bach_Fugue_in_C_Major_BWV_846_annotated.mxl", type: "file" },
+          { title: "Bach – Toccata and Fugue in D Minor", href: "annotated/Bach_Toccata_and_Fugue_in_D_Minor_annotated.mxl", type: "file" },
+          { title: "Chopin – Ballade No. 1", href: "annotated/Chopin_Ballade_No1_annotated.mxl", type: "file" },
+          { title: "Chopin – Étude Op. 25 No. 11", href: "annotated/Chopin_Etude_Op25_No11_annotated.mxl", type: "file" },
+          { title: "Debussy – Clair de Lune", href: "annotated/Debussy_Clair_de_Lune_annotated.mxl", type: "file" },
+          { title: "Debussy – La cathédrale engloutie", href: "annotated/La_cathedrale_engloutie_annotated.mxl", type: "file" },
+          { title: "Mozart – Lacrimosa (Requiem)", href: "annotated/Mozart_Lacrimosa_Requiem_annotated.mxl", type: "file" },
+          { title: "Mozart – Sonata K545, 3rd Movement", href: "annotated/Mozart_Sonata_K545_3rd_Movement_annotated.mxl", type: "file" }
+        ]
+      }
+    ];
+
+    const container = document.getElementById("content");
+
+    const renderCard = (item) => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      if (item.type === "image") {
+        const img = document.createElement("img");
+        img.src = item.href;
+        img.alt = item.title;
+        img.loading = "lazy";
+        card.appendChild(img);
+      }
+
+      if (item.type === "html" && item.preview) {
+        const iframe = document.createElement("iframe");
+        iframe.loading = "lazy";
+        iframe.src = item.href;
+        iframe.title = item.title;
+        card.appendChild(iframe);
+      } else if (item.type === "html" && item.thumb) {
+        const img = document.createElement("img");
+        img.src = item.thumb;
+        img.alt = item.title;
+        img.loading = "lazy";
+        card.appendChild(img);
+      }
+
+      const title = document.createElement("a");
+      title.href = item.href;
+      title.textContent = item.title;
+      title.target = "_blank";
+      title.rel = "noopener";
+      card.appendChild(title);
+
+      const meta = document.createElement("div");
+      meta.className = "pill";
+      meta.textContent = item.type === "image" ? "PNG" : item.type === "file" ? "MusicXML" : "Interactive";
+      card.appendChild(meta);
+
+      return card;
+    };
+
+    sections.forEach((section) => {
+      const sectionEl = document.createElement("section");
+      sectionEl.id = section.id;
+
+      const h2 = document.createElement("h2");
+      h2.textContent = section.title;
+      sectionEl.appendChild(h2);
+
+      if (section.description) {
+        const desc = document.createElement("p");
+        desc.textContent = section.description;
+        sectionEl.appendChild(desc);
+      }
+
+      const grid = document.createElement("div");
+      grid.className = "grid";
+      section.items.forEach((item) => grid.appendChild(renderCard(item)));
+
+      sectionEl.appendChild(grid);
+      container.appendChild(sectionEl);
+    });
+  </script>
+</body>
+</html>
