@@ -5,6 +5,7 @@
 \usepackage{enumitem}
 \usepackage{hyperref}
 \usepackage{url}
+\usepackage{fontawesome5}
 \usepackage{tikz}
 \usepackage{tikz-cd}
 \usepackage{tikz-3dplot}
@@ -278,9 +279,13 @@ Die PCA-Visualisierung (Abbildung~\ref{fig:clouds}) fasst die 30 PCA-Eingangsmer
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figures/embeddings/composer_clouds_3d.png}
+    \href{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}{%
+        \includegraphics[width=0.95\textwidth]{figures/embeddings/composer_clouds_3d.png}
+    }
     \caption{3D-PCA-Projektion der 144 Partituren im standardisierten 30-Merkmalsraum. Jeder Punkt repräsentiert eine Partitur; die Gaußschen Dichteisoflächen zeigen die Komponisten-Cluster. Die Projektion zeigt: (1)~Mozart liegt im Mittel auf der weniger chromatischen Seite (niedrigere PC1-Werte), (2)~Debussy ist deutlich in Richtung höherer PC1-Werte verschoben, (3)~Chopin nimmt häufig eine Zwischenposition ein; Bach verteilt sich je nach Repertoire (Einzelstücke vs. Sammlungen) breiter.}\label{fig:clouds}
 \end{figure}
+
+\noindent Interaktive Version der Abbildung der PCA-Wolken: \href{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}{\faLink\ composer\_clouds\_3d.html}.
 
 Tabelle~\ref{tab:loadings} interpretiert die Achsen über die stärkst korrelierten Merkmale.
 
@@ -306,21 +311,29 @@ Mit \texttt{src/highlight\_pca\_piece.py} können externe Stücke in die PCA-Wol
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{summerdayhighlight.png}
+    \href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}{%
+        \includegraphics[width=0.85\textwidth]{summerdayhighlight.png}
+    }
     \caption{Externer Validierungstest: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung illustriert die Generalisierungsfähigkeit der Merkmalsextraktion: Hisaishi nutzt bekanntermaßen spätromantische Harmonik (Chopin-Nähe) kombiniert mit impressionistischen Klangfarben (Debussy-Nähe).}\label{fig:hisaishi}
 \end{figure}
+
+\noindent Interaktive Version der Abbildung (Hisaishi): \href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}{\faLink\ one\_summers\_day\_pca\_cloud.html}.
 
 Ein zweiter, bewusst außerhalb des Trainingskorpus gewählter Test ist Maurice Ravels \emph{Streichquartett in F-Dur}. In der gleichen Projektion (Diamantmarker) landet Ravel in der erwarteten post-impressionistischen Richtung -- insbesondere entlang der Primärachse sogar \emph{jenseits} des Debussy-Clusters. Damit zeigt der Ansatz, dass die Merkmalslandkarte nicht nur retrospektiv beschreibend ist, sondern auch eine plausible Einordnung späterer Stilentwicklungen erlaubt.
 
 \begin{figure}[htbp]
     \centering
     \IfFileExists{ravelhighlight_cropped.png}{%
-        \includegraphics[width=0.85\textwidth]{ravelhighlight_cropped.png}
+        \href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html}{%
+            \includegraphics[width=0.85\textwidth]{ravelhighlight_cropped.png}
+        }
     }{%
         \fbox{\parbox{0.85\textwidth}{\centering (Missing figure file: ravelhighlight\_cropped.png)}}
     }
     \caption{Externer Validierungstest: Projektion von Ravels \emph{Streichquartett in F-Dur} (Diamantmarker) in die PCA-Wolken.}\label{fig:ravel}
 \end{figure}
+
+Interaktive Projektion (Ravel): \href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html}{\faLink\ ravel\_string\_quartet\_pca\_cloud.html}.
 
 \section{Ergebnisdiskussion}
 \subsection{Interpretation der Landkarte}
@@ -869,10 +882,34 @@ Einheitliches Format für alle drei Feature-Typen:
     \item \texttt{reject}: Signifikanz (True/False)
 \end{itemize}
 
+\section{Anhang C: Online-Links und Indexseiten}
+
+Alle Abbildungen im PDF sind klickbar und führen zu den interaktiven Online-Versionen. Zur Sicherheit sind alle Links hier gesammelt aufgeführt (für Leserinnen und Leser ohne PDF-Link-Unterstützung).
+
+\subsection{Index-Startseiten}
+\begin{itemize}
+    \item \textbf{Gesamtindex der Abbildungen}: \url{https://victor-gurbani.github.io/JuFo2026/figures/}
+    \item \textbf{Embeddings (PCA/t-SNE)}: \url{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/}
+    \item \textbf{Highlights (externe Stücke)}: \url{https://victor-gurbani.github.io/JuFo2026/figures/highlights/}
+    \item \textbf{Signifikanz-Plots}: \url{https://victor-gurbani.github.io/JuFo2026/figures/significance/}
+    \item \textbf{Harmonische Boxplots}: \url{https://victor-gurbani.github.io/JuFo2026/figures/harmonic/}
+    \item \textbf{Melodische Boxplots}: \url{https://victor-gurbani.github.io/JuFo2026/figures/melodic/}
+    \item \textbf{Rhythmische Boxplots}: \url{https://victor-gurbani.github.io/JuFo2026/figures/rhythmic/}
+    \item \textbf{Annotierte MusicXML-Dateien}: \url{https://victor-gurbani.github.io/JuFo2026/figures/annotated/}
+\end{itemize}
+
+\subsection{Direktlinks zu interaktiven Kernansichten}
+\begin{itemize}
+    \item \textbf{PCA-Komponistenwolken (3D)}: \url{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}
+    \item \textbf{Highlight: One Summer's Day (Hisaishi)}: \url{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}
+    \item \textbf{Highlight: Ravel String Quartet (F-Dur)}: \url{https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html}
+\end{itemize}
+
 \subsection{Software-Lizenzierung und Zitierung}
 
 \begin{itemize}
     \item \textbf{PDMX-Datensatz}: Public Domain, verfügbar unter \url{https://zenodo.org/records/15571083}. Zitierung: \cite{PDMX2024}
+    \item \textbf{Repository}: \href{https://github.com/victor-gurbani/JuFo2026/}{\faGithub\ github.com/victor-gurbani/JuFo2026}
     \item \textbf{Analysecode}: Siehe \texttt{LICENSE}-Datei im Repository
     \item \textbf{Extrahierte Features}: Abgeleitete Daten, frei verwendbar für akademische Zwecke unter Nennung dieser Arbeit
     \item \textbf{Dependencies}: Alle verwendeten Bibliotheken (\texttt{music21}, \texttt{scikit-learn}, etc.) sind Open Source (BSD/MIT-Lizenzen)

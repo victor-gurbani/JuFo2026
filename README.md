@@ -1,5 +1,26 @@
 # JuFo2026
 
+## Interactive Results (GitHub Pages)
+
+Browse all figures and interactive plots online:
+
+- Figure index: https://victor-gurbani.github.io/JuFo2026/figures/
+- Embeddings (PCA/t-SNE): https://victor-gurbani.github.io/JuFo2026/figures/embeddings/
+- Highlights (external pieces): https://victor-gurbani.github.io/JuFo2026/figures/highlights/
+- Significance plots: https://victor-gurbani.github.io/JuFo2026/figures/significance/
+- Harmonic boxplots: https://victor-gurbani.github.io/JuFo2026/figures/harmonic/
+- Melodic boxplots: https://victor-gurbani.github.io/JuFo2026/figures/melodic/
+- Rhythmic boxplots: https://victor-gurbani.github.io/JuFo2026/figures/rhythmic/
+- Annotated MusicXML: https://victor-gurbani.github.io/JuFo2026/figures/annotated/
+
+Direct highlights:
+
+- PCA composer clouds (3D): https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html
+- One Summer’s Day (Hisaishi) projection: https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html
+- Ravel String Quartet projection: https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html
+
+Accessibility note: the PDF figures are clickable, but every interactive link is also listed above and in Appendix C of the paper for readers without link-enabled PDF viewers.
+
 ## Project Scale Highlights
 - Filtered a raw archive of 254,077 PDMX entries down to a safety-screened solo piano cohort.
 - Balanced 124 curated works (31 per composer) spanning 18,925 measures and ~11.8 listening hours at a moderate tempo.
