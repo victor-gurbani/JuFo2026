@@ -1,4 +1,5 @@
 \documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
 \usepackage[margin=2.0cm]{geometry} 
@@ -23,6 +24,8 @@
 \usepackage{wrapfig} % For text wrapping around figures
 \usepackage{microtype}
 \usepackage[ngerman]{babel}
+\usepackage[backend=biber,style=ieee,sorting=nyt]{biblatex}
+\addbibresource{references.bib}
 
 % Better figure placement defaults
 \setcounter{topnumber}{2}
@@ -488,17 +491,7 @@ Das entwickelte Annotationswerkzeug (\texttt{annotate\_musicxml.py}) könnte in 
 \pagenumbering{gobble}
 \section{Quellen- und Literaturverzeichnis}
 \textbf{Hinweis zum Zitierstil:} Dieses Dokument verwendet durchgehend den IEEE-Stil als Standard in Mathematik und Informatik; vgl. \cite{IEEEStyle}.
-\begin{thebibliography}{99}
-    \bibitem{IEEEStyle} IEEE, ``IEEE Reference Guide,'' 2023. [Online]. Verfügbar: \url{https://ieeeauthorcenter.ieee.org/wp-content/uploads/IEEE-Reference-Guide.pdf}
-    \bibitem{Benjamini1995} Y. Benjamini und Y. Hochberg, ``Controlling the false discovery rate: a practical and powerful approach to multiple testing,'' \emph{Journal of the Royal Stat. Society Series B}, vol. 57, no. 1, pp. 289--300, 1995.
-    \bibitem{Cuthbert2010} M. S. A. Cuthbert und C. Ariza, ``music21: A Toolkit for Computer-Aided Musicology,'' in \emph{Proceedings of the 11th ISMIR}, 2010.
-    \bibitem{PDMX2024} P. Long, Z. Novack, J. McAuley und T. Berg-Kirkpatrick, ``PDMX: A Large-Scale Public Domain MusicXML Dataset for Symbolic Music Processing,'' \emph{arXiv:2409.10831}, 2024.
-    \bibitem{Simonetta2025} F. Simonetta, ``Style-based Composer Identification and Attribution of Symbolic Music Scores: a Systematic Survey,'' \emph{Transactions of the ISMIR}, 2025.
-    \bibitem{LinJeng1987} E. F. Lin-Jeng, ``Stylistic analysis and recognition of piano sonatas of four composers -- Mozart, Chopin, Debussy, Anton Webern,'' M.S. Thesis, Rochester Institute of Technology, 1987.
-    \bibitem{DebussyCharacteristics} Arabesque Conservatory, ``Claude Debussy's Musical Style: 5 Defining Characteristics,'' 2024. [Online]. Verfügbar: \url{https://www.arabesqueconservatory.com/blog/5-characteristic-traits-of-piano-music-by-debussy/}
-    \bibitem{ChopinTransformations} Polish Music Center, ``Transformations of Chopin's Style,'' 2023. [Online]. Verfügbar: \url{https://polishmusic.usc.edu/research/publications/polish-music-journal/vol3no1/transformations-of-chopin/}
-    \bibitem{JuFoGuide} Jugend forscht e. V., ``Leitfaden zum Verfassen der schriftlichen Arbeit,'' 2024. [Online]. Verfügbar: \url{https://www.jugend-forscht.de/fileadmin/user_upload/Downloadcenter/Teilnahme/Leitfaden_schriftliche_Arbeit.pdf}
-\end{thebibliography}
+\printbibliography[heading=none]
 
 \section*{Angaben zu Unterstützungsleistungen}
 Die Konzeption des Projekts, die Literaturrecherche, die komplette Python-Programmierung (Korpus-Kuratierung, Parsing, Merkmalsextraktion, Statistik, Visualisierung) sowie die Auswertung und Dokumentation wurden von mir, Victor Gurbani, eigenständig erbracht. Verwendet wurden ausschließlich die in Abschnitt~7 genannten Open-Source-Bibliotheken und öffentlichen Datensätze. 
