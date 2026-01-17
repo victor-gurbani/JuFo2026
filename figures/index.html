@@ -117,6 +117,26 @@
       color: var(--muted);
       font-size: 0.85rem;
     }
+    .section-actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+    .toggle-btn {
+      border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+      background: color-mix(in srgb, var(--accent) 20%, transparent);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .toggle-btn:hover {
+      background: color-mix(in srgb, var(--accent) 35%, transparent);
+    }
+    .is-hidden {
+      display: none;
+    }
     footer {
       text-align: center;
       padding: 2rem 1rem 3rem;
@@ -261,10 +281,14 @@
     ];
 
     const container = document.getElementById("content");
+    const MAX_VISIBLE = 4;
 
-    const renderCard = (item) => {
+    const renderCard = (item, isExtra = false) => {
       const card = document.createElement("div");
       card.className = "card";
+      if (isExtra) {
+        card.classList.add("extra-card", "is-hidden");
+      }
 
       if (item.type === "image") {
         const img = document.createElement("img");
@@ -319,9 +343,35 @@
 
       const grid = document.createElement("div");
       grid.className = "grid";
-      section.items.forEach((item) => grid.appendChild(renderCard(item)));
+      section.items.forEach((item, index) => {
+        const isExtra = index >= MAX_VISIBLE;
+        grid.appendChild(renderCard(item, isExtra));
+      });
 
       sectionEl.appendChild(grid);
+
+      if (section.items.length > MAX_VISIBLE) {
+        const actions = document.createElement("div");
+        actions.className = "section-actions";
+
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "toggle-btn";
+        toggle.textContent = "Show more";
+        toggle.dataset.expanded = "false";
+        toggle.addEventListener("click", () => {
+          const extras = grid.querySelectorAll(".extra-card");
+          const isExpanded = toggle.dataset.expanded === "true";
+          extras.forEach((card) => card.classList.toggle("is-hidden", isExpanded));
+          toggle.textContent = isExpanded ? "Show more" : "Show less";
+          toggle.dataset.expanded = isExpanded ? "false" : "true";
+          location.hash = `#${section.id}`;
+        });
+
+        actions.appendChild(toggle);
+        sectionEl.appendChild(actions);
+      }
+
       container.appendChild(sectionEl);
     });
   </script>
