@@ -228,3 +228,4 @@ python3 src/generate_selected_annotations.py
 
 - **Training Corpus:** Sourced from the [PDMX Public Domain MusicXML Dataset](https://gitlab.com/shimorina/pdmx) (Long et al., 2024). All training scores (Bach, Mozart, Chopin, Debussy) are in the public domain.
 - **Case Studies:** The analysis of *One Summer's Day* (Joe Hisaishi) is a derivative visualization of a copyrighted work presented under fair use for non-commercial academic research. The original score file is not distributed with this repository.
+- **Code:** Licensed under MIT.
