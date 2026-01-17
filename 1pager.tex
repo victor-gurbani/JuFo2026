@@ -8,6 +8,7 @@
 \usepackage{enumitem}
 \usepackage{wrapfig}
 \usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
 \usepackage{microtype} % Improved typography
 \usepackage{babel}
 
@@ -57,9 +58,9 @@ A license-safe, balanced corpus of \textbf{144 solo piano scores} (36 each by Ba
         \vspace{-18pt}
         \centering
         % ENSURE THIS FILENAME MATCHES YOUR UPLOAD
-        \includegraphics[width=0.48\textwidth]{ravelhighlight_cropped.png} 
+        \href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html}{\includegraphics[width=0.48\textwidth]{ravelhighlight_cropped.png}} 
         \vspace{-10pt}
-        \caption{\small \textit{\textbf{Figure 1: PCA Projection of Stylistic Space.} The diamond marker ($\diamond$) represents the unseen test case: Ravel's String Quartet in F. The model correctly projects Ravel beyond the Debussy cluster, quantifying the progression into Post-Impressionism.}}
+        \caption{\small \textit{\textbf{Figure 1: PCA Projection of Stylistic Space.} The diamond marker ($\diamond$) represents the unseen test case: Ravel's String Quartet in F. The model correctly projects Ravel beyond the Debussy cluster, quantifying the progression into Post-Impressionism. (\href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html}{\textcolor{blue}{\underline{Click to open}}}).}}
         \vspace{-10pt}
 \end{wrapfigure}
 Statistical analysis confirmed that \textbf{26 of the 36 metrics} are significant differentiators. The Principal Component Analysis (PCA) revealed a clear mathematical narrative, wherein the colored clouds represent the training corpus:

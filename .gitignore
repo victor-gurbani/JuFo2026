@@ -10,7 +10,7 @@ data/curated/solo_piano_*
 !data/curated/solo_piano_mxl_paths.txt
 
 __pycache__/
-figures/
+# figures/
 venv/
 
 # LaTeX
@@ -79,3 +79,13 @@ pythontex-files-*/
 *.md5
 *.auxlock
 *.tdo
+
+# Protect Copyrighted Inputs
+*Summer*Day*.mxl
+*Hisaishi*.mxl
+*Spirited*Away*.mxl
+
+# Ignore large bundles and temp scripts
+feature_bundle.zip
+# tmp/
+# *.pdf

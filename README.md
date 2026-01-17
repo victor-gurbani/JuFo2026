@@ -223,3 +223,8 @@ python3 src/generate_selected_annotations.py
 
 - The script resolves absolute MusicXML paths from `data/curated/solo_piano_corpus.csv` and writes annotated outputs to `figures/annotated/` using the same naming conventions documented above.
 - Optional `--renderer-template` and `--render-format` flags mirror the one-off annotator so PDFs/PNGs can be produced alongside the MusicXML payloads.
+
+## Data & License
+
+- **Training Corpus:** Sourced from the [PDMX Public Domain MusicXML Dataset](https://gitlab.com/shimorina/pdmx) (Long et al., 2024). All training scores (Bach, Mozart, Chopin, Debussy) are in the public domain.
+- **Case Studies:** The analysis of *One Summer's Day* (Joe Hisaishi) is a derivative visualization of a copyrighted work presented under fair use for non-commercial academic research. The original score file is not distributed with this repository.
