@@ -42,6 +42,7 @@ def _axis_titles(method: str) -> tuple[str, str, str]:
 def _write_plotly_figure(fig: go.Figure, output_path: Path, write_html_also: bool = True) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     suffix = output_path.suffix.lower()
+    fig.update_layout(margin=dict(l=0, r=0, t=24, b=0))
     if suffix == ".html":
         fig.write_html(str(output_path), include_plotlyjs="cdn")
         return
