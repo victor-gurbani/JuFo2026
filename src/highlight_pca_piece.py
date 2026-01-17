@@ -314,7 +314,7 @@ def build_cloud_figure(df: pd.DataFrame, highlight_df: pd.DataFrame) -> go.Figur
         title="Composer Clouds (PCA) with Highlighted Pieces",
         scene=dict(xaxis_title="dim1", yaxis_title="dim2", zaxis_title="dim3"),
         legend=dict(itemsizing="constant"),
-        margin=dict(l=0, r=0, t=24, b=0),
+        margin=dict(l=0, r=0, t=26, b=0),
     )
     return fig
 
