@@ -11,10 +11,10 @@
 # === Language Statistics (Linguist) ===
 # Mark generated files so they don't skew stats
 # Using 'linguist-vendored' forces them to be treated as 3rd party code (excluded from stats)
-figures/embeddings/*.html linguist-vendored=true linguist-generated=true
-figures/highlights/*.html linguist-vendored=true linguist-generated=true
-tmp/**/*.html  linguist-vendored=true linguist-generated=true
-figures/**/*.svg  linguist-vendored=true linguist-generated=true
+figures/embeddings/*.html linguist-generated=true
+figures/highlights/*.html linguist-generated=true
+tmp/**/*.html  linguist-generated=true
+figures/**/*.svg  linguist-generated=true
 
 # Unmark index files (handwritten/templated)
 figures/**/index.html linguist-vendored=false linguist-generated=false text diff
@@ -40,7 +40,7 @@ Cargo.lock merge=binary
 # === Binary Files ===
 # Mark all other binary files.
 # LFS files are already marked as -text (binary), but this is a good fallback.
-figures/**/*.html binary
+# figures/**/*.html binary # removed as binary for linguist purposes
 *.jpg             binary
 *.pdf             binary
 *.zip             binary
