@@ -12,6 +12,8 @@
 # Mark generated files so they don't skew stats
 figures/**/*.html linguist-generated=true
 figures/**/*.svg  linguist-generated=true
+# Unmark index files (handwritten/templated)
+figures/**/index.html linguist-generated=false text diff
 
 # === Diff & Merge Drivers ===
 # Use nbdime for clean Jupyter diffs
