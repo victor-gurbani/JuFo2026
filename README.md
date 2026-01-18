@@ -1,82 +1,139 @@
-# JuFo2026
+# JuFo 2026: Computational Musicology & Stylistic Embeddings
+
+![Status](https://img.shields.io/badge/Status-In_Progress-yellow?style=flat-square)
+![Competition](https://img.shields.io/badge/Competition-Jugend_Forscht-red?style=flat-square)
+![Platform](https://img.shields.io/badge/Platform-Python_|_Jupyter-blue?style=flat-square)
+![Language](https://img.shields.io/badge/Language-Python_3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
+![Lib](https://img.shields.io/badge/Lib-music21_|_scipy_|_plotly-green?style=flat-square)
+
+> **Jugend Forscht 2026 Entry** | *Mathematics & Computer Science*
+>
+> A computational analysis pipeline that quantifies musical style across the Baroque, Classical, and Romantic eras (Bach to Debussy). By processing 36 hand-crafted harmonic, melodic, and rhythmic features from symbolic scores, this project creates a high-dimensional "stylistic space" where compositions can be mathematically compared and interactively explored in 3D.
+
+---
 
 ## Interactive Results (GitHub Pages)
 
-Browse all figures and interactive plots online:
+Browse the interactive visualizations hosted online:
 
-- Figure index: https://victor-gurbani.github.io/JuFo2026/figures/
-- Embeddings (PCA/t-SNE): https://victor-gurbani.github.io/JuFo2026/figures/embeddings/
-- Highlights (external pieces): https://victor-gurbani.github.io/JuFo2026/figures/highlights/
-- Significance plots: https://victor-gurbani.github.io/JuFo2026/figures/significance/
-- Harmonic boxplots: https://victor-gurbani.github.io/JuFo2026/figures/harmonic/
-- Melodic boxplots: https://victor-gurbani.github.io/JuFo2026/figures/melodic/
-- Rhythmic boxplots: https://victor-gurbani.github.io/JuFo2026/figures/rhythmic/
-- Annotated MusicXML: https://victor-gurbani.github.io/JuFo2026/figures/annotated/
+| **3D Stylistic Cloud** | **Significance Matrix** | **Annotated Scores** |
+|:---:|:---:|:---:|
+| [**Explore 3D PCA**](https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html) | [**View Heatmaps**](https://victor-gurbani.github.io/JuFo2026/figures/significance/) | [**See Annotations**](https://victor-gurbani.github.io/JuFo2026/figures/annotated/) |
+| *Embeds every piece in feature space* | *Pairwise composer differences* | *MusicXML analyzed with Roman numerals* |
 
-Direct highlights:
+### Highlights
+- **Direct Highlights:**
+    - [One Summer’s Day (Hisaishi) projection](https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html) – See how anime music blends Romantic and Impressionist traits.
+    - [Ravel String Quartet projection](https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html)
+- **Feature Boxplots:** [Harmonic](https://victor-gurbani.github.io/JuFo2026/figures/harmonic/) | [Melodic](https://victor-gurbani.github.io/JuFo2026/figures/melodic/) | [Rhythmic](https://victor-gurbani.github.io/JuFo2026/figures/rhythmic/)
 
-- PCA composer clouds (3D): https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html
-- One Summer’s Day (Hisaishi) projection: https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html
-- Ravel String Quartet projection: https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html
+---
 
-Accessibility note: the PDF figures are clickable, but every interactive link is also listed above and in Appendix C of the paper for readers without link-enabled PDF viewers.
+## Project Scale & Metrics
 
-## Project Scale Highlights
-- Filtered a raw archive of 254,077 PDMX entries down to a safety-screened solo piano cohort.
-- Balanced 124 curated works (31 per composer) spanning 18,925 measures and ~11.8 listening hours at a moderate tempo.
-- Computed 36 hand-crafted features across three pillars: 16 harmonic, 11 melodic, and 9 rhythmic descriptors.
-- Ran 36 omnibus ANOVA tests with 27 passing a 0.05 threshold and 162 Tukey HSD contrasts, surfacing 56 significant composer-to-composer gaps.
-- Generated reusable CSVs, JSON summaries, and multi-view visualizations that feed the documentation in `Article.md`, `ShortArticle.md`, and `Significance_Features.md`.
-- Reproduce these headline numbers locally with `python3 src/aggregate_metrics.py`.
+*   **Filtered Corpus:** Narrowed a raw archive of **254,077** PDMX entries down to a safety-screened solo piano cohort.
+*   **Balanced Data:** **124** curated works (31 per composer) spanning **18,925** measures and ~11.8 hours of audio.
+*   **Feature Engineering:** **36** algorithms across three pillars:
+    *   **Harmonic:** 16 features (Chord quality, Roman numerals, Dissonance).
+    *   **Melodic:** 11 features (Contour, Interval size, Pitch entropy).
+    *   **Rhythmic:** 9 features (Syncopation, Density, Polyrhythms).
+*   **Statistical Validation:** **36** omnibus ANOVA tests (27 significant @ p<0.05) and **162** post-hoc Tukey contrasts revealing 56 clear composer-to-composer separations.
 
-## Automated Quickstart
+---
 
-This project includes a `quickstart.sh` script that automates the entire pipeline, from setting up the environment to running the final analysis.
+## System Architecture
 
-### Usage
+The pipeline transforms raw MusicXML data into statistical insights through a multi-stage process.
 
-To run the quickstart script, execute the following command from the project root:
+```mermaid
+flowchart TD
+    subgraph Data["Phase 1: Data Curation"]
+        Raw[("PDMX Raw Data")] --> Filter{Filters}
+        Filter -->|Safety & Balance| Curated[("Curated Corpus\n(124 Piano Works)")]
+        Curated --> Parser["Music21 Score Parser"]
+    end
+
+    subgraph Feat["Phase 2: Feature Extraction"]
+        Parser --> Harm["Harmonic Features\n(Roman Numerals, Dissonance)"]
+        Parser --> Mel["Melodic Features\n(Intervals, Contour)"]
+        Parser --> Rhy["Rhythmic Features\n(Syncopation, Density)"]
+    end
+
+    subgraph Analysis["Phase 3: Analysis & Viz"]
+        Harm & Mel & Rhy --> Matrix["Feature Matrix"]
+        Matrix --> Stats["Significance Tests\n(ANOVA / Tukey HSD)"]
+        Matrix --> PCA["Dimensionality Reduction\n(PCA / t-SNE)"]
+        
+        Stats --> Heatmap["Heatmaps & Boxplots"]
+        PCA --> Plot3D["Interactive 3D Clouds"]
+    end
+```
+
+---
+
+## Tech Stack
+
+*   **Core Logic:** `Python 3.10+`
+*   **Symbolic Music Processing:** `music21` (Parsing, Chordification, Roman Numeral Analysis)
+*   **Data Manipulation:** `pandas`, `numpy`
+*   **Statistics:** `scipy.stats` (F_oneway), `statsmodels` (Tukey HSD)
+*   **Machine Learning:** `scikit-learn` (StandardScaler, PCA, t-SNE)
+*   **Visualization:** `plotly` (Interactive 3D/2D), `seaborn` (Static statistical plots), `matplotlib`
+
+---
+
+## Quickstart
+
+This project includes a fully automated script to set up the environment and run the pipeline from scratch.
+
+### 1. Requirements
+*   Python 3.8 or higher
+*   Git
+
+### 2. Auto-Run
+Execute the quickstart script from the project root. It will create a `venv`, install dependencies, and generate all figures.
 
 ```bash
 ./quickstart.sh
 ```
 
-By default, the script will create a Python virtual environment in the `venv` directory to avoid interfering with your system's Python packages.
-
-### --no-venv Flag
-
-If you prefer to use your system's Python installation, you can use the `--no-venv` flag:
-
+To use your system python instead of a virtual environment:
 ```bash
 ./quickstart.sh --no-venv
 ```
 
-This is useful if you have already installed the required dependencies globally or are using a package manager like `conda`.
+---
 
-## Corpus Curation (Phase 1 Step 1)
+## Detailed Pipeline Steps
+
+<details>
+<summary><strong>1. Corpus Curation (Phase 1 Step 1)</strong></summary>
 
 Follow these steps to regenerate the curated CSV and path list used in this project:
 
 1. Ensure the PDMX dataset is extracted under `15571083/` at the project root and that `src/corpus_curation.py` is present.
 2. From the repository root, run:
-	```
+	```bash
 	python3 src/corpus_curation.py --min-rating 0
 	```
 	This writes the balanced, safety-filtered corpus to `data/curated/solo_piano_corpus.csv` and the corresponding MusicXML paths to `data/curated/solo_piano_mxl_paths.txt`.
 3. To explore alternative variants (e.g., relaxed filters or unbalanced counts), append the appropriate flags, for example:
-	```
+	```bash
 	python3 src/corpus_curation.py --min-rating 0 --skip-license-filter
 	python3 src/corpus_curation.py --min-rating 0 --skip-license-filter --skip-deduplicated-filter --skip-unique-filter --max-per-composer 999
 	```
 	Each run accepts `--output-csv` and `--output-paths` if you want to save results under different filenames.
 
-## Score Parsing (Phase 1 Step 2)
+</details>
+
+<details>
+<summary><strong>2. Score Parsing (Phase 1 Step 2)</strong></summary>
 
 Follow these steps to generate or inspect parsed summaries:
 
 1. Ensure `music21` is installed and the curated corpus exists (defaults under `data/curated/`).
 2. Parse the full corpus:
-	```
+	```bash
 	python3 src/score_parser.py --output data/parsed/summaries.json
 	```
 3. Useful flags:
@@ -84,17 +141,20 @@ Follow these steps to generate or inspect parsed summaries:
 	- `--no-skip-errors`: abort on the first parsing failure instead of skipping.
 	- `--csv PATH` / `--paths PATH`: override the curated CSV or the MusicXML path list.
 4. Recompute statistics without re-parsing:
-	```
+	```bash
 	python3 src/score_parser.py --stats-from data/parsed/summaries.json
 	```
 
-## Harmonic Features (Phase 2 Step 1)
+</details>
+
+<details>
+<summary><strong>3. Harmonic Features (Phase 2 Step 1)</strong></summary>
 
 Generate harmonic descriptors, dissonance profiles, and Roman numeral trends:
 
 1. Ensure the curated CSV exists under `data/curated/` (use the commands above if needed).
 2. Extract harmonic features and plots in one pass:
-	```
+	```bash
 	python3 src/harmonic_features.py --output-csv data/features/harmonic_features.csv
 	```
 3. Helpful flags:
@@ -105,17 +165,20 @@ Generate harmonic descriptors, dissonance profiles, and Roman numeral trends:
 	- `--figure-dir DIR`: override the output directory for boxplots (default `figures/harmonic`).
 	- `--csv PATH` / `--paths PATH`: point at alternate curated corpora or MusicXML path lists.
 4. Example cached run that reuses the last export for quick statistics:
-	```
+	```bash
 	python3 src/harmonic_features.py --features-from data/features/harmonic_features.csv --skip-plots
 	```
 
-## Melodic Features (Phase 2 Step 2)
+</details>
+
+<details>
+<summary><strong>4. Melodic Features (Phase 2 Step 2)</strong></summary>
 
 Extract melodic contour and independence metrics:
 
 1. Ensure the curated corpus is available as described above.
 2. Run the melodic extractor:
-	```
+	```bash
 	python3 src/melodic_features.py --output-csv data/features/melodic_features.csv
 	```
 3. Useful flags mirror the harmonic script:
@@ -126,17 +189,20 @@ Extract melodic contour and independence metrics:
 	- `--figure-dir DIR`: change the destination for melodic feature boxplots (default `figures/melodic`).
 	- `--csv PATH` / `--paths PATH`: override the curated corpus inputs.
 4. Example reuse of cached results:
-	```
+	```bash
 	python3 src/melodic_features.py --features-from data/features/melodic_features.csv --skip-plots
 	```
 
-## Rhythmic Features (Phase 2 Step 3)
+</details>
+
+<details>
+<summary><strong>5. Rhythmic Features (Phase 2 Step 3)</strong></summary>
 
 Extract rhythmic density, syncopation, and cross-hand subdivision metrics:
 
 1. Ensure the curated corpus is available.
 2. Run the rhythmic extractor:
-	```
+	```bash
 	python3 src/rhythmic_features.py --output-csv data/features/rhythmic_features.csv
 	```
 3. Useful flags (mirroring other scripts):
@@ -147,17 +213,20 @@ Extract rhythmic density, syncopation, and cross-hand subdivision metrics:
 	- `--figure-dir DIR`: direct rhythmic feature plots to a custom directory (default `figures/rhythmic`).
 	- `--csv PATH` / `--paths PATH`: override the curated inputs.
 4. Example cached run:
-	```
+	```bash
 	python3 src/rhythmic_features.py --features-from data/features/rhythmic_features.csv --skip-plots
 	```
 
-## Significance Testing (Phase 2 Step 4)
+</details>
+
+<details>
+<summary><strong>6. Significance Testing (Phase 2 Step 4)</strong></summary>
 
 Run omnibus ANOVA and Tukey HSD post-hoc comparisons across every exported feature:
 
 1. Confirm harmonic, melodic, and rhythmic CSVs exist under `data/features/`.
 2. Execute the significance pipeline:
-	```
+	```bash
 	python3 src/significance_tests.py \
 	  --anova-output data/stats/anova_summary.csv \
 	  --tukey-output data/stats/tukey_hsd.csv
@@ -171,16 +240,19 @@ Run omnibus ANOVA and Tukey HSD post-hoc comparisons across every exported featu
 	- `data/stats/anova_summary.csv` lists F-statistics, p-values, and sample sizes for each feature.
 	- `data/stats/tukey_hsd.csv` records composer-to-composer comparisons (using `statsmodels` when available, else SciPy's implementation).
 	- Optional: produce bar charts and heatmaps with
-		```
+		```bash
 		python3 src/significance_visualizations.py --top-n 15
 		```
 		This writes figures to `figures/significance/`: a top ANOVA bar chart, three pairwise heatmaps (significant-feature counts, signed mean difference, absolute mean difference), plus two feature-level heatmaps (sym-log and normalized). Count-heavy metrics (e.g., `note_event_count`, `roman_chord_count`, `dissonant_note_count`) are filtered automatically; supply additional `--exclude-pattern` flags to customise. Use `--no-symlog`, `--skip-normalized`, or adjusted `--top-n` values to tailor the views.
 
-## Feature Embedding Explorer
+</details>
+
+<details>
+<summary><strong>7. Feature Embedding Explorer</strong></summary>
 
 Create an interactive 3D scatter of every piece embedded in feature space:
 
-```
+```bash
 python3 src/feature_embedding.py \
 	--output figures/embeddings/pca_3d.html \
 	--output-2d figures/embeddings/pca_2d.html \
@@ -197,11 +269,14 @@ python3 src/feature_embedding.py \
 - Add `--output-2d` when you want a browser-ready 2D scatter (first two axes) alongside the 3D view—handy for presentations that prefer flat plots.
 - The companion highlighter (`src/highlight_pca_piece.py`) can project external scores into the PCA space; for example, analysing Joe Hisaishi's "One Summer's Day (Spirited Away)" showed the piece landing between Chopin and Debussy in the clouds—slightly nearer to Chopin—mirroring its blend of Romantic and Impressionist traits (see `summerdayhighlight.png`).
 
-## MusicXML Harmonic Annotation
+</details>
+
+<details>
+<summary><strong>8. MusicXML Harmonic Annotation</strong></summary>
 
 Generate colour-coded MusicXML files that highlight dissonant material and the harmonic backdrop for inspection in MuseScore or other editors:
 
-```
+```bash
 python3 src/annotate_musicxml.py \
 	--mxl 15571083/mxl/0/46/Qmaug5pXs59BJq1VTdXhrKAU3DHxRqusrDgXraMS6xDtYk.mxl \
 	--output figures/annotated/La_cathedrale_annotated.mxl \
@@ -217,15 +292,54 @@ python3 src/annotate_musicxml.py \
 
 Regenerate the eight canonical annotated scores (two per composer) in one shot:
 
-```
+```bash
 python3 src/generate_selected_annotations.py
 ```
 
 - The script resolves absolute MusicXML paths from `data/curated/solo_piano_corpus.csv` and writes annotated outputs to `figures/annotated/` using the same naming conventions documented above.
 - Optional `--renderer-template` and `--render-format` flags mirror the one-off annotator so PDFs/PNGs can be produced alongside the MusicXML payloads.
 
+</details>
+
+---
+
+## Code Highlights
+
+### Intelligent Feature Pre-processing
+To prevent dense pieces (like Chorales) from artificially dominating the stylistic space simply due to having "more notes", pure count-based features are excluded from the PCA matrix, prioritizing *density* and *ratios* instead.
+
+```python
+# src/feature_embedding.py
+
+EXCLUDED_FEATURES = {
+    "note_count",          # Absolute counts bias towards long pieces
+    "note_event_count",
+    "chord_event_count",
+    "dissonant_note_count" 
+}
+
+def _prepare_feature_matrix(df: pd.DataFrame) -> tuple[np.ndarray, List[str], StandardScaler]:
+    # Select only numeric columns and filter out excluded absolute counts
+    numeric_cols = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
+    numeric_cols = [col for col in numeric_cols if col not in EXCLUDED_FEATURES]
+    
+    # Fill N/A with mean to handle edge cases (e.g. pieces with no chords)
+    filled = df[numeric_cols].copy().fillna(filled.mean())
+    
+    # Standardize to mean=0, var=1 for PCA
+    scaler = StandardScaler()
+    matrix = scaler.fit_transform(filled.values)
+    return matrix, numeric_cols, scaler
+```
+
+---
+
 ## Data & License
 
 - **Training Corpus:** Sourced from the [PDMX Public Domain MusicXML Dataset](https://gitlab.com/shimorina/pdmx) (Long et al., 2024). All training scores (Bach, Mozart, Chopin, Debussy) are in the public domain.
 - **Case Studies:** The analysis of *One Summer's Day* (Joe Hisaishi) is a derivative visualization of a copyrighted work presented under fair use for non-commercial academic research. The original score file is not distributed with this repository.
 - **Code:** Licensed under MIT.
+
+---
+
+*Authored by **Victor Gurbani** | 2025-2026*
