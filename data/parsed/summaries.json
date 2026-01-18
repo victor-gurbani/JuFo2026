@@ -248,6 +248,46 @@
     "duration_quarters": 96.0
   },
   {
+    "composer_label": "Bach",
+    "title": "Das Wohltemperierte Klavier I - Praeludium in C-Dur (BWV 846)",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/1/20/QmbFt6yc1EUxZvqTVUg7xQY531BbkUcxn8uL3VYrB2uwjB.mxl",
+    "measures": 35,
+    "parts": 2,
+    "duration_quarters": 140.0
+  },
+  {
+    "composer_label": "Bach",
+    "title": "J.S. Bach - Toccata & Fugue in D minor BWV 565",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/0/51/QmaWUmXP6sdMEyaCacAQZZQUVykcAn7cCqVqueAbwz9NsB.mxl",
+    "measures": 143,
+    "parts": 2,
+    "duration_quarters": 572.0
+  },
+  {
+    "composer_label": "Bach",
+    "title": "Bach's Air for Violoncello and Piano (from Orchestral Suite No. 3 in D major BWV 1068)",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/8/56/QmQzXNiBJ387BiCHTqizWLNseTyvj4yotn5gzAfxhm1nZw.mxl",
+    "measures": 20,
+    "parts": 3,
+    "duration_quarters": 80.0
+  },
+  {
+    "composer_label": "Bach",
+    "title": "BWV 808: The English suite III Prelude as inspired by Ivo Pogorelich",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/10/3/QmS4ZePJXtMi2T9CbhP6oAvzSZPpyvfsu9ES9yeFtpCW1j.mxl",
+    "measures": 213,
+    "parts": 2,
+    "duration_quarters": 319.5
+  },
+  {
+    "composer_label": "Bach",
+    "title": "Johann Sebastian Bach - Pr\\aludium",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/0/13/QmacHkEMLbKiN7YagLdNjR2WPRvZAZW6ahjHjtPgvRNCdn.mxl",
+    "measures": 43,
+    "parts": 2,
+    "duration_quarters": 129.0
+  },
+  {
     "composer_label": "Chopin",
     "title": "Fr\u00e9d\u00e9ric Chopin: \u00c9tude in A minor Op.25 No.11 Winter Wind",
     "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/2/21/QmcgjQVzWTS3bA51emSjoVANNB8B6uCZ6mQMA5qG7jbKWD.mxl",
@@ -496,6 +536,46 @@
     "duration_quarters": 169.0
   },
   {
+    "composer_label": "Chopin",
+    "title": "Polonaise-Fantasie (F.Chopin Op.61)",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/2/10/QmcAuHtH8ziExxeraVL8tdn5QbDxxoXxng8uKafN9sQrRo.mxl",
+    "measures": 289,
+    "parts": 2,
+    "duration_quarters": 1009.125
+  },
+  {
+    "composer_label": "Chopin",
+    "title": "Chopin 24 Pr\u00e9ludes Opus 28",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/5/32/QmfM3JtYkeZXaQbaDJrJV3V54mujUrEcGLBEn1djBtaUHM.mxl",
+    "measures": 956,
+    "parts": 2,
+    "duration_quarters": 3182.9708333333333
+  },
+  {
+    "composer_label": "Chopin",
+    "title": "Nocturne (Short Version)",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/15/43/QmXSKixSsPLd7Cbgzey15tWvc8vq3sD6FwFMdjsgUzJmkE.mxl",
+    "measures": 37,
+    "parts": 2,
+    "duration_quarters": 109.0
+  },
+  {
+    "composer_label": "Chopin",
+    "title": "Fr\u00e9d\u00e9ric Chopin: Prelude in A major Op.28 No.7",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/9/37/QmRP9W9te4eDqVnrabcdgvNuQAkT1A8w2RrAdjJjGuARwd.mxl",
+    "measures": 17,
+    "parts": 2,
+    "duration_quarters": 49.0
+  },
+  {
+    "composer_label": "Chopin",
+    "title": "Chopin Fr\u00e9d\u00e9ric \u00c9tudes Op. 10 6. \u00c9tude in G-sharp minor Thirds",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/4/30/QmeL4DFPXz6yfY3bD9cqVsvqtEPHPFzsRYTVkaF5FFeDLE.mxl",
+    "measures": 54,
+    "parts": 2,
+    "duration_quarters": 159.5
+  },
+  {
     "composer_label": "Debussy",
     "title": "Debussy - Pr\u00e9ludes - Book I - VI",
     "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/10/1/QmS2kfB8xQJurJy5PjCYMPqjiFvVyRpGTyxGC4LyZuLdoM.mxl",
@@ -577,11 +657,35 @@
   },
   {
     "composer_label": "Debussy",
+    "title": "Sarabande (C.Debussy. Pour le piano. No.2. )",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/10/9/QmSapKg585rCeS4WNPEgxDrQS31qVXeg5pGvNKx9KcTCPb.mxl",
+    "measures": 72,
+    "parts": 2,
+    "duration_quarters": 216.0
+  },
+  {
+    "composer_label": "Debussy",
+    "title": "Nocturne (C.Debussy)",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/0/32/QmaMBmVafSnmCGZLYgUWDLufBVY6wmy3vqrqbMecqMmhJR.mxl",
+    "measures": 77,
+    "parts": 2,
+    "duration_quarters": 356.0
+  },
+  {
+    "composer_label": "Debussy",
     "title": "Petite suite (C.Debussy)",
     "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/2/26/QmcjeEgVcoWu1P6Dq2VqJJc948XeS3Efk66QLZKeRZuqkY.mxl",
     "measures": 433,
     "parts": 4,
     "duration_quarters": 1139.0
+  },
+  {
+    "composer_label": "Debussy",
+    "title": "R\u00eaverie :Debussy :fix",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/1/51/QmbWhYRPux1RcQo4smQvKFinUE6DoPYXmg9Qy4U5qpy1Ue.mxl",
+    "measures": 101,
+    "parts": 2,
+    "duration_quarters": 402.0
   },
   {
     "composer_label": "Debussy",
@@ -641,6 +745,14 @@
   },
   {
     "composer_label": "Debussy",
+    "title": "Ballade (C.Debussy)",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/4/7/Qme8Dz2TtWJPTk6QauUhcmxxzbGz9xhnwj4DMYfMDUxZPb.mxl",
+    "measures": 105,
+    "parts": 2,
+    "duration_quarters": 420.0
+  },
+  {
+    "composer_label": "Debussy",
     "title": "IV. Passepied",
     "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/1/14/QmbCqeJ9LcEBfVWtEGHMz8KS96dzXCCCAZWSdYRdEuD7qP.mxl",
     "measures": 156,
@@ -689,14 +801,6 @@
   },
   {
     "composer_label": "Debussy",
-    "title": "clair de lune beginner version",
-    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/8/52/QmQxJ4tsA3Xdsym1ZgNNRkGpiX8cT5yaKnPVMfFVvDDsMo.mxl",
-    "measures": 42,
-    "parts": 2,
-    "duration_quarters": 126.0
-  },
-  {
-    "composer_label": "Debussy",
     "title": "Debussy - Pr\u00e9ludes - Book I - I",
     "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/7/55/QmPYQ9LpBn5ummY8UPVcMm4TriJDuqogjPT66UB1UTLbSm.mxl",
     "measures": 31,
@@ -721,6 +825,14 @@
   },
   {
     "composer_label": "Debussy",
+    "title": "Clair de Lune (easy)",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/6/54/QmNyaupjnP2L7AgSvjuq5TmDoDhqCJiKhGd8rT9CefbkMY.mxl",
+    "measures": 17,
+    "parts": 2,
+    "duration_quarters": 76.5
+  },
+  {
+    "composer_label": "Debussy",
     "title": "Children's Corner - Jimbo's Lullaby",
     "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/15/54/QmXyiyQ9XGzMjmE4XWK5qJXdQeDsrsGi9gfLNAcbcFaoyK.mxl",
     "measures": 81,
@@ -734,6 +846,14 @@
     "measures": 104,
     "parts": 2,
     "duration_quarters": 312.0
+  },
+  {
+    "composer_label": "Debussy",
+    "title": "FZW Audition Violin: The girl with the flaxen hair",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/3/48/QmdvAGb46C68YnMsKnBNPXYq2CUFk2BSpfhcXcG5CHbwmu.mxl",
+    "measures": 37,
+    "parts": 2,
+    "duration_quarters": 111.0
   },
   {
     "composer_label": "Debussy",
@@ -990,5 +1110,45 @@
     "measures": 176,
     "parts": 2,
     "duration_quarters": 264.0
+  },
+  {
+    "composer_label": "Mozart",
+    "title": "Burlesque - G Major",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/10/10/QmSAKUUM14Kdbhn8ZnsfvWjpoHGojgfpRLVPPUx9cfaTxa.mxl",
+    "measures": 17,
+    "parts": 2,
+    "duration_quarters": 68.0
+  },
+  {
+    "composer_label": "Mozart",
+    "title": "W. A. Mozart Minuet in C Major K1f.",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/11/16/QmTDBFbPLYF24o8ihUjDJ5XUYpstJj2VexoBQovTLXXNsS.mxl",
+    "measures": 18,
+    "parts": 2,
+    "duration_quarters": 48.0
+  },
+  {
+    "composer_label": "Mozart",
+    "title": "Allegro Molto in C Major - W.A. Mozart",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/8/53/QmQXVBQ8xdqEuUQqnamgZGtA7Z9N6qXQniVYRXmsPeQBme.mxl",
+    "measures": 169,
+    "parts": 2,
+    "duration_quarters": 504.5
+  },
+  {
+    "composer_label": "Mozart",
+    "title": "Arie des Papageno",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/7/53/QmPXeDX6QxMNPHCNDoUGUkTYf5ZnHaBELsYHu1YyLfEk9Z.mxl",
+    "measures": 23,
+    "parts": 2,
+    "duration_quarters": 88.0
+  },
+  {
+    "composer_label": "Mozart",
+    "title": "Mozart: Tuba Mirum",
+    "mxl_path": "/Users/victor/JuFo2026/15571083/mxl/1/4/Qmb5A9LjUaLuQmCeHjqWDwhU5yLkV2C3pJ4UmK8b5FrG71.mxl",
+    "measures": 18,
+    "parts": 1,
+    "duration_quarters": 72.0
   }
 ]
