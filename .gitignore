@@ -89,3 +89,9 @@ pythontex-files-*/
 feature_bundle.zip
 # tmp/
 # *.pdf
+
+# Next.js / Node.js
+web-interface/node_modules/
+web-interface/.next/
+web-interface/out/
+web-interface/.env*.local
