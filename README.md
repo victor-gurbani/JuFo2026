@@ -16,10 +16,10 @@
 
 Browse the interactive visualizations hosted online:
 
-| **3D Stylistic Cloud** | **Significance Matrix** | **Annotated Scores** |
-|:---:|:---:|:---:|
-| [**Explore 3D PCA**](https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html) | [**View Heatmaps**](https://victor-gurbani.github.io/JuFo2026/figures/significance/) | [**See Annotations**](https://victor-gurbani.github.io/JuFo2026/figures/annotated/) |
-| *Embeds every piece in feature space* | *Pairwise composer differences* | *MusicXML analyzed with Roman numerals* |
+| **3D Stylistic Cloud** | **Significance Matrix** | **Annotated Scores** | **Modern Web Interface** |
+|:---:|:---:|:---:|:---:|
+| [**Explore 3D PCA**](https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html) | [**View Heatmaps**](https://victor-gurbani.github.io/JuFo2026/figures/significance/) | [**See Annotations**](https://victor-gurbani.github.io/JuFo2026/figures/annotated/) | [**Interactive Explorer**](#modern-web-interface) |
+| *Embeds every piece in feature space* | *Pairwise composer differences* | *MusicXML analyzed with Roman numerals* | *Modern UI for analysis & visualization* |
 
 ### Highlights
 - **Direct Highlights:**
@@ -73,12 +73,20 @@ flowchart TD
 
 ## Tech Stack
 
+### Backend & Analysis
 *   **Core Logic:** `Python 3.10+`
 *   **Symbolic Music Processing:** `music21` (Parsing, Chordification, Roman Numeral Analysis)
 *   **Data Manipulation:** `pandas`, `numpy`
 *   **Statistics:** `scipy.stats` (F_oneway), `statsmodels` (Tukey HSD)
 *   **Machine Learning:** `scikit-learn` (StandardScaler, PCA, t-SNE)
 *   **Visualization:** `plotly` (Interactive 3D/2D), `seaborn` (Static statistical plots), `matplotlib`
+
+### Modern Web Interface
+*   **Framework:** `Next.js 14+` with App Router & TypeScript
+*   **UI Components:** `Tailwind CSS`, `Shadcn/ui`
+*   **Interactive Visualization:** `React-Plotly.js`
+*   **Animations:** `Framer Motion`
+*   **State Management:** `Zustand`
 
 ---
 
@@ -298,6 +306,56 @@ python3 src/generate_selected_annotations.py
 
 - The script resolves absolute MusicXML paths from `data/curated/solo_piano_corpus.csv` and writes annotated outputs to `figures/annotated/` using the same naming conventions documented above.
 - Optional `--renderer-template` and `--render-format` flags mirror the one-off annotator so PDFs/PNGs can be produced alongside the MusicXML payloads.
+
+</details>
+
+<details>
+<summary><strong>9. Modern Web Interface</strong></summary>
+
+A modern presentation layer built with Next.js that provides an interactive interface for exploring the musical corpus and visualizing analysis results.
+
+### Features
+
+- 🎵 **Interactive Piece Selection**: Search and browse the curated corpus with smooth animations
+- 📊 **3D PCA Visualization**: Explore pieces in feature space with interactive Plotly charts
+- 📈 **Real-time Metrics**: Compute and display harmonic, melodic, and rhythmic features
+- ✨ **Modern UI**: Built with Tailwind CSS and Shadcn/ui for a polished experience
+- 🌓 **Dark Mode Support**: Automatic theme switching
+
+### Running the Web Interface
+
+1. Navigate to the web interface directory:
+   ```bash
+   cd web-interface
+   ```
+
+2. Install dependencies (first time only):
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+### Building for Production
+
+Build the application:
+```bash
+cd web-interface
+npm run build
+npm start
+```
+
+For static export (GitHub Pages deployment):
+1. Update `next.config.ts` to enable static export
+2. Run `npm run build`
+3. Deploy the `out/` directory
+
+See `web-interface/README.md` for detailed documentation.
 
 </details>
 
