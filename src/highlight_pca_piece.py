@@ -418,6 +418,7 @@ def main() -> int:
     figure = build_cloud_figure(combined, highlight_df)
     output_path = determine_output_path(args.output, input_paths)
     figure.write_html(str(output_path), include_plotlyjs="cdn")
+    figure.write_json(str(output_path.with_suffix(".json")))
     print(f"Created PCA composer cloud with highlight at {output_path}")
     return 0
 

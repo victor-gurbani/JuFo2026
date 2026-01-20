@@ -43,6 +43,11 @@ def _write_plotly_figure(fig: go.Figure, output_path: Path, write_html_also: boo
     output_path.parent.mkdir(parents=True, exist_ok=True)
     suffix = output_path.suffix.lower()
     fig.update_layout(margin=dict(l=0, r=0, t=26, b=0))
+    try:
+        json_path = output_path.with_suffix(".json")
+        fig.write_json(str(json_path))
+    except Exception:
+        pass
     if suffix == ".html":
         fig.write_html(str(output_path), include_plotlyjs="cdn")
         return
