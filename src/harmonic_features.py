@@ -479,12 +479,14 @@ def _feature_columns() -> List[str]:
 def plot_features(df: pd.DataFrame, figure_dir: Path) -> None:
     figure_dir.mkdir(parents=True, exist_ok=True)
     features = [col for col in _feature_columns() if col in df.columns]
+    # Define chronological order of composers
+    composer_order = ["Bach", "Mozart", "Chopin", "Debussy"]
     for column in features:
         filtered = df[["composer_label", column]].dropna()
         if filtered.empty:
             continue
         plt.figure(figsize=(6, 4))
-        sns.boxplot(data=filtered, x="composer_label", y=column)
+        sns.boxplot(data=filtered, x="composer_label", y=column, order=composer_order)
         plt.title(column.replace("_", " ").title())
         plt.xlabel("Composer")
         plt.ylabel(column)
