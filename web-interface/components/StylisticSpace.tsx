@@ -76,13 +76,36 @@ export default function StylisticSpace({
     if (!figure?.layout) return null;
     const incoming = figure.layout as Record<string, unknown>;
     const scene = (incoming.scene as Record<string, unknown>) ?? {};
+
     const axisTemplate = {
-      showgrid: false,
+      showgrid: true,
+      gridcolor: "rgba(148,163,184,0.25)",
+      gridwidth: 1,
       zeroline: false,
       showticklabels: false,
-      // title: "", // Let the plot layout determine the title (or use default from file)
       ticks: "",
       showspikes: false,
+    };
+
+    const preferredTitles = [
+      "PC1 (Chromatik/Dissonanz)",
+      "PC2 (Dichte/Klarheit)",
+      "PC3 (Registral/Textur)",
+    ];
+
+    const normalizeAxis = (
+      axis: Record<string, unknown> | undefined,
+      fallback: string,
+    ) => {
+      const currentTitle =
+        (axis?.title as { text?: string } | undefined)?.text ?? (axis?.title as string | undefined);
+      const needsOverride = !currentTitle || /^dim[123]$/i.test(currentTitle.trim());
+      const title = needsOverride ? { text: fallback, font: { color: "#94a3b8" } } : axis?.title;
+      return {
+        ...axisTemplate,
+        ...(axis ?? {}),
+        title,
+      };
     };
 
     const base = {
@@ -94,9 +117,9 @@ export default function StylisticSpace({
       scene: {
         ...scene,
         aspectmode: "cube",
-        xaxis: { ...axisTemplate, ...(scene.xaxis as Record<string, unknown>) },
-        yaxis: { ...axisTemplate, ...(scene.yaxis as Record<string, unknown>) },
-        zaxis: { ...axisTemplate, ...(scene.zaxis as Record<string, unknown>) },
+        xaxis: normalizeAxis(scene.xaxis as Record<string, unknown> | undefined, preferredTitles[0]),
+        yaxis: normalizeAxis(scene.yaxis as Record<string, unknown> | undefined, preferredTitles[1]),
+        zaxis: normalizeAxis(scene.zaxis as Record<string, unknown> | undefined, preferredTitles[2]),
       },
     };
     if (kioskMode) {
