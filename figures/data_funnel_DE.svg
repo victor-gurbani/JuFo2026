@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 700" font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="250" y="35" text-anchor="middle" font-size="22" font-weight="800" fill="#1e3a8a">Pipeline für die Datenkuration</text>
+
+  <!-- Section 1: Raw Data (Sky 50) -->
+  <g filter="url(#shadow)">
+    <path d="M50,60 L450,60 L430,120 L70,120 Z" fill="#ebf8ff" stroke="none" />
+    <text x="250" y="85" text-anchor="middle" font-size="14" font-weight="600" fill="#1e40af">PDMX-Rohdaten</text>
+    <text x="250" y="108" text-anchor="middle" font-size="18" font-weight="800" fill="#1e3a8a">254,077</text>
+  </g>
+
+  <!-- Connector Arrow -->
+  <path d="M250,120 L250,135" stroke="#94a3b8" stroke-width="2"/>
+  
+  <!-- Section 2: Rating (Sky 100) -->
+  <g filter="url(#shadow)">
+    <path d="M70,140 L430,140 L410,200 L90,200 Z" fill="#dbeafe" stroke="none" />
+    <text x="250" y="165" text-anchor="middle" font-size="14" font-weight="600" fill="#1e40af">Bewertung ≥ 4.0</text>
+    <text x="250" y="188" text-anchor="middle" font-size="18" font-weight="800" fill="#1e3a8a">13,968</text>
+    <text x="440" y="175" font-size="12" font-weight="500" fill="#ef4444" font-style="italic">-240k</text>
+  </g>
+
+  <!-- Section 3: License (Sky 200) -->
+  <g filter="url(#shadow)">
+    <path d="M90,220 L410,220 L390,280 L110,280 Z" fill="#bfdbfe" stroke="none" />
+    <text x="250" y="245" text-anchor="middle" font-size="14" font-weight="600" fill="#1e40af">Lizenzsicher</text>
+    <text x="250" y="268" text-anchor="middle" font-size="18" font-weight="800" fill="#1e3a8a">10,763</text>
+    <text x="420" y="255" font-size="12" font-weight="500" fill="#ef4444" font-style="italic">-3,205</text>
+  </g>
+
+  <!-- Section 4: Dedup (Blue 300) -->
+  <g filter="url(#shadow)">
+    <path d="M110,300 L390,300 L370,360 L130,360 Z" fill="#93c5fd" stroke="none" />
+    <text x="250" y="325" text-anchor="middle" font-size="14" font-weight="600" fill="#172554">Unikate &amp; Beste Vers.</text>
+    <text x="250" y="348" text-anchor="middle" font-size="18" font-weight="800" fill="#1e3a8a">10,107</text>
+    <text x="400" y="335" font-size="12" font-weight="500" fill="#ef4444" font-style="italic">-656</text>
+  </g>
+
+  <!-- Section 5: Target Composers (Blue 500) -->
+  <g filter="url(#shadow)">
+    <path d="M130,380 L370,380 L350,440 L150,440 Z" fill="#3b82f6" stroke="none" />
+    <text x="250" y="405" text-anchor="middle" font-size="14" font-weight="600" fill="#ffffff">Ziel-Komponisten</text>
+    <text x="250" y="428" text-anchor="middle" font-size="18" font-weight="800" fill="#ffffff">528</text>
+    <text x="380" y="415" font-size="12" font-weight="600" fill="#ef4444" font-style="italic">-9.5k</text>
+  </g>
+
+  <!-- Section 6: Solo Piano (Blue 700) -->
+  <g filter="url(#shadow)">
+    <path d="M150,460 L350,460 L330,520 L170,520 Z" fill="#1d4ed8" stroke="none" />
+    <text x="250" y="485" text-anchor="middle" font-size="14" font-weight="600" fill="#ffffff">Solo-Klavier verifiziert</text>
+    <text x="250" y="508" text-anchor="middle" font-size="18" font-weight="800" fill="#ffffff">186</text>
+    <text x="360" y="495" font-size="12" font-weight="600" fill="#ef4444" font-style="italic">-342</text>
+  </g>
+
+  <!-- Section 7: Final Balanced (Slate 900) -->
+  <g filter="url(#shadow)">
+    <rect x="170" y="540" width="160" height="90" rx="8" fill="#0f172a" stroke="#2563eb" stroke-width="3" />
+    <text x="250" y="565" text-anchor="middle" font-size="12" font-weight="700" fill="#60a5fa" letter-spacing="1">FINALER KORPUS</text>
+    <text x="250" y="598" text-anchor="middle" font-size="32" font-weight="900" fill="#ffffff">144</text>
+    <text x="250" y="620" text-anchor="middle" font-size="11" font-weight="500" fill="#94a3b8">(36 pro Komponist)</text>
+    <text x="340" y="585" font-size="12" font-weight="600" fill="#ef4444" font-style="italic">-42</text>
+  </g>
+  
+  <text x="250" y="660" text-anchor="middle" font-size="12" fill="#64748b" font-weight="500">Bach · Mozart · Chopin · Debussy</text>
+</svg>

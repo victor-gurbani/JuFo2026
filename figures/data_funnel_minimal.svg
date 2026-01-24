@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 700" font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <!-- Minimalist / Outline Theme -->
+  <defs>
+    <linearGradient id="strokeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" /> <!-- Cyan -->
+      <stop offset="100%" stop-color="#4f46e5" /> <!-- Indigo -->
+    </linearGradient>
+  </defs>
+
+  <!-- Title -->
+  <text x="250" y="35" text-anchor="middle" font-size="22" font-weight="800" fill="#111827">Data Selection Logic</text>
+
+  <!-- Section 1 -->
+  <path d="M50,60 L450,60 L430,120 L70,120 Z" fill="#ffffff" stroke="#06b6d4" stroke-width="2.5" />
+  <text x="250" y="85" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">RAW CATALOG</text>
+  <text x="250" y="108" text-anchor="middle" font-size="20" font-weight="800" fill="#111827">254,077</text>
+
+  <!-- Section 2 -->
+  <path d="M70,140 L430,140 L410,200 L90,200 Z" fill="#ffffff" stroke="#0891b2" stroke-width="2.5" />
+  <text x="250" y="165" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">Rating ≥ 4.0</text>
+  <text x="250" y="188" text-anchor="middle" font-size="20" font-weight="800" fill="#111827">13,968</text>
+  <text x="440" y="175" font-size="12" font-weight="600" fill="#ef4444">-240k</text>
+
+  <!-- Section 3 -->
+  <path d="M90,220 L410,220 L390,280 L110,280 Z" fill="#ffffff" stroke="#0e7490" stroke-width="2.5" />
+  <text x="250" y="245" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">License Safe</text>
+  <text x="250" y="268" text-anchor="middle" font-size="20" font-weight="800" fill="#111827">10,763</text>
+  <text x="420" y="255" font-size="12" font-weight="600" fill="#ef4444">-3,205</text>
+
+  <!-- Section 4 -->
+  <path d="M110,300 L390,300 L370,360 L130,360 Z" fill="#ffffff" stroke="#0369a1" stroke-width="2.5" />
+  <text x="250" y="325" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">Unique &amp; Best</text>
+  <text x="250" y="348" text-anchor="middle" font-size="20" font-weight="800" fill="#111827">10,107</text>
+  <text x="400" y="335" font-size="12" font-weight="600" fill="#ef4444">-656</text>
+
+  <!-- Section 5 -->
+  <path d="M130,380 L370,380 L350,440 L150,440 Z" fill="#ffffff" stroke="#2563eb" stroke-width="2.5" />
+  <text x="250" y="405" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">Target Composers</text>
+  <text x="250" y="428" text-anchor="middle" font-size="20" font-weight="800" fill="#111827">528</text>
+  <text x="380" y="415" font-size="12" font-weight="600" fill="#ef4444">-9.5k</text>
+
+  <!-- Section 6 -->
+  <path d="M150,460 L350,460 L330,520 L170,520 Z" fill="#ffffff" stroke="#4338ca" stroke-width="2.5" />
+  <text x="250" y="485" text-anchor="middle" font-size="14" font-weight="600" fill="#374151">Solo Piano Verified</text>
+  <text x="250" y="508" text-anchor="middle" font-size="20" font-weight="800" fill="#111827">186</text>
+  <text x="360" y="495" font-size="12" font-weight="600" fill="#ef4444">-342</text>
+
+  <!-- Section 7 -->
+  <rect x="170" y="540" width="160" height="90" rx="8" fill="#ffffff" stroke="url(#strokeGrad)" stroke-width="4" />
+  <text x="250" y="565" text-anchor="middle" font-size="12" font-weight="700" fill="#4f46e5" letter-spacing="1">FINAL SET</text>
+  <text x="250" y="598" text-anchor="middle" font-size="32" font-weight="900" fill="#111827">144</text>
+  <text x="250" y="620" text-anchor="middle" font-size="11" font-weight="500" fill="#6b7280">(Balanced)</text>
+  <text x="340" y="585" font-size="12" font-weight="600" fill="#ef4444">-42</text>
+  
+</svg>
