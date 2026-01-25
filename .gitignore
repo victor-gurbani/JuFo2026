@@ -87,5 +87,8 @@ pythontex-files-*/
 
 # Ignore large bundles and temp scripts
 feature_bundle.zip
+feature_bundle/
 # tmp/
-# *.pdf
+*.pdf
+
+.git_*/

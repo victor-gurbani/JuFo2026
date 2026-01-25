@@ -64,6 +64,34 @@ This is the core of the project. We will expand the feature list to include "Lev
     * **How:** Use `music21` to translate chords into Roman Numerals (`roman.RomanNumeral`). Analyze the N-grams (pairs) of chords.
     * **Feature:** `deceptive_cadence_ratio` (e.g., ratio of V-vi progressions) or `modal_interchange_ratio`.
     * **Hypothesis:** Harmonic complexity and non-standard progressions will increase significantly after the Classical era.
+* **[NEW] (Level 2) Harmonic Rhythm:**
+    * **How:** Measure the rate of chord changes—how many beats elapse between harmonic shifts.
+    * **Feature:** `avg_chord_duration` and `harmonic_rhythm_variance`.
+    * **Hypothesis:** Baroque/Classical will show more regular harmonic rhythm; Romantic/Impressionist will show more varied pacing.
+* **[NEW] (Level 3) Functional Harmony vs. Coloristic Harmony:**
+    * **How:** Calculate the ratio of chords that can be assigned clear tonal functions (I, IV, V, etc.) vs. ambiguous/non-functional sonorities.
+    * **Feature:** `functional_harmony_ratio`.
+    * **Hypothesis:** Will decrease dramatically from Bach (near 100%) to Debussy (potentially <50%).
+* **[NEW] (Level 3) Extended Chord Usage:**
+    * **How:** Detect chords with 7ths, 9ths, 11ths, and 13ths.
+    * **Feature:** `extended_chord_ratio` and `avg_chord_extension_degree`.
+    * **Hypothesis:** Will increase from Classical (rare) to Impressionist (frequent 9th and 11th chords).
+* **[NEW] (Level 2) Harmonic Stability:**
+    * **How:** Calculate the ratio of time spent on tonic chords vs. all other harmonies.
+    * **Feature:** `tonic_prevalence_ratio`.
+    * **Hypothesis:** Will be highest in Classical era (clear tonic-dominant structure), lower in Impressionist (tonal ambiguity).
+* **[NEW] (Level 3) Voice Leading Quality:**
+    * **How:** Analyze chord-to-chord transitions for parallel fifths/octaves, voice crossing, and leap sizes in individual voices.
+    * **Feature:** `voice_leading_smoothness_index` (lower = smoother, more conjunct voice leading).
+    * **Hypothesis:** Baroque will show the strictest voice leading; later eras will allow more freedom.
+* **[NEW] (Level 3) Secondary Dominants:**
+    * **How:** Detect V/V, V/IV, and other tonicization patterns using Roman numeral analysis.
+    * **Feature:** `secondary_dominant_ratio`.
+    * **Hypothesis:** Will increase from Baroque through Romantic era as chromatic harmony becomes more sophisticated.
+* **[NEW] (Level 2) Harmonic Tension Curve:**
+    * **How:** Map dissonance levels across the piece's timeline to identify tension/release patterns.
+    * **Feature:** `tension_arc_correlation` (correlation with expected dramatic structure).
+    * **Hypothesis:** Classical era will show clearest tension-release arcs; Impressionist may show flatter, more static harmonic landscapes.
 
 #### 2. Melodic Features:
 * **(Level 1) Pitch Range (Ambitus):** (As you suggested) `pitch_range_semitones`.
@@ -74,6 +102,30 @@ This is the core of the project. We will expand the feature list to include "Lev
     * **How:** Isolate the highest (soprano) and lowest (bass) voices in the piano works. Calculate the correlation of their melodic contours (direction of movement) over a sliding window.
     * **Feature:** `voice_independence_index` (A value near -1 means high contrary motion; +1 means high parallel motion).
     * **Hypothesis:** Bach will show the highest independence (most contrary motion), which will decrease through the eras.
+* **[NEW] (Level 3) Melodic Ornament Density:**
+    * **How:** Detect ornamental patterns (trills, turns, grace notes, mordents) using pattern matching on rapid note sequences and grace note markers in MusicXML.
+    * **Feature:** `ornament_ratio` (ratio of ornamental notes to total melodic notes).
+    * **Hypothesis:** Will be high in Baroque (Bach's embellishments), decrease in Classical (cleaner lines), spike again in Romantic (Chopin's decorative style), and drop in Impressionist era.
+* **[NEW] (Level 3) Melodic Sequence Detection:**
+    * **How:** Identify repeated melodic patterns transposed to different pitch levels (sequences) using n-gram matching with pitch-interval patterns.
+    * **Feature:** `sequence_coverage_ratio` (percentage of melodic material that is part of a sequence).
+    * **Hypothesis:** High in Baroque (Bach's systematic sequences), moderate in Classical, lower in Romantic/Impressionist (more through-composed melodies).
+* **[NEW] (Level 2) Chromaticism Index:**
+    * **How:** Calculate the ratio of chromatic intervals (semitones) to diatonic intervals in melodic lines.
+    * **Feature:** `chromatic_motion_ratio`.
+    * **Hypothesis:** Will increase progressively from Bach (functional chromaticism) to Debussy (highly chromatic, non-functional).
+* **[NEW] (Level 3) Motivic Development:**
+    * **How:** Extract short melodic motifs (3-5 notes) and track their transformations (inversion, retrograde, augmentation) throughout the piece.
+    * **Feature:** `motivic_transformation_index` (ratio of transformed motifs to unique motifs).
+    * **Hypothesis:** High in Baroque/Classical (thematic development), lower in Impressionist (more atmospheric, less motivic).
+* **[NEW] (Level 2) Melodic Arch Shape:**
+    * **How:** Analyze the overall contour of phrases—whether they rise then fall (arch), fall then rise (valley), or are more linear.
+    * **Feature:** `arch_contour_ratio` (percentage of phrases with arch-shaped contours).
+    * **Hypothesis:** Classical era will show highest prevalence of balanced arch shapes; Impressionist will show more irregular contours.
+* **[NEW] (Level 3) Scale/Mode Detection:**
+    * **How:** Analyze the pitch class sets within melodic phrases to detect specific scales (major, minor, whole-tone, pentatonic, octatonic).
+    * **Feature:** `modal_diversity_score` (number of different scale types used) and `whole_tone_usage_ratio`.
+    * **Hypothesis:** Bach/Mozart will be primarily major/minor; Debussy will show high whole-tone and pentatonic usage.
 
 #### 3. Rhythmic Features:
 * **(Level 1) Note Duration Distribution:** (As you suggested) `avg_note_duration` and `std_dev_note_duration` (rhythmic variety).
