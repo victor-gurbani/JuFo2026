@@ -1,0 +1,1 @@
+darama d las minor keys porq subio mucho mas 
