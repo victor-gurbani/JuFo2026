@@ -163,7 +163,7 @@ export default function Home() {
       setCarouselFolderIndex((currentFolderIdx) => {
         const nextFolderIdx = (currentFolderIdx + 1) % kioskCarousels.length;
         const nextDef = kioskCarousels[nextFolderIdx];
-        
+
         let count = 1;
         if (nextDef.type === "html" && nextDef.items) {
           count = nextDef.items.length;
@@ -178,7 +178,7 @@ export default function Home() {
           // If we change folder every 14s, we only see 14s of that folder.
           // We probably want to stay on the folder for longer if it has many images?
           // Or change the interval logic.
-          
+
           // Let's keep consistent folder switching for now to avoid complexity explosion,
           // but update the Item Index so next time we come back to this folder (or if we calc global index), it shifts.
           // Actually, `setCarouselItemIndex` tracks a single index number. 
@@ -247,11 +247,11 @@ export default function Home() {
   };
 
   const currentCarousel = useMemo(() => {
-     if (kioskMode) return kioskCarousels[carouselFolderIndex] ?? kioskCarousels[0];
-     if (manualViewMode !== "pca") return kioskCarousels.find(c => c.id === manualViewMode) || kioskCarousels[0];
-     return kioskCarousels[0];
+    if (kioskMode) return kioskCarousels[carouselFolderIndex] ?? kioskCarousels[0];
+    if (manualViewMode !== "pca") return kioskCarousels.find(c => c.id === manualViewMode) || kioskCarousels[0];
+    return kioskCarousels[0];
   }, [kioskMode, carouselFolderIndex, manualViewMode]);
-  
+
   // Resolve items for current carousel
   const currentItems = useMemo(() => {
     if (currentCarousel.type === "html") {
@@ -262,18 +262,18 @@ export default function Home() {
     }
     return [];
   }, [currentCarousel, imageMap]);
-  
+
   // For HTML, single item. For Images, slice of 3.
   // We use carouselItemIndex to offset.
   const activeItems = useMemo(() => {
     if (currentItems.length === 0) return [];
-    
+
     // In Manual Mode (and not Kiosk), if it's images, we want to show ALL of them (or many),
     // not just a slice. Or at least a larger grid.
     if (!kioskMode && currentCarousel.type === "image") {
-        return currentItems; 
+      return currentItems;
     }
-    
+
     if (currentCarousel.type === "html") {
       // In manual mode for HTML, maybe cycle? or just show first?
       // Let's just show first for now, or all if we can stack them?
@@ -281,12 +281,12 @@ export default function Home() {
       // Or we can add sub-navigation later.
       return [currentItems[0]]; // Always first in manual for stability
     }
-    
+
     // Kiosk Mode (Images) -> Sliding Window
     const start = carouselItemIndex % currentItems.length;
     const result = [];
     for (let i = 0; i < 3; i++) {
-        result.push(currentItems[(start + i) % currentItems.length]);
+      result.push(currentItems[(start + i) % currentItems.length]);
     }
     return result;
   }, [currentItems, carouselItemIndex, currentCarousel.type, kioskMode]);
@@ -295,9 +295,9 @@ export default function Home() {
     try {
       if (!document.fullscreenElement) {
         if (fullscreenRef.current) {
-            await fullscreenRef.current.requestFullscreen();
+          await fullscreenRef.current.requestFullscreen();
         } else {
-            await document.documentElement.requestFullscreen();
+          await document.documentElement.requestFullscreen();
         }
       } else {
         await document.exitFullscreen();
@@ -328,56 +328,51 @@ export default function Home() {
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
               <button
                 onClick={() => setKioskMode((value) => !value)}
-                className={`h-9 rounded-xl border px-3 transition ${
-                  kioskMode
+                className={`h-9 rounded-xl border px-3 transition ${kioskMode
                     ? "border-blue-400 bg-blue-500/20 text-blue-600 dark:text-blue-200"
                     : "border-white/20 bg-white/40 text-zinc-700 hover:border-blue-300 dark:bg-black/30 dark:text-zinc-200"
-                }`}
+                  }`}
               >
                 {kioskMode ? "Kiosk: on" : "Kiosk: off"}
               </button>
               <button
                 onClick={() => setDarkMode((value) => !value)}
-                className={`h-9 rounded-xl border px-3 transition ${
-                  darkMode
+                className={`h-9 rounded-xl border px-3 transition ${darkMode
                     ? "border-blue-400 bg-blue-500/20 text-blue-600 dark:text-blue-200"
                     : "border-white/20 bg-white/40 text-zinc-700 hover:border-blue-300 dark:bg-black/30 dark:text-zinc-200"
-                }`}
+                  }`}
               >
                 {darkMode ? "Dark mode" : "Light mode"}
               </button>
               <button
                 onClick={toggleFullscreen}
-                className={`col-span-2 h-9 rounded-xl border px-3 transition ${
-                  isFullscreen
+                className={`col-span-2 h-9 rounded-xl border px-3 transition ${isFullscreen
                     ? "border-blue-400 bg-blue-500/20 text-blue-600 dark:text-blue-200"
                     : "border-white/20 bg-white/40 text-zinc-700 hover:border-blue-300 dark:bg-black/30 dark:text-zinc-200"
-                }`}
+                  }`}
               >
                 {isFullscreen ? "Exit fullscreen" : "Fullscreen (auto kiosk)"}
               </button>
-               <select
+              <select
                 value={manualViewMode}
                 onChange={(e) => setManualViewMode(e.target.value)}
                 disabled={kioskMode}
-                className={`col-span-2 h-9 rounded-xl border px-3 transition appearance-none bg-transparent ${
-                  manualViewMode !== "pca"
+                className={`col-span-2 h-9 rounded-xl border px-3 transition appearance-none bg-transparent ${manualViewMode !== "pca"
                     ? "border-blue-400 bg-blue-500/20 text-blue-600 dark:text-blue-200"
                     : "border-white/20 bg-white/40 text-zinc-700 hover:border-blue-300 dark:bg-black/30 dark:text-zinc-200"
-                } disabled:opacity-50`}
+                  } disabled:opacity-50`}
               >
                 <option value="pca" className="bg-white dark:bg-black">Interactive Stylistic Space</option>
                 {kioskCarousels.map((c) => (
-                    <option key={c.id} value={c.id} className="bg-white dark:bg-black">View: {c.label}</option>
+                  <option key={c.id} value={c.id} className="bg-white dark:bg-black">View: {c.label}</option>
                 ))}
               </select>
               <button
                 onClick={() => setCorpusMode(corpusMode === "curated" ? "full" : "curated")}
-                className={`col-span-2 h-9 rounded-xl border px-3 transition ${
-                  corpusMode === "full"
+                className={`col-span-2 h-9 rounded-xl border px-3 transition ${corpusMode === "full"
                     ? "border-blue-400 bg-blue-500/20 text-blue-600 dark:text-blue-200"
                     : "border-white/20 bg-white/40 text-zinc-700 hover:border-blue-300 dark:bg-black/30 dark:text-zinc-200"
-                }`}
+                  }`}
               >
                 {corpusMode === "full" ? "Full corpus (PDMX)" : "Curated corpus"}
               </button>
@@ -435,117 +430,117 @@ export default function Home() {
                 <button
                   key={option.id}
                   onClick={() => setFilterMode(option.id as typeof filterMode)}
-                  className={`h-8 rounded-full border px-3 transition ${
-                    filterMode === option.id
+                  className={`h-8 rounded-full border px-3 transition ${filterMode === option.id
                       ? "border-blue-400 bg-blue-500/20 text-blue-600 dark:text-blue-200"
                       : "border-white/20 bg-white/60 text-zinc-600 hover:border-blue-300 dark:bg-black/30 dark:text-zinc-300"
-                  }`}
+                    }`}
                 >
                   {option.label}
                 </button>
               ))}
             </div>
           </div>
-          
+
           <div ref={fullscreenRef} className="relative flex h-[800px] flex-col gap-4 bg-zinc-50 p-2 text-zinc-900 transition-colors dark:bg-[#04060c] dark:text-white overflow-y-auto lg:overflow-visible rounded-3xl pb-10 lg:pb-0">
             {/* Added Wrapper with Ref and BG colors to ensure fullscreen looks correct */}
-              
+
             {kioskMode && (
-                <div className="absolute top-12 left-12 z-50 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] max-w-4xl">
-                    <h1 className="text-6xl font-bold text-zinc-900 dark:text-white opacity-90 leading-tight">Empirische Musikalische Kartographie</h1>
-                    <p className="mt-4 text-3xl font-medium text-zinc-700 dark:text-zinc-300 opacity-90">Victor Gurbani</p>
-                </div>
+              <div className="absolute top-12 left-12 z-50 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] max-w-4xl">
+                <h1 className="text-6xl font-bold text-zinc-900 dark:text-white opacity-90 leading-tight">Empirische Musikalische Kartographie</h1>
+                <p className="mt-4 text-3xl font-medium text-zinc-700 dark:text-zinc-300 opacity-90">Victor Gurbani</p>
+              </div>
             )}
-              
-          {kioskMode && isWide ? (
-            <div className="grid h-full w-full gap-4 lg:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/80 via-white/40 to-white/60 p-4 shadow-2xl shadow-blue-500/10 backdrop-blur-2xl dark:from-[#0a1220] dark:via-[#04060c] dark:to-[#05070d]">
-                <StylisticSpace dataUrl={plotUrl} className="h-full w-full" filterMode={filterMode} kioskMode={kioskMode} />
-              </div>
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/70 shadow-2xl shadow-blue-500/10 backdrop-blur-2xl dark:bg-white/5 p-4 flex flex-col justify-center">
-                {currentCarousel.type === "html" ? (
+
+            {kioskMode && isWide ? (
+              <div className="grid h-full w-full gap-4 lg:grid-cols-2">
+                <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/80 via-white/40 to-white/60 p-4 shadow-2xl shadow-blue-500/10 backdrop-blur-2xl dark:from-[#0a1220] dark:via-[#04060c] dark:to-[#05070d]">
+                  <StylisticSpace dataUrl={plotUrl} className="h-full w-full" filterMode={filterMode} kioskMode={kioskMode} />
+                </div>
+                <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/70 shadow-2xl shadow-blue-500/10 backdrop-blur-2xl dark:bg-white/5 p-4 flex flex-col justify-center">
+                  {currentCarousel.type === "html" ? (
                     <iframe
-                    title={`carousel-${currentCarousel.id}`}
-                    src={activeItems[0]}
-                    className="h-full w-full"
+                      title={`carousel-${currentCarousel.id}`}
+                      src={activeItems[0]}
+                      className="h-full w-full"
                     />
-                ) : (
+                  ) : (
                     <div className="grid h-full w-full grid-cols-2 grid-rows-2 gap-4">
-                        {activeItems.map((src, i) => {
-                             let spanClass = "col-span-1 row-span-1";
-                             if (activeItems.length === 1) spanClass = "col-span-2 row-span-2";
-                             else if (activeItems.length === 3 && i === 0) spanClass = "col-span-2 row-span-1";
-                             
-                             return (
-                                 <div key={i} className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-white/10 p-2 ${spanClass} cursor-pointer hover:bg-white/20 transition`} onClick={() => setModalImage(src)}>
-                                    <img src={src} alt="Analysis Figure" className="max-h-full max-w-full object-contain" />
-                                 </div>
-                             );
-                        })}
+                      {activeItems.map((src, i) => {
+                        let spanClass = "col-span-1 row-span-1";
+                        if (activeItems.length === 1) spanClass = "col-span-2 row-span-2";
+                        else if (activeItems.length === 3 && i === 0) spanClass = "col-span-2 row-span-1";
+
+                        return (
+                          <div key={i} className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-white/10 p-2 ${spanClass} cursor-pointer hover:bg-white/20 transition`} onClick={() => setModalImage(src)}>
+                            <img src={src} alt="Analysis Figure" className="max-h-full max-w-full object-contain" />
+                          </div>
+                        );
+                      })}
                     </div>
-                )}
-                
-                <div className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-white z-10">
-                  {currentCarousel.label}
+                  )}
+
+                  <div className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-white z-10">
+                    {currentCarousel.label}
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="h-full w-full rounded-3xl border border-white/10 bg-gradient-to-br from-white/80 via-white/40 to-white/60 p-4 shadow-2xl shadow-blue-500/10 backdrop-blur-2xl dark:from-[#0a1220] dark:via-[#04060c] dark:to-[#05070d]">
-              {(kioskMode && carouselPhase === "figure") || (!kioskMode && manualViewMode !== "pca") ? (
-                 <div className="relative h-full w-full rounded-2xl overflow-y-auto">
+            ) : (
+              <div className="h-full w-full rounded-3xl border border-white/10 bg-gradient-to-br from-white/80 via-white/40 to-white/60 p-4 shadow-2xl shadow-blue-500/10 backdrop-blur-2xl dark:from-[#0a1220] dark:via-[#04060c] dark:to-[#05070d]">
+                {(kioskMode && carouselPhase === "figure") || (!kioskMode && manualViewMode !== "pca") ? (
+                  <div className="relative h-full w-full rounded-2xl overflow-y-auto">
                     {currentCarousel.type === "html" ? (
-                        <iframe
-                            title={`carousel-${currentCarousel.id}`}
-                            src={activeItems[0]}
-                            className="h-full w-full min-h-[500px]"
-                        />
+                      <iframe
+                        title={`carousel-${currentCarousel.id}`}
+                        src={activeItems[0]}
+                        className="h-full w-full min-h-[500px]"
+                      />
                     ) : (
-                         <div className={`grid h-full w-full gap-4 ${!kioskMode ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-min' : 'grid-cols-2 grid-rows-2'}`}>
-                            {activeItems.map((src, i) => {
-                                let spanClass = "";
-                                if (kioskMode) {
-                                     spanClass = "col-span-1 row-span-1";
-                                     if (activeItems.length === 1) spanClass = "col-span-2 row-span-2";
-                                     else if (activeItems.length === 3 && i === 0) spanClass = "col-span-2 row-span-1";
-                                }
-                                
-                                return (
-                                <div key={i} className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-white/10 p-2 min-h-[250px] ${spanClass} cursor-pointer hover:bg-white/20 transition`} onClick={() => setModalImage(src)}>
-                                    <img src={src} alt="Analysis Figure" className="max-h-full max-w-full object-contain" />
-                                </div>
-                            )})}
-                        </div>
+                      <div className={`grid h-full w-full gap-4 ${!kioskMode ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-min' : 'grid-cols-2 grid-rows-2'}`}>
+                        {activeItems.map((src, i) => {
+                          let spanClass = "";
+                          if (kioskMode) {
+                            spanClass = "col-span-1 row-span-1";
+                            if (activeItems.length === 1) spanClass = "col-span-2 row-span-2";
+                            else if (activeItems.length === 3 && i === 0) spanClass = "col-span-2 row-span-1";
+                          }
+
+                          return (
+                            <div key={i} className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-white/10 p-2 min-h-[250px] ${spanClass} cursor-pointer hover:bg-white/20 transition`} onClick={() => setModalImage(src)}>
+                              <img src={src} alt="Analysis Figure" className="max-h-full max-w-full object-contain" />
+                            </div>
+                          )
+                        })}
+                      </div>
                     )}
                     <div className="pointer-events-none sticky bottom-4 left-4 inline-block rounded-full bg-black/60 px-3 py-1 text-xs text-white z-10 mx-4 mb-4">
-                        {currentCarousel.label}
+                      {currentCarousel.label}
                     </div>
-                 </div>
-              ) : (
-                <StylisticSpace dataUrl={plotUrl} className="h-full w-full" filterMode={filterMode} kioskMode={kioskMode} />
-              )}
-            </div>
-          )}
-          
+                  </div>
+                ) : (
+                  <StylisticSpace dataUrl={plotUrl} className="h-full w-full" filterMode={filterMode} kioskMode={kioskMode} />
+                )}
+              </div>
+            )}
+
             {/* Image Modal */}
             {modalImage && (
-                <div 
-                    className="absolute inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-10 cursor-pointer"
-                    onClick={() => setModalImage(null)}
-                >
-                    <img 
-                        src={modalImage} 
-                        alt="Zoomed Figure" 
-                        className="max-h-full max-w-full object-contain drop-shadow-2xl rounded-lg"
-                    />
-                    <button className="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
-                </div>
+              <div
+                className="absolute inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-10 cursor-pointer"
+                onClick={() => setModalImage(null)}
+              >
+                <img
+                  src={modalImage}
+                  alt="Zoomed Figure"
+                  className="max-h-full max-w-full object-contain drop-shadow-2xl rounded-lg"
+                />
+                <button className="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+              </div>
             )}
-            
+
           </div>
-          
+
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
             This view loads Plotly JSON files exported by the Python pipeline. The canonical cloud is
             static; analysis calls compute new projections live and overwrite the temporary JSON.
