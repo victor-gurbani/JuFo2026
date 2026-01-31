@@ -85,14 +85,19 @@ export default function Home() {
   const [corpusMode, setCorpusMode] = useState<"curated" | "full">("curated");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isWide, setIsWide] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [carouselFolderIndex, setCarouselFolderIndex] = useState(0);
   const [carouselItemIndex, setCarouselItemIndex] = useState(0);
   const [carouselPhase, setCarouselPhase] = useState<"pca" | "figure">("pca");
   const [manualViewMode, setManualViewMode] = useState<"pca" | string>("pca");
   const [imageMap, setImageMap] = useState<Record<string, string[]>>({});
   const [modalImage, setModalImage] = useState<string | null>(null);
-  
+
   const fullscreenRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // Preload images for dynamic folders
@@ -121,13 +126,14 @@ export default function Home() {
   }, [darkMode]);
 
   useEffect(() => {
+    if (!mounted) return;
     const handleResize = () => {
       setIsWide(window.innerWidth >= 1280);
     };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [mounted]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
