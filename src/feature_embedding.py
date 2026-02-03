@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -17,6 +19,7 @@ DEFAULT_HARMONIC = Path("data/features/harmonic_features.csv")
 DEFAULT_MELODIC = Path("data/features/melodic_features.csv")
 DEFAULT_RHYTHMIC = Path("data/features/rhythmic_features.csv")
 DEFAULT_OUTDIR = Path("figures/embeddings")
+DEFAULT_EMBEDDING_CACHE = Path("data/embeddings/pca_embedding_cache.csv")
 EXCLUDED_FEATURES = {
     "note_count",
     "note_event_count",
@@ -27,6 +30,119 @@ EXCLUDED_FEATURES = {
 }
 CLOUD_GRID_SIZE = 22
 CLOUD_ISO_FRACTION = 0.22
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _meta_path_for(cache_csv: Path) -> Path:
+    # Matches embedding_cache.py naming convention: <cache>.csv.meta.json
+    return cache_csv.with_suffix(cache_csv.suffix + ".meta.json")
+
+
+def _load_cache_meta(cache_csv: Path) -> Dict[str, Any]:
+    meta_path = _meta_path_for(cache_csv)
+    if not meta_path.exists():
+        raise FileNotFoundError(f"Embedding cache metadata not found: {meta_path}")
+    return json.loads(meta_path.read_text(encoding="utf-8"))
+
+
+def _cache_is_compatible_for_pca(
+    *,
+    cache_csv: Path,
+    harmonic_path: Path,
+    melodic_path: Path,
+    rhythmic_path: Path,
+    seed: int,
+    excluded_features: set[str],
+) -> Tuple[bool, str]:
+    if not cache_csv.exists():
+        return False, f"cache not found: {cache_csv}"
+
+    try:
+        meta = _load_cache_meta(cache_csv)
+    except Exception as exc:
+        return False, f"failed to load cache meta: {exc}"
+
+    inputs = meta.get("inputs")
+    if not isinstance(inputs, dict):
+        return False, "cache meta missing inputs"
+
+    # Require PCA with matching seed.
+    if inputs.get("method") != "pca":
+        return False, "cache method is not pca"
+    if int(inputs.get("seed", -1)) != int(seed):
+        return False, "seed mismatch"
+
+    expected_excluded = list(sorted(excluded_features))
+    if inputs.get("excluded_features") != expected_excluded:
+        return False, "excluded feature list mismatch"
+
+    # Hash-based validation lets users pass equivalent paths.
+    for label, path, key in (
+        ("harmonic", harmonic_path, "harmonic_sha256"),
+        ("melodic", melodic_path, "melodic_sha256"),
+        ("rhythmic", rhythmic_path, "rhythmic_sha256"),
+    ):
+        if not path.exists():
+            return False, f"{label} features file missing: {path}"
+        expected_hash = inputs.get(key)
+        if not isinstance(expected_hash, str) or not expected_hash:
+            return False, f"cache meta missing {key}"
+        actual_hash = _sha256_file(path)
+        if actual_hash != expected_hash:
+            return False, f"{label} features hash mismatch"
+
+    pca = meta.get("pca")
+    if not isinstance(pca, dict):
+        return False, "cache meta missing PCA artifacts"
+    if not pca.get("pca_components"):
+        return False, "cache meta missing PCA components"
+    if not pca.get("feature_columns"):
+        return False, "cache meta missing feature column list"
+
+    # Lightweight CSV schema check.
+    try:
+        header = pd.read_csv(cache_csv, nrows=0)
+    except Exception as exc:
+        return False, f"failed to read cache header: {exc}"
+    for col in ("mxl_path", "dim1", "dim2", "dim3"):
+        if col not in header.columns:
+            return False, f"cache missing required column: {col}"
+
+    return True, "ok"
+
+
+def _load_coords_from_cache(combined: pd.DataFrame, cache_csv: Path) -> Optional[np.ndarray]:
+    if combined.empty:
+        return None
+    if "mxl_path" not in combined.columns:
+        return None
+    if combined["mxl_path"].duplicated().any():
+        return None
+
+    cache_df = pd.read_csv(cache_csv)
+    if cache_df.empty or "mxl_path" not in cache_df.columns:
+        return None
+    if cache_df["mxl_path"].duplicated().any():
+        return None
+    for col in ("dim1", "dim2", "dim3"):
+        if col not in cache_df.columns:
+            return None
+
+    joined = combined.set_index("mxl_path").join(
+        cache_df.set_index("mxl_path")[["dim1", "dim2", "dim3"]],
+        how="left",
+    )
+    if joined[["dim1", "dim2", "dim3"]].isna().any().any():
+        return None
+    coords = joined[["dim1", "dim2", "dim3"]].to_numpy(dtype=float)
+    return coords
 
 
 def _axis_titles(method: str) -> tuple[str, str, str]:
@@ -379,6 +495,21 @@ def parse_arguments() -> argparse.Namespace:
         help="Projection algorithm (default: pca).",
     )
     parser.add_argument(
+        "--embedding-cache",
+        type=Path,
+        default=DEFAULT_EMBEDDING_CACHE,
+        help=(
+            "Optional PCA embedding cache CSV (created by src/embedding_cache.py). "
+            "When --method pca and the cache is compatible with the input feature CSVs, "
+            "coordinates are reused instead of refitting PCA."
+        ),
+    )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable using the PCA embedding cache even if present.",
+    )
+    parser.add_argument(
         "--perplexity",
         type=float,
         default=30.0,
@@ -461,26 +592,59 @@ def main() -> int:
     rhythmic = _load_features(args.rhythmic)
 
     combined = _merge_feature_tables(harmonic, melodic, rhythmic)
-    matrix, feature_cols, scaler = _prepare_feature_matrix(combined)
-    tsne_matrix = matrix
-    if args.method == "tsne" and args.tsne_composer_weight > 0.0:
-        composer_dummies = pd.get_dummies(combined["composer_label"], dtype=float)
-        composer_dummies -= composer_dummies.mean(axis=0)
-        tsne_matrix = np.hstack(
-            [
-                matrix,
-                composer_dummies.values * args.tsne_composer_weight,
-            ]
+
+    used_cache = False
+    coords: Optional[np.ndarray] = None
+    pca_model: Optional[PCA] = None
+    cached_meta: Optional[Dict[str, Any]] = None
+
+    if args.method == "pca" and not args.no_cache:
+        compatible, reason = _cache_is_compatible_for_pca(
+            cache_csv=args.embedding_cache,
+            harmonic_path=args.harmonic,
+            melodic_path=args.melodic,
+            rhythmic_path=args.rhythmic,
+            seed=args.seed,
+            excluded_features=EXCLUDED_FEATURES,
         )
-    coords, pca_model = _compute_projection(
-        tsne_matrix,
-        args.method,
-        args.seed,
-        args.perplexity,
-        args.tsne_early_exaggeration,
-        args.tsne_learning_rate,
-        args.tsne_metric,
-    )
+        if compatible:
+            coords_from_cache = _load_coords_from_cache(combined, args.embedding_cache)
+            if coords_from_cache is not None:
+                coords = coords_from_cache
+                used_cache = True
+                try:
+                    cached_meta = _load_cache_meta(args.embedding_cache)
+                except Exception:
+                    cached_meta = None
+            else:
+                print(f"[info] Cache is compatible but did not contain all rows; refitting PCA.")
+        else:
+            print(f"[info] Embedding cache not used ({reason}); computing from scratch.")
+
+    if not used_cache:
+        matrix, feature_cols, scaler = _prepare_feature_matrix(combined)
+        tsne_matrix = matrix
+        if args.method == "tsne" and args.tsne_composer_weight > 0.0:
+            composer_dummies = pd.get_dummies(combined["composer_label"], dtype=float)
+            composer_dummies -= composer_dummies.mean(axis=0)
+            tsne_matrix = np.hstack(
+                [
+                    matrix,
+                    composer_dummies.values * args.tsne_composer_weight,
+                ]
+            )
+        coords, pca_model = _compute_projection(
+            tsne_matrix,
+            args.method,
+            args.seed,
+            args.perplexity,
+            args.tsne_early_exaggeration,
+            args.tsne_learning_rate,
+            args.tsne_metric,
+        )
+
+    if coords is None:
+        raise RuntimeError("Failed to compute or load embedding coordinates.")
     if args.method == "tsne" and args.tsne_composer_weight > 0.0:
         print(
             f"Applied composer weight {args.tsne_composer_weight:.2f} to t-SNE input to encourage per-composer clustering."
@@ -509,23 +673,59 @@ def main() -> int:
         )
         print(f"2D embedding written to {args.output_2d}")
 
-    print(f"Embedding generated for {len(combined)} pieces using {len(feature_cols)} features -> {args.output}")
-    if args.method == "pca" and pca_model is not None:
-        explained = pca_model.explained_variance_ratio_ * 100.0
-        print(
-            "Explained variance (components 1-3): "
-            + ", ".join(f"{value:.1f}%" for value in explained)
-        )
-        if args.loadings_csv is not None:
-            loadings = pd.DataFrame(
-                pca_model.components_.T,
-                index=feature_cols,
-                columns=["PC1", "PC2", "PC3"],
+    cache_note = " (used embedding cache)" if used_cache else ""
+    feature_count_note = "?"
+    try:
+        numeric_cols = [col for col in combined.columns if pd.api.types.is_numeric_dtype(combined[col])]
+        numeric_cols = [col for col in numeric_cols if col not in {"mxl_path"}]
+        numeric_cols = [col for col in numeric_cols if col not in EXCLUDED_FEATURES]
+        feature_count_note = str(len(numeric_cols))
+    except Exception:
+        pass
+    print(f"Embedding generated for {len(combined)} pieces using {feature_count_note} features -> {args.output}{cache_note}")
+
+    if args.method == "pca":
+        if used_cache and cached_meta is not None:
+            try:
+                pca = cached_meta.get("pca")
+                explained = np.array(pca.get("explained_variance_ratio", []), dtype=float) * 100.0  # type: ignore[union-attr]
+                if explained.size >= 3:
+                    print(
+                        "Explained variance (components 1-3): "
+                        + ", ".join(f"{value:.1f}%" for value in explained[:3])
+                    )
+                if args.loadings_csv is not None:
+                    feature_cols = list(pca.get("feature_columns") or [])  # type: ignore[union-attr]
+                    components = np.array(pca.get("pca_components", []), dtype=float)  # type: ignore[union-attr]
+                    if components.shape[0] == 3 and components.shape[1] == len(feature_cols):
+                        loadings = pd.DataFrame(
+                            components.T,
+                            index=feature_cols,
+                            columns=["PC1", "PC2", "PC3"],
+                        )
+                        loadings_path = args.loadings_csv
+                        loadings_path.parent.mkdir(parents=True, exist_ok=True)
+                        loadings.to_csv(loadings_path)
+                        print(f"Saved PCA loadings to {loadings_path}")
+            except Exception:
+                pass
+        elif pca_model is not None:
+            explained = pca_model.explained_variance_ratio_ * 100.0
+            print(
+                "Explained variance (components 1-3): "
+                + ", ".join(f"{value:.1f}%" for value in explained)
             )
-            loadings_path = args.loadings_csv
-            loadings_path.parent.mkdir(parents=True, exist_ok=True)
-            loadings.to_csv(loadings_path)
-            print(f"Saved PCA loadings to {loadings_path}")
+            if args.loadings_csv is not None:
+                matrix, feature_cols, _ = _prepare_feature_matrix(combined)
+                loadings = pd.DataFrame(
+                    pca_model.components_.T,
+                    index=feature_cols,
+                    columns=["PC1", "PC2", "PC3"],
+                )
+                loadings_path = args.loadings_csv
+                loadings_path.parent.mkdir(parents=True, exist_ok=True)
+                loadings.to_csv(loadings_path)
+                print(f"Saved PCA loadings to {loadings_path}")
     elif args.method == "tsne":
         print("t-SNE axes are non-linear embeddings; absolute directions are not individually interpretable.")
     if args.clouds_output is not None:

@@ -287,6 +287,8 @@ Outputs:
 
 The script is idempotent: if the cache exists and the input feature CSVs are unchanged, it prints that the cache is already up-to-date.
 
+Compatibility is validated via the sidecar meta JSON (including SHA256 hashes of the harmonic/melodic/rhythmic feature CSVs, PCA method/seed, and the excluded-feature list). If any of these change, consumers refit PCA unless you explicitly point them at a different cache.
+
 #### 2) Project and cache a *different* corpus (full PDMX or custom lists) for days, resumable
 
 Once you have a PCA space (from the canonical cache above), you can project additional pieces into that PCA space and append them to a separate output cache.
@@ -329,6 +331,7 @@ Notes:
 #### 3) Cache usage by other scripts / UI
 
 - `src/highlight_pca_piece.py` now reuses `data/embeddings/pca_embedding_cache.csv` when it exists and is compatible; if the requested piece is missing, it projects it into the cached PCA space instead of refitting PCA.
+- `src/feature_embedding.py` (the standard embedding/cloud generator) will reuse the PCA cache automatically when `--method pca` and the cache is compatible with the current feature CSVs; use `--no-cache` to force refitting, or `--embedding-cache PATH` to point at a different cache.
 - The Next.js API route `web-interface/app/api/pca/route.ts` prefers the cache CSV when present.
 
 #### 4) Instant subset clouds from the full-feature cache (canonical axes vs refit axes)
