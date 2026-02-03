@@ -20,11 +20,13 @@ import csv
 import hashlib
 import json
 import os
+import multiprocessing as mp
+from multiprocessing.pool import Pool as MpPool
 import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -543,6 +545,31 @@ def _append_feature_row(
         handle.flush()
 
 
+def _worker_compute_features(
+    task: Tuple[str, str, str],
+) -> Tuple[str, str, str, Optional[Dict[str, object]], Optional[str]]:
+    """Worker: compute full feature mapping for one piece.
+
+    Must be top-level so it is picklable for multiprocessing on macOS (spawn).
+    Returns (composer, title, abs_path_str, feature_mapping, error).
+    """
+
+    composer, title, abs_path_str = task
+    try:
+        score = parse_score(Path(abs_path_str))
+        harmonic_metrics = compute_harmonic_features(score)
+        melodic_metrics = compute_melodic_features(score)
+        rhythmic_metrics = compute_rhythmic_features(score)
+        feature_mapping: Dict[str, object] = {
+            **harmonic_metrics,
+            **melodic_metrics,
+            **rhythmic_metrics,
+        }
+        return composer, title, abs_path_str, feature_mapping, None
+    except Exception as exc:
+        return composer, title, abs_path_str, None, str(exc)
+
+
 def cache_corpus_long_running(
     *,
     model_cache_csv: Optional[Path],
@@ -560,6 +587,8 @@ def cache_corpus_long_running(
     skip_errors: bool,
     checkpoint_every: int,
     progress_every: int,
+    workers: int,
+    chunksize: int,
 ) -> int:
     """Long-running caching over arbitrary corpora.
 
@@ -689,18 +718,20 @@ def cache_corpus_long_running(
 
     done_handle_embed = None
     done_handle_feat = None
-    try:
-        if output_embedding_csv is not None:
-            done_handle_embed = done_path_for(output_embedding_csv).open("a", encoding="utf-8")
-        if output_features_csv is not None:
-            done_handle_feat = done_path_for(output_features_csv).open("a", encoding="utf-8")
+    def _build_task_list() -> Tuple[List[Tuple[str, str, str]], int]:
+        """Return (tasks, scanned_total).
 
-        # Load the corpus definition once so we can compute progress + ETA.
+        Each task is (composer, title, abs_path_str) for items that still need work.
+        """
+
+        tasks: List[Tuple[str, str, str]] = []
+
         if corpus_csv is not None:
             if not corpus_csv.exists():
                 raise FileNotFoundError(f"Corpus CSV not found: {corpus_csv}")
             df = pd.read_csv(corpus_csv)
-            total_records = int(len(df))
+            scanned_total = int(len(df))
+
             composer_col_candidates = ["composer_label", "composer", "composer_name"]
             title_col_candidates = ["title", "song_name"]
             path_col_candidates = [
@@ -718,130 +749,186 @@ def cache_corpus_long_running(
                     f"Corpus CSV {corpus_csv} is missing a MusicXML path column. Tried: {path_col_candidates}"
                 )
 
-            iterable: Iterable[Tuple[object, object, object]] = (
-                (row.get(composer_col) if composer_col else None, row.get(title_col) if title_col else None, row.get(path_col))
-                for _, row in df.iterrows()
-            )
-        elif paths_file is not None:
+            for _, row in df.iterrows():
+                raw_path = row.get(path_col)
+                if not isinstance(raw_path, str):
+                    continue
+                resolved = _resolve_musicxml_path(raw_path, repo_root=repo_root, dataset_root=dataset_root_resolved)
+                if resolved is None:
+                    continue
+                mxl_abs = normalize_path(resolved)
+                needs_embedding = output_embedding_csv is not None and mxl_abs not in done_embeddings
+                needs_features = output_features_csv is not None and mxl_abs not in done_features
+                if not needs_embedding and not needs_features:
+                    continue
+                composer = _coerce_label(row.get(composer_col) if composer_col else None, "Unknown")
+                title = _coerce_label(row.get(title_col) if title_col else None, resolved.stem)
+                tasks.append((composer, title, str(resolved)))
+                if limit is not None and len(tasks) >= limit:
+                    break
+            return tasks, scanned_total
+
+        if paths_file is not None:
             if not paths_file.exists():
                 raise FileNotFoundError(f"Paths file not found: {paths_file}")
             lines = [line.strip() for line in paths_file.read_text(encoding="utf-8").splitlines() if line.strip()]
-            total_records = int(len(lines))
-            iterable = ((None, None, line) for line in lines)
+            scanned_total = int(len(lines))
+            for raw in lines:
+                resolved = _resolve_musicxml_path(raw, repo_root=repo_root, dataset_root=dataset_root_resolved)
+                if resolved is None:
+                    continue
+                mxl_abs = normalize_path(resolved)
+                needs_embedding = output_embedding_csv is not None and mxl_abs not in done_embeddings
+                needs_features = output_features_csv is not None and mxl_abs not in done_features
+                if not needs_embedding and not needs_features:
+                    continue
+                tasks.append(("Unknown", resolved.stem, str(resolved)))
+                if limit is not None and len(tasks) >= limit:
+                    break
+            return tasks, scanned_total
+
+        raise ValueError("Provide either --corpus-csv or --paths to define which pieces to cache.")
+
+    try:
+        if output_embedding_csv is not None:
+            done_handle_embed = done_path_for(output_embedding_csv).open("a", encoding="utf-8")
+        if output_features_csv is not None:
+            done_handle_feat = done_path_for(output_features_csv).open("a", encoding="utf-8")
+
+        tasks, scanned_total = _build_task_list()
+        scanned = int(scanned_total)
+        total_records = int(scanned_total)
+        total_work = int(len(tasks))
+        if total_records > 0 and total_work > 0:
+            print(f"[info] Corpus records={total_records}, pending work items={total_work}")
+
+        # Override progress display to track completed work items (not raw corpus rows).
+        completed = 0
+
+        def _maybe_print_work_progress(force: bool = False) -> None:
+            if total_work <= 0:
+                return
+            if not force and (progress_every <= 0 or completed % progress_every != 0):
+                return
+            elapsed = max(time.monotonic() - start_time, 1e-9)
+            rate = completed / elapsed
+            remaining = max(total_work - completed, 0)
+            eta = remaining / rate if rate > 0 else float("nan")
+            bar = _format_progress_bar(completed, total_work)
+            pct = (completed / total_work) * 100.0
+            embed_count = len(done_embeddings) if output_embedding_csv is not None else 0
+            feat_count = len(done_features) if output_features_csv is not None else 0
+            print(
+                f"[progress] {bar} {completed}/{total_work} ({pct:.1f}%) ETA {_format_eta(eta)} "
+                f"| embeddings={embed_count} features={feat_count}",
+                flush=True,
+            )
+
+        _maybe_print_work_progress(force=True)
+
+        # Ensure workers is sane.
+        workers_eff = int(max(1, workers))
+        chunksize_eff = int(max(1, chunksize))
+
+        iterator: Iterable[Tuple[str, str, str, Optional[Dict[str, object]], Optional[str]]]
+        pool: Optional[MpPool] = None
+        if workers_eff <= 1:
+            iterator = (_worker_compute_features(task) for task in tasks)
         else:
-            raise ValueError("Provide either --corpus-csv or --paths to define which pieces to cache.")
+            ctx = mp.get_context("spawn")
+            pool = ctx.Pool(processes=workers_eff)
+            assert pool is not None
+            iterator = pool.imap_unordered(_worker_compute_features, tasks, chunksize=chunksize_eff)
 
-        _maybe_print_progress(force=True)
+        try:
+            for composer, title, abs_path_str, feature_mapping, error in iterator:
+                completed += 1
+                _maybe_print_work_progress()
 
-        for composer_raw, title_raw, raw_path in iterable:
-            if limit is not None and scanned >= limit:
-                break
-            scanned += 1
-            _maybe_print_progress()
+                mxl_abs = normalize_path(abs_path_str)
+                needs_embedding = output_embedding_csv is not None and mxl_abs not in done_embeddings
+                needs_features = output_features_csv is not None and mxl_abs not in done_features
+                if not needs_embedding and not needs_features:
+                    continue
 
-            if not isinstance(raw_path, str):
-                continue
-            resolved = _resolve_musicxml_path(raw_path, repo_root=repo_root, dataset_root=dataset_root_resolved)
-            if resolved is None:
-                continue
+                if error is not None or feature_mapping is None:
+                    if skip_errors:
+                        print(f"[warn] Skipping {abs_path_str} due to error: {error}", flush=True)
+                        continue
+                    raise RuntimeError(f"Feature extraction failed for {abs_path_str}: {error}")
 
-            composer = _coerce_label(composer_raw, "Unknown")
-            title = _coerce_label(title_raw, resolved.stem)
-            abs_path = resolved
-
-            mxl_abs = normalize_path(abs_path)
-            needs_embedding = output_embedding_csv is not None and mxl_abs not in done_embeddings
-            needs_features = output_features_csv is not None and mxl_abs not in done_features
-            if not needs_embedding and not needs_features:
-                continue
-
-            work_items += 1
-
-            try:
-                if progress_every > 0 and work_items % progress_every == 0:
-                    print(f"[work] {composer} — {title}", flush=True)
-                score = parse_score(abs_path)
-                harmonic_metrics = compute_harmonic_features(score)
-                melodic_metrics = compute_melodic_features(score)
-                rhythmic_metrics = compute_rhythmic_features(score)
-                feature_mapping: Dict[str, object] = {
-                    **harmonic_metrics,
-                    **melodic_metrics,
-                    **rhythmic_metrics,
-                }
                 coords = None
                 if needs_embedding:
                     if model_meta is None:
                         raise RuntimeError("Internal error: model_meta missing while embedding requested.")
                     coords = project_features_into_cached_pca(feature_mapping, model_meta)
-            except KeyboardInterrupt:
-                raise
-            except Exception as exc:
-                if skip_errors:
-                    print(f"[warn] Skipping {abs_path} due to error: {exc}")
-                    continue
-                raise
 
-            if needs_embedding and output_embedding_csv is not None and coords is not None:
-                row_embed = {
-                    "composer_label": composer,
-                    "title": title,
-                    "mxl_path": mxl_abs,
-                    "mxl_abs_path": mxl_abs,
-                    "dim1": float(coords[0]),
-                    "dim2": float(coords[1]),
-                    "dim3": float(coords[2]),
-                }
-                _append_embedding_row(output_embedding_csv, row_embed)
-                done_embeddings.add(mxl_abs)
-                if done_handle_embed is not None:
-                    done_handle_embed.write(mxl_abs + "\n")
-                    done_handle_embed.flush()
-                last_written = mxl_abs
-                last_written_composer = composer
-                last_written_title = title
+                if needs_embedding and output_embedding_csv is not None and coords is not None:
+                    row_embed = {
+                        "composer_label": composer,
+                        "title": title,
+                        "mxl_path": mxl_abs,
+                        "mxl_abs_path": mxl_abs,
+                        "dim1": float(coords[0]),
+                        "dim2": float(coords[1]),
+                        "dim3": float(coords[2]),
+                    }
+                    _append_embedding_row(output_embedding_csv, row_embed)
+                    done_embeddings.add(mxl_abs)
+                    if done_handle_embed is not None:
+                        done_handle_embed.write(mxl_abs + "\n")
+                        done_handle_embed.flush()
+                    last_written = mxl_abs
+                    last_written_composer = composer
+                    last_written_title = title
 
-            if needs_features and output_features_csv is not None and feature_schema is not None:
-                fieldnames = list(FEATURE_CACHE_ID_COLUMNS) + list(feature_schema)
-                row_feat: Dict[str, object] = {
-                    "composer_label": composer,
-                    "title": title,
-                    "mxl_path": mxl_abs,
-                    "mxl_abs_path": mxl_abs,
-                }
-                for col in feature_schema:
-                    row_feat[col] = _sanitize_metric_value(feature_mapping.get(col))
-                _append_feature_row(output_features_csv, fieldnames, row_feat)
-                done_features.add(mxl_abs)
-                if done_handle_feat is not None:
-                    done_handle_feat.write(mxl_abs + "\n")
-                    done_handle_feat.flush()
-                last_written = mxl_abs
-                last_written_composer = composer
-                last_written_title = title
+                if needs_features and output_features_csv is not None and feature_schema is not None:
+                    fieldnames = list(FEATURE_CACHE_ID_COLUMNS) + list(feature_schema)
+                    row_feat: Dict[str, object] = {
+                        "composer_label": composer,
+                        "title": title,
+                        "mxl_path": mxl_abs,
+                        "mxl_abs_path": mxl_abs,
+                    }
+                    for col in feature_schema:
+                        row_feat[col] = _sanitize_metric_value(feature_mapping.get(col))
+                    _append_feature_row(output_features_csv, fieldnames, row_feat)
+                    done_features.add(mxl_abs)
+                    if done_handle_feat is not None:
+                        done_handle_feat.write(mxl_abs + "\n")
+                        done_handle_feat.flush()
+                    last_written = mxl_abs
+                    last_written_composer = composer
+                    last_written_title = title
 
-            written_since_checkpoint += 1
+                written_since_checkpoint += 1
 
-            if checkpoint_every > 0 and written_since_checkpoint >= checkpoint_every:
-                now = datetime.now(timezone.utc).isoformat()
-                if output_embedding_csv is not None:
-                    meta_embed = load_meta(output_embedding_csv)
-                    meta_embed["piece_count"] = int(len(done_embeddings))
-                    meta_embed["last_checkpoint_at"] = now
-                    _atomic_write_text(meta_path_for(output_embedding_csv), json.dumps(meta_embed, indent=2, sort_keys=True))
-                if output_features_csv is not None:
-                    meta_feat = json.loads(meta_path_for(output_features_csv).read_text(encoding="utf-8"))
-                    meta_feat["piece_count"] = int(len(done_features))
-                    meta_feat["last_checkpoint_at"] = now
-                    _atomic_write_text(meta_path_for(output_features_csv), json.dumps(meta_feat, indent=2, sort_keys=True))
-                embed_count = len(done_embeddings) if output_embedding_csv is not None else 0
-                feat_count = len(done_features) if output_features_csv is not None else 0
-                if last_written is not None:
-                    hint = f"last={last_written_composer or 'Unknown'} — {last_written_title or ''}".strip()
-                    print(f"[checkpoint] embeddings={embed_count} features={feat_count} {hint}", flush=True)
-                else:
-                    print(f"[checkpoint] embeddings={embed_count} features={feat_count}", flush=True)
-                written_since_checkpoint = 0
+                if checkpoint_every > 0 and written_since_checkpoint >= checkpoint_every:
+                    now = datetime.now(timezone.utc).isoformat()
+                    if output_embedding_csv is not None:
+                        meta_embed = load_meta(output_embedding_csv)
+                        meta_embed["piece_count"] = int(len(done_embeddings))
+                        meta_embed["last_checkpoint_at"] = now
+                        _atomic_write_text(meta_path_for(output_embedding_csv), json.dumps(meta_embed, indent=2, sort_keys=True))
+                    if output_features_csv is not None:
+                        meta_feat = json.loads(meta_path_for(output_features_csv).read_text(encoding="utf-8"))
+                        meta_feat["piece_count"] = int(len(done_features))
+                        meta_feat["last_checkpoint_at"] = now
+                        _atomic_write_text(meta_path_for(output_features_csv), json.dumps(meta_feat, indent=2, sort_keys=True))
+                    embed_count = len(done_embeddings) if output_embedding_csv is not None else 0
+                    feat_count = len(done_features) if output_features_csv is not None else 0
+                    if last_written is not None:
+                        hint = f"last={last_written_composer or 'Unknown'} — {last_written_title or ''}".strip()
+                        print(f"[checkpoint] embeddings={embed_count} features={feat_count} {hint}", flush=True)
+                    else:
+                        print(f"[checkpoint] embeddings={embed_count} features={feat_count}", flush=True)
+                    written_since_checkpoint = 0
+        finally:
+            if pool is not None:
+                pool.close()
+                pool.join()
+
+        _maybe_print_work_progress(force=True)
 
     finally:
         try:
@@ -1063,6 +1150,24 @@ def parse_arguments() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help=(
+            "Number of worker processes for --project-only feature extraction (default: 1). "
+            "Set to >1 to use multiple CPU cores."
+        ),
+    )
+    parser.add_argument(
+        "--chunksize",
+        type=int,
+        default=8,
+        help=(
+            "Multiprocessing task chunksize for --workers>1 in --project-only mode (default: 8). "
+            "Higher can reduce overhead; lower can improve load balancing."
+        ),
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="Rebuild cache even if an apparently compatible cache already exists.",
@@ -1097,6 +1202,8 @@ def main() -> int:
                 skip_errors=not args.no_skip_errors,
                 checkpoint_every=int(args.checkpoint_every),
                 progress_every=int(args.progress_every),
+                workers=int(args.workers),
+                chunksize=int(args.chunksize),
             )
         except KeyboardInterrupt:
             print("[warn] Interrupted; progress preserved. Re-run with --resume to continue.")

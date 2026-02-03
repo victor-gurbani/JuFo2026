@@ -327,6 +327,7 @@ Notes:
 - Use `--paths some_list.txt` instead of `--corpus-csv` if you already have a newline-delimited list of MusicXML paths.
 - Progress is tracked via a sidecar `*.done.txt` file next to the output CSV, so reruns skip already-cached items.
 - `--checkpoint-every N` updates metadata periodically; the output CSV is appended row-by-row so crashes/interruption keep completed work.
+- For speed on large corpora, add `--workers N` (and optionally `--chunksize K`) to parallelize feature extraction in `--project-only` mode.
 
 #### 3) Cache usage by other scripts / UI
 
