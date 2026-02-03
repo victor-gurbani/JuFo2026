@@ -269,6 +269,50 @@ python3 src/feature_embedding.py \
 - Add `--output-2d` when you want a browser-ready 2D scatter (first two axes) alongside the 3D view—handy for presentations that prefer flat plots.
 - The companion highlighter (`src/highlight_pca_piece.py`) can project external scores into the PCA space; for example, analysing Joe Hisaishi's "One Summer's Day (Spirited Away)" showed the piece landing between Chopin and Debussy in the clouds—slightly nearer to Chopin—mirroring its blend of Romantic and Impressionist traits (see `summerdayhighlight.png`).
 
+### Embedding Cache (Fast Reuse + Long-Running Full-Corpus Caching)
+
+For interactive workflows (highlighting pieces, web UI projections, repeated analysis runs), it is wasteful to refit PCA each time. This project includes a persistent cache that stores the 3D coordinates for every piece **plus** the PCA artifacts needed to project *new* pieces into the same PCA space.
+
+#### 1) Build / refresh the canonical cache (curated feature tables)
+
+This computes PCA once from the existing feature CSVs and writes an atomic cache CSV + metadata:
+
+```bash
+python3 src/embedding_cache.py --method pca
+```
+
+Outputs:
+- `data/embeddings/pca_embedding_cache.csv` (one row per piece, includes `mxl_abs_path`, `dim1..dim3`)
+- `data/embeddings/pca_embedding_cache.csv.meta.json` (hashes + PCA artifacts: imputation means, scaler params, PCA components)
+
+The script is idempotent: if the cache exists and the input feature CSVs are unchanged, it prints that the cache is already up-to-date.
+
+#### 2) Project and cache a *different* corpus (full PDMX or custom lists) for days, resumable
+
+Once you have a PCA space (from the canonical cache above), you can project additional pieces into that PCA space and append them to a separate output cache.
+
+This mode is designed for long-running runs that can be stopped/restarted without losing progress:
+
+```bash
+python3 src/embedding_cache.py \
+	--project-only \
+	--model-cache data/embeddings/pca_embedding_cache.csv \
+	--corpus-csv 15571083/PDMX.csv \
+	--dataset-root 15571083 \
+	--output-csv data/embeddings/pdmx_projected_cache.csv \
+	--resume
+```
+
+Notes:
+- Use `--paths some_list.txt` instead of `--corpus-csv` if you already have a newline-delimited list of MusicXML paths.
+- Progress is tracked via a sidecar `*.done.txt` file next to the output CSV, so reruns skip already-cached items.
+- `--checkpoint-every N` updates metadata periodically; the output CSV is appended row-by-row so crashes/interruption keep completed work.
+
+#### 3) Cache usage by other scripts / UI
+
+- `src/highlight_pca_piece.py` now reuses `data/embeddings/pca_embedding_cache.csv` when it exists and is compatible; if the requested piece is missing, it projects it into the cached PCA space instead of refitting PCA.
+- The Next.js API route `web-interface/app/api/pca/route.ts` prefers the cache CSV when present.
+
 </details>
 
 <details>

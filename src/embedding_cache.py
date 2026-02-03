@@ -16,16 +16,22 @@ The cache is written atomically so the process can be interrupted safely.
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import os
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+
+from harmonic_features import compute_harmonic_features  # type: ignore[attr-defined]
+from melodic_features import compute_melodic_features  # type: ignore[attr-defined]
+from rhythmic_features import compute_rhythmic_features  # type: ignore[attr-defined]
+from score_parser import parse_score  # type: ignore[attr-defined]
 
 from feature_embedding import (  # type: ignore[attr-defined]
     DEFAULT_HARMONIC,
@@ -40,6 +46,7 @@ from feature_embedding import (  # type: ignore[attr-defined]
 
 CACHE_VERSION = 1
 DEFAULT_CACHE_CSV = Path("data/embeddings/pca_embedding_cache.csv")
+DEFAULT_DONE_SUFFIX = ".done.txt"
 
 REQUIRED_CACHE_COLUMNS = (
     "composer_label",
@@ -190,6 +197,10 @@ def meta_path_for(cache_csv: Path) -> Path:
     return cache_csv.with_suffix(cache_csv.suffix + ".meta.json")
 
 
+def done_path_for(cache_csv: Path) -> Path:
+    return cache_csv.with_suffix(cache_csv.suffix + DEFAULT_DONE_SUFFIX)
+
+
 @dataclass(frozen=True)
 class CacheInputSpec:
     method: str
@@ -308,6 +319,264 @@ def build_cache(
     return cache_df, meta
 
 
+def _resolve_musicxml_path(raw_path: str, repo_root: Path, dataset_root: Optional[Path]) -> Optional[Path]:
+    """Resolve a raw mxl path from various CSVs into an absolute existing path."""
+    raw = str(raw_path).strip()
+    if not raw:
+        return None
+
+    candidates: List[Path] = []
+    raw_path_obj = Path(raw)
+    if raw_path_obj.is_absolute():
+        candidates.append(raw_path_obj)
+    else:
+        candidates.append(repo_root / raw)
+        if dataset_root is not None:
+            candidates.append(dataset_root / raw)
+        # Common PDMX-style entries may include "15571083/..." already.
+        candidates.append(repo_root / "15571083" / raw)
+        if "/mxl/" in raw:
+            mxl_index = raw.index("/mxl/")
+            tail = raw[mxl_index + 1 :]
+            candidates.append(repo_root / "15571083" / tail)
+            candidates.append(repo_root / "15571083" / raw[mxl_index + 5 :])
+
+    for candidate in candidates:
+        try:
+            resolved = candidate.expanduser().resolve()
+        except Exception:
+            continue
+        if resolved.exists():
+            return resolved
+    return None
+
+
+def _iter_corpus_records(
+    corpus_csv: Optional[Path],
+    paths_file: Optional[Path],
+    repo_root: Path,
+    dataset_root: Optional[Path],
+) -> Iterator[Tuple[str, str, Path]]:
+    """Yield (composer_label, title, abs_path) records."""
+
+    if corpus_csv is not None:
+        if not corpus_csv.exists():
+            raise FileNotFoundError(f"Corpus CSV not found: {corpus_csv}")
+        df = pd.read_csv(corpus_csv)
+        if df.empty:
+            return iter(())
+
+        composer_col_candidates = ["composer_label", "composer", "composer_name"]
+        title_col_candidates = ["title", "song_name"]
+        path_col_candidates = [
+            "mxl_abs_path",
+            "mxl_path",
+            "mxl_rel_path",
+            "mxl_rel",
+            "mxl",
+        ]
+
+        composer_col = next((c for c in composer_col_candidates if c in df.columns), None)
+        title_col = next((c for c in title_col_candidates if c in df.columns), None)
+        path_col = next((c for c in path_col_candidates if c in df.columns), None)
+        if path_col is None:
+            raise ValueError(
+                f"Corpus CSV {corpus_csv} is missing a MusicXML path column. Tried: {path_col_candidates}"
+            )
+
+        for _, row in df.iterrows():
+            raw_path = row.get(path_col)
+            if not isinstance(raw_path, str):
+                continue
+            resolved = _resolve_musicxml_path(raw_path, repo_root=repo_root, dataset_root=dataset_root)
+            if resolved is None:
+                continue
+            composer = str(row.get(composer_col) or "Unknown").strip() if composer_col else "Unknown"
+            title = str(row.get(title_col) or resolved.stem).strip() if title_col else resolved.stem
+            yield composer or "Unknown", title or resolved.stem, resolved
+        return
+
+    if paths_file is not None:
+        if not paths_file.exists():
+            raise FileNotFoundError(f"Paths file not found: {paths_file}")
+        for line in paths_file.read_text(encoding="utf-8").splitlines():
+            raw = line.strip()
+            if not raw:
+                continue
+            resolved = _resolve_musicxml_path(raw, repo_root=repo_root, dataset_root=dataset_root)
+            if resolved is None:
+                continue
+            yield "Unknown", resolved.stem, resolved
+        return
+
+    raise ValueError("Provide either --corpus-csv or --paths to define which pieces to cache.")
+
+
+def _load_done_set(done_path: Path) -> set[str]:
+    if not done_path.exists():
+        return set()
+    done: set[str] = set()
+    for line in done_path.read_text(encoding="utf-8").splitlines():
+        text = line.strip()
+        if text:
+            done.add(text)
+    return done
+
+
+def _scan_existing_cache_for_done(cache_csv: Path) -> set[str]:
+    if not cache_csv.exists():
+        return set()
+    done: set[str] = set()
+    with cache_csv.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        for row in reader:
+            value = (row.get("mxl_abs_path") or "").strip()
+            if value:
+                done.add(value)
+    return done
+
+
+def _append_embedding_row(
+    cache_csv: Path,
+    row: Dict[str, object],
+) -> None:
+    cache_csv.parent.mkdir(parents=True, exist_ok=True)
+    exists = cache_csv.exists() and cache_csv.stat().st_size > 0
+    with cache_csv.open("a", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(REQUIRED_CACHE_COLUMNS))
+        if not exists:
+            writer.writeheader()
+        writer.writerow({k: row.get(k, "") for k in REQUIRED_CACHE_COLUMNS})
+        handle.flush()
+
+
+def project_corpus_into_cached_pca(
+    *,
+    model_cache_csv: Path,
+    output_cache_csv: Path,
+    corpus_csv: Optional[Path],
+    paths_file: Optional[Path],
+    dataset_root: Optional[Path],
+    resume: bool,
+    force: bool,
+    limit: Optional[int],
+    skip_errors: bool,
+    checkpoint_every: int,
+) -> int:
+    """Project an arbitrary corpus into an existing PCA cache space.
+
+    This is meant for long-running caching (days) across large corpora.
+    It appends to output_cache_csv and maintains a sidecar done-file for resume.
+    """
+
+    if not model_cache_csv.exists():
+        raise FileNotFoundError(f"Model cache CSV not found: {model_cache_csv}")
+
+    model_meta = load_meta(model_cache_csv)
+
+    repo_root = Path(__file__).resolve().parent.parent
+    dataset_root_resolved = dataset_root.resolve() if dataset_root is not None else None
+
+    if output_cache_csv.exists() and not resume and not force:
+        raise FileExistsError(
+            f"Output cache already exists: {output_cache_csv}. Use --resume to continue or --force to overwrite."
+        )
+    if force and output_cache_csv.exists() and not resume:
+        output_cache_csv.unlink()
+        meta_path_for(output_cache_csv).unlink(missing_ok=True)  # type: ignore[arg-type]
+        done_path_for(output_cache_csv).unlink(missing_ok=True)  # type: ignore[arg-type]
+
+    done_path = done_path_for(output_cache_csv)
+    done = _load_done_set(done_path)
+    if not done and output_cache_csv.exists():
+        # Fallback for older runs: reconstruct done set from CSV.
+        done = _scan_existing_cache_for_done(output_cache_csv)
+        if done:
+            done_path.parent.mkdir(parents=True, exist_ok=True)
+            done_path.write_text("\n".join(sorted(done)) + "\n", encoding="utf-8")
+
+    # Ensure meta exists early so other consumers know which PCA space this cache is in.
+    meta_out = dict(model_meta)
+    meta_out["cache_version"] = CACHE_VERSION
+    meta_out["created_at"] = datetime.now(timezone.utc).isoformat()
+    meta_out["derived_from"] = {
+        "model_cache_csv": str(model_cache_csv),
+        "model_cache_meta": str(meta_path_for(model_cache_csv)),
+    }
+    meta_out["in_progress"] = True
+    meta_out["piece_count"] = int(len(done))
+    _atomic_write_text(meta_path_for(output_cache_csv), json.dumps(meta_out, indent=2, sort_keys=True))
+
+    processed = 0
+    written_since_checkpoint = 0
+    with done_path.open("a", encoding="utf-8") as done_handle:
+        for composer, title, abs_path in _iter_corpus_records(
+            corpus_csv=corpus_csv,
+            paths_file=paths_file,
+            repo_root=repo_root,
+            dataset_root=dataset_root_resolved,
+        ):
+            if limit is not None and processed >= limit:
+                break
+            processed += 1
+
+            mxl_abs = normalize_path(abs_path)
+            if mxl_abs in done:
+                continue
+
+            try:
+                score = parse_score(abs_path)
+                harmonic_metrics = compute_harmonic_features(score)
+                melodic_metrics = compute_melodic_features(score)
+                rhythmic_metrics = compute_rhythmic_features(score)
+                feature_mapping: Dict[str, object] = {
+                    **harmonic_metrics,
+                    **melodic_metrics,
+                    **rhythmic_metrics,
+                }
+                coords = project_features_into_cached_pca(feature_mapping, model_meta)
+            except KeyboardInterrupt:
+                raise
+            except Exception as exc:
+                if skip_errors:
+                    print(f"[warn] Skipping {abs_path} due to error: {exc}")
+                    continue
+                raise
+
+            row = {
+                "composer_label": composer,
+                "title": title,
+                "mxl_path": mxl_abs,
+                "mxl_abs_path": mxl_abs,
+                "dim1": float(coords[0]),
+                "dim2": float(coords[1]),
+                "dim3": float(coords[2]),
+            }
+            _append_embedding_row(output_cache_csv, row)
+            done.add(mxl_abs)
+            done_handle.write(mxl_abs + "\n")
+            done_handle.flush()
+            written_since_checkpoint += 1
+
+            if checkpoint_every > 0 and written_since_checkpoint >= checkpoint_every:
+                meta_out["piece_count"] = int(len(done))
+                meta_out["last_checkpoint_at"] = datetime.now(timezone.utc).isoformat()
+                _atomic_write_text(
+                    meta_path_for(output_cache_csv),
+                    json.dumps(meta_out, indent=2, sort_keys=True),
+                )
+                written_since_checkpoint = 0
+
+    meta_out["in_progress"] = False
+    meta_out["piece_count"] = int(len(done))
+    try:
+        meta_out["piece_id_digest"] = _piece_id_digest(done)
+    except Exception:
+        pass
+    _atomic_write_text(meta_path_for(output_cache_csv), json.dumps(meta_out, indent=2, sort_keys=True))
+    return int(len(done))
+
+
 def _load_meta(path: Path) -> Dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -410,6 +679,65 @@ def parse_arguments() -> argparse.Namespace:
         help="Destination CSV for the embedding cache.",
     )
     parser.add_argument(
+        "--project-only",
+        action="store_true",
+        help=(
+            "Do not fit PCA from the feature CSVs. Instead, load PCA artifacts from --model-cache and "
+            "project a corpus (from --corpus-csv or --paths) into that cached PCA space, appending results to --output-csv."
+        ),
+    )
+    parser.add_argument(
+        "--model-cache",
+        type=Path,
+        default=DEFAULT_CACHE_CSV,
+        help=(
+            "PCA cache CSV that contains the PCA artifacts in its .meta.json (used with --project-only). "
+            "Default: the canonical cache path."
+        ),
+    )
+    parser.add_argument(
+        "--corpus-csv",
+        type=Path,
+        default=None,
+        help=(
+            "Optional corpus CSV defining which pieces to cache (supports curated or full datasets). "
+            "Must contain a MusicXML path column such as mxl_abs_path, mxl_path, or mxl."
+        ),
+    )
+    parser.add_argument(
+        "--paths",
+        type=Path,
+        default=None,
+        help="Optional newline-delimited text file of MusicXML paths to cache (alternative to --corpus-csv).",
+    )
+    parser.add_argument(
+        "--dataset-root",
+        type=Path,
+        default=None,
+        help=(
+            "Optional dataset root used to resolve relative mxl paths (e.g., 15571083). "
+            "Useful when caching from full PDMX.csv."
+        ),
+    )
+    parser.add_argument("--resume", action="store_true", help="Resume a partially built projection cache.")
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Optional max number of corpus records to attempt (smoke tests).",
+    )
+    parser.add_argument(
+        "--no-skip-errors",
+        action="store_true",
+        help="Abort on the first projection error instead of skipping failing files.",
+    )
+    parser.add_argument(
+        "--checkpoint-every",
+        type=int,
+        default=200,
+        help="Update meta + flush progress every N new cached pieces (projection mode).",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="Rebuild cache even if an apparently compatible cache already exists.",
@@ -422,6 +750,26 @@ def main() -> int:
 
     cache_csv: Path = args.output_csv
     meta_json = meta_path_for(cache_csv)
+
+    if args.project_only:
+        try:
+            count = project_corpus_into_cached_pca(
+                model_cache_csv=args.model_cache,
+                output_cache_csv=cache_csv,
+                corpus_csv=args.corpus_csv,
+                paths_file=args.paths,
+                dataset_root=args.dataset_root,
+                resume=args.resume,
+                force=args.force,
+                limit=args.limit,
+                skip_errors=not args.no_skip_errors,
+                checkpoint_every=int(args.checkpoint_every),
+            )
+        except KeyboardInterrupt:
+            print("[warn] Interrupted; progress preserved. Re-run with --resume to continue.")
+            return 130
+        print(f"Projection cache updated: {cache_csv} ({count} pieces)")
+        return 0
 
     compatible, reason = cache_is_compatible(
         cache_csv,
