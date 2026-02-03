@@ -303,6 +303,24 @@ python3 src/embedding_cache.py \
 	--resume
 ```
 
+#### 2b) Cache the full 36-feature vectors for a large corpus (enables instant subset-specific PCA)
+
+If you want to recompute PCA with *correct axes for any custom subset* (e.g., add jazz composers, switch eras, or compare arbitrary composer sets), cache the full feature vectors instead of only `dim1..dim3`.
+
+This writes a large CSV where each row contains identifiers plus all feature columns (schema derived from the curated feature CSV headers):
+
+```bash
+python3 src/embedding_cache.py \
+	--project-only \
+	--no-embedding-cache \
+	--corpus-csv 15571083/PDMX.csv \
+	--dataset-root 15571083 \
+	--output-features-csv data/features/full_pdmx_feature_cache.csv \
+	--resume
+```
+
+You can also write both caches in one run (full features + projected PCA dims) by omitting `--no-embedding-cache` and supplying both `--output-csv` and `--output-features-csv`.
+
 Notes:
 - Use `--paths some_list.txt` instead of `--corpus-csv` if you already have a newline-delimited list of MusicXML paths.
 - Progress is tracked via a sidecar `*.done.txt` file next to the output CSV, so reruns skip already-cached items.
