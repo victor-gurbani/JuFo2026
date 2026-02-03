@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "notes": [
+    "These are regex-based filters over the full-feature cache columns: composer_label and title.",
+    "They are intentionally conservative: include patterns are specific, exclude patterns avoid arrangements/tutorials.",
+    "Composer spelling in PDMX can vary; adjust patterns as you discover aliases.",
+    "Tip: Start with --limit 500 to validate filters quickly, then remove it."
+  ],
+  "groups": {
+    "jazz_classic": {
+      "description": "Canonical jazz/early-jazz-adjacent composers likely to appear as sheet music.",
+      "include_composer": [
+        "\\bgeorge\\s+gershwin\\b|\\bgershwin\\b",
+        "\\bduke\\s+ellington\\b|\\bellington\\b",
+        "\\bscott\\s+joplin\\b|\\bjoplin\\b",
+        "\\bthelonious\\s+monk\\b|\\bmonk\\b",
+        "\\bbill\\s+evans\\b|\\bevans\\b",
+        "\\boscar\\s+peterson\\b|\\bpeterson\\b"
+      ],
+      "exclude_composer": [
+        "\\barr\\b|arranged|transcription|tutorial"
+      ],
+      "exclude_title": [
+        "beginner|easy|simplified|arrangement|transcription|tutorial"
+      ]
+    },
+    "spanish_nationalist": {
+      "description": "Spanish/Spanish-adjacent classical repertoire; great for 'new subset axes' comparisons.",
+      "include_composer": [
+        "\\balb[eé]niz\\b|\\balbeniz\\b",
+        "\\bgranados\\b",
+        "\\bde\\s+falla\\b|\\bfalla\\b",
+        "\\bturina\\b",
+        "\\bmompou\\b",
+        "\\bsoler\\b",
+        "\\bscarlatti\\b"
+      ],
+      "exclude_title": [
+        "arrangement|transcription|tutorial"
+      ]
+    },
+    "french_impressionist_expanded": {
+      "description": "An expanded Debussy-centric set to compare canonical vs refit axes inside one stylistic neighborhood.",
+      "include_composer": [
+        "\\bdebussy\\b",
+        "\\bravel\\b",
+        "\\bsatie\\b",
+        "\\bfaur[eé]\\b|\\bfaure\\b",
+        "\\bsaint\\s*-?sa[eë]ns\\b|\\bsaint\\s*saens\\b",
+        "\\bfranck\\b"
+      ],
+      "exclude_title": [
+        "arrangement|transcription|tutorial"
+      ]
+    },
+    "romantic_piano_big": {
+      "description": "Large romantic/virtuosic piano set; useful for checking whether canonical axes stay meaningful.",
+      "include_composer": [
+        "\\bchopin\\b",
+        "\\bliszt\\b",
+        "\\bbrahms\\b",
+        "\\bschumann\\b",
+        "\\bgrieg\\b",
+        "\\bmendelssohn\\b",
+        "\\btchaikovsky\\b|\\bchaikovsky\\b",
+        "\\brakhmaninov\\b|\\brachmaninoff\\b"
+      ],
+      "exclude_title": [
+        "arrangement|transcription|tutorial"
+      ]
+    },
+    "anime_film_piano": {
+      "description": "Film/anime piano composers; great for modern-vs-canonical comparisons.",
+      "include_composer": [
+        "\\bhisaishi\\b",
+        "\\byiruma\\b",
+        "\\beinaudi\\b",
+        "\\bjoe\\s+hisaishi\\b",
+        "\\bryuichi\\s+sakamoto\\b|\\bsakamoto\\b"
+      ],
+      "exclude_title": [
+        "tutorial|lesson|how\\s+to|easy|simplified"
+      ]
+    },
+    "video_game_music": {
+      "description": "Video-game composers/arrangers (often appear in PDMX as piano arrangements).",
+      "include_composer": [
+        "\\bkoji\\s+kondo\\b|\\bkondo\\b",
+        "\\bnobuo\\s+uematsu\\b|\\buematsu\\b",
+        "\\byoko\\s+shimomura\\b|\\bshimomura\\b",
+        "\\bjeremy\\s+soule\\b|\\bsoule\\b",
+        "\\bmichiru\\s+yamane\\b|\\byamane\\b"
+      ],
+      "exclude_title": [
+        "tutorial|lesson|easy|simplified"
+      ]
+    },
+    "modern_minimalist": {
+      "description": "Contemporary minimalist / neo-classical piano (good for 'modern vs canonical' comparisons).",
+      "include_composer": [
+        "\\bphilip\\s+glass\\b|\\bglass\\b",
+        "\\bmax\\s+richter\\b|\\brichter\\b",
+        "\\byann\\s+tiersen\\b|\\btiersen\\b",
+        "\\bnils\\s+frahm\\b|\\bfrahm\\b",
+        "\\b\\bo\\s*l[aá]fur\\s+arnalds\\b|\\barnalds\\b",
+        "\\beinaudi\\b"
+      ],
+      "exclude_title": [
+        "tutorial|lesson|easy|simplified|arrangement|transcription"
+      ]
+    },
+    "latin_tango": {
+      "description": "Latin / tango-adjacent set (expect mixed instrumentation in the raw dataset).",
+      "include_composer": [
+        "\\bastor\\s+piazzolla\\b|\\bpiazzolla\\b",
+        "\\bcarlos\\s+gardel\\b|\\bgardel\\b",
+        "\\bchico\\s+buarque\\b|\\bbuarque\\b",
+        "\\bjobim\\b|\\bantonio\\s+car?los\\s+jobim\\b"
+      ],
+      "exclude_title": [
+        "tutorial|lesson|easy|simplified|arrangement|transcription"
+      ]
+    },
+    "pop_modern_piano": {
+      "description": "Pop/modern songwriters (very noisy in sheet-music datasets; expect lots of arrangements).",
+      "include_composer": [
+        "\\btaylor\\s+swift\\b",
+        "\\badele\\b",
+        "\\bbillie\\s+eilish\\b",
+        "\\belton\\s+john\\b",
+        "\\bqueen\\b|\\bfreddie\\s+mercury\\b",
+        "\\bthe\\s+beatles\\b|\\blennon\\b|\\bmccartney\\b"
+      ],
+      "exclude_title": [
+        "arrangement|transcription|tutorial|easy|beginner|simplified|piano\\s+tutorial"
+      ]
+    }
+  }
+}
