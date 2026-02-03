@@ -11,6 +11,14 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go  # type: ignore[import]
 
+from embedding_cache import (  # type: ignore[attr-defined]
+    DEFAULT_CACHE_CSV,
+    cache_is_compatible,
+    load_cache,
+    load_meta,
+    lookup_cached_embedding,
+    project_features_into_cached_pca,
+)
 from feature_embedding import (  # type: ignore[attr-defined]
     CLOUD_GRID_SIZE,
     CLOUD_ISO_FRACTION,
@@ -95,6 +103,20 @@ def parse_arguments() -> argparse.Namespace:
         default=DEFAULT_RHYTHMIC,
         help=(
             "Rhythmic features CSV supplying the baseline dataset for PCA."),
+    )
+    parser.add_argument(
+        "--embedding-cache",
+        type=Path,
+        default=DEFAULT_CACHE_CSV,
+        help=(
+            "Optional PCA embedding cache CSV (created by src/embedding_cache.py). "
+            "When present and compatible with the supplied feature CSVs, cached coordinates are reused."
+        ),
+    )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable using the embedding cache even if present.",
     )
     parser.add_argument(
         "--composer",
@@ -352,6 +374,100 @@ def main() -> int:
         composers.append(composer_value)
         titles.append(title_value)
         normalized_paths.append(_normalize_path(path))
+
+    # Fast path: use precomputed embedding cache if available and compatible.
+    if not args.no_cache:
+        meta_json = args.embedding_cache.with_suffix(args.embedding_cache.suffix + ".meta.json")
+        compatible, reason = cache_is_compatible(
+            args.embedding_cache,
+            meta_json,
+            args.harmonic,
+            args.melodic,
+            args.rhythmic,
+            method="pca",
+            seed=42,
+            perplexity=30.0,
+            early_exaggeration=12.0,
+            learning_rate=200.0,
+            metric="euclidean",
+        )
+        if compatible:
+            try:
+                cache_df = load_cache(args.embedding_cache).copy()
+                meta = load_meta(args.embedding_cache)
+            except Exception as exc:
+                print(f"[warn] Failed to load embedding cache; falling back to recomputation: {exc}")
+            else:
+                combined = cache_df.copy()
+                highlight_indices: list[int] = []
+                appended_rows: list[dict[str, object]] = []
+
+                for idx, normalized_path in enumerate(normalized_paths):
+                    cached = lookup_cached_embedding(combined, normalized_path)
+                    if cached is not None:
+                        continue
+
+                    # Not present in cache: compute features and project into cached PCA space.
+                    try:
+                        harmonic_metrics, melodic_metrics, rhythmic_metrics = _compute_piece_metrics(input_paths[idx])
+                        feature_mapping = {
+                            **harmonic_metrics,
+                            **melodic_metrics,
+                            **rhythmic_metrics,
+                        }
+                        coords = project_features_into_cached_pca(feature_mapping, meta)
+                    except Exception as exc:
+                        print(
+                            f"[warn] Could not project {input_paths[idx]} into cached PCA space ({exc}); "
+                            "falling back to full recomputation."
+                        )
+                        break
+
+                    appended_rows.append(
+                        {
+                            "composer_label": composers[idx],
+                            "title": titles[idx],
+                            "mxl_path": normalized_path,
+                            "mxl_abs_path": normalized_path,
+                            "dim1": float(coords[0]),
+                            "dim2": float(coords[1]),
+                            "dim3": float(coords[2]),
+                        }
+                    )
+                else:
+                    if appended_rows:
+                        append_df = pd.DataFrame(appended_rows)
+                        combined = pd.concat([combined, append_df], ignore_index=True, sort=False)
+
+                    # Resolve highlight indices after potential appends.
+                    normalized_series = combined["mxl_abs_path"].astype(str)
+                    highlight_indices = []
+                    for normalized_path in normalized_paths:
+                        matches = combined.index[normalized_series == normalized_path]
+                        if len(matches) == 0:
+                            print("[error] Highlighted piece could not be located in embedding cache.")
+                            return 1
+                        highlight_indices.append(int(matches[0]))
+
+                    highlight_mask_series = combined.index.to_series().isin(highlight_indices)
+                    combined["is_highlight"] = highlight_mask_series
+
+                    highlight_df = combined.loc[highlight_indices].copy()
+                    # Apply user-provided labels for display only.
+                    for idx, row_index in enumerate(highlight_df.index.tolist()):
+                        highlight_df.loc[row_index, "composer_label"] = composers[idx]
+                        highlight_df.loc[row_index, "title"] = titles[idx]
+
+                    figure = build_cloud_figure(combined, highlight_df)
+                    output_path = determine_output_path(args.output, input_paths)
+                    figure.write_html(str(output_path), include_plotlyjs="cdn")
+                    figure.write_json(str(output_path.with_suffix(".json")))
+                    print(f"Created PCA composer cloud with highlight at {output_path} (used embedding cache)")
+                    return 0
+        else:
+            # Only informational; falling back keeps behavior identical.
+            if args.embedding_cache.exists():
+                print(f"[info] Embedding cache not compatible; recomputing PCA ({reason}).")
 
     metrics_per_piece: list[tuple[dict[str, object], dict[str, object], dict[str, object]]] = []
     for idx, path in enumerate(input_paths):
