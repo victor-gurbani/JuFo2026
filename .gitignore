@@ -9,9 +9,23 @@ data/curated/solo_piano_*
 !data/curated/solo_piano_corpus.csv
 !data/curated/solo_piano_mxl_paths.txt
 
+project-logos/
+
 __pycache__/
 # figures/
 venv/
+
+# VS Code
+.vscode/
+
+# Long-running caches / generated embedding artifacts
+data/embeddings/
+data/features/*feature_cache*.csv
+data/features/*feature_cache*.csv.done.txt
+data/features/*feature_cache*.csv.meta.json
+logs/
+figures/embeddings/subsets/
+tmp/
 
 # LaTeX
 *.aux

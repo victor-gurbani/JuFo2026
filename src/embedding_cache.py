@@ -20,6 +20,7 @@ import csv
 import hashlib
 import json
 import os
+import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -358,6 +359,34 @@ def _resolve_musicxml_path(raw_path: str, repo_root: Path, dataset_root: Optiona
     return None
 
 
+def _coerce_label(value: object, fallback: str) -> str:
+    if value is None:
+        return fallback
+    text = str(value).strip()
+    if not text or text.lower() == "nan":
+        return fallback
+    return text if text else fallback
+
+
+def _format_eta(seconds: float) -> str:
+    if not np.isfinite(seconds) or seconds < 0:
+        return "?"
+    total = int(seconds)
+    hours, rem = divmod(total, 3600)
+    minutes, secs = divmod(rem, 60)
+    if hours > 0:
+        return f"{hours:d}:{minutes:02d}:{secs:02d}"
+    return f"{minutes:d}:{secs:02d}"
+
+
+def _format_progress_bar(done: int, total: int, width: int = 24) -> str:
+    if total <= 0:
+        return "[" + ("#" * width) + "]"
+    frac = min(max(done / total, 0.0), 1.0)
+    filled = int(round(frac * width))
+    return "[" + ("#" * filled) + ("-" * (width - filled)) + "]"
+
+
 def _iter_corpus_records(
     corpus_csv: Optional[Path],
     paths_file: Optional[Path],
@@ -530,6 +559,7 @@ def cache_corpus_long_running(
     limit: Optional[int],
     skip_errors: bool,
     checkpoint_every: int,
+    progress_every: int,
 ) -> int:
     """Long-running caching over arbitrary corpora.
 
@@ -628,8 +658,34 @@ def cache_corpus_long_running(
         }
         _atomic_write_text(meta_path_for(output_features_csv), json.dumps(meta_feat, indent=2, sort_keys=True))
 
-    processed = 0
+    scanned = 0
+    total_records: Optional[int] = None
+    work_items = 0
     written_since_checkpoint = 0
+    last_written: Optional[str] = None
+    last_written_composer: Optional[str] = None
+    last_written_title: Optional[str] = None
+
+    start_time = time.monotonic()
+
+    def _maybe_print_progress(force: bool = False) -> None:
+        if total_records is None or total_records <= 0:
+            return
+        if not force and (progress_every <= 0 or scanned % progress_every != 0):
+            return
+        elapsed = max(time.monotonic() - start_time, 1e-9)
+        rate = scanned / elapsed
+        remaining = max(total_records - scanned, 0)
+        eta = remaining / rate if rate > 0 else float("nan")
+        bar = _format_progress_bar(scanned, total_records)
+        pct = (scanned / total_records) * 100.0
+        embed_count = len(done_embeddings) if output_embedding_csv is not None else 0
+        feat_count = len(done_features) if output_features_csv is not None else 0
+        print(
+            f"[progress] {bar} {scanned}/{total_records} ({pct:.1f}%) ETA {_format_eta(eta)} "
+            f"| work={work_items} embeddings={embed_count} features={feat_count}",
+            flush=True,
+        )
 
     done_handle_embed = None
     done_handle_feat = None
@@ -639,15 +695,59 @@ def cache_corpus_long_running(
         if output_features_csv is not None:
             done_handle_feat = done_path_for(output_features_csv).open("a", encoding="utf-8")
 
-        for composer, title, abs_path in _iter_corpus_records(
-            corpus_csv=corpus_csv,
-            paths_file=paths_file,
-            repo_root=repo_root,
-            dataset_root=dataset_root_resolved,
-        ):
-            if limit is not None and processed >= limit:
+        # Load the corpus definition once so we can compute progress + ETA.
+        if corpus_csv is not None:
+            if not corpus_csv.exists():
+                raise FileNotFoundError(f"Corpus CSV not found: {corpus_csv}")
+            df = pd.read_csv(corpus_csv)
+            total_records = int(len(df))
+            composer_col_candidates = ["composer_label", "composer", "composer_name"]
+            title_col_candidates = ["title", "song_name"]
+            path_col_candidates = [
+                "mxl_abs_path",
+                "mxl_path",
+                "mxl_rel_path",
+                "mxl_rel",
+                "mxl",
+            ]
+            composer_col = next((c for c in composer_col_candidates if c in df.columns), None)
+            title_col = next((c for c in title_col_candidates if c in df.columns), None)
+            path_col = next((c for c in path_col_candidates if c in df.columns), None)
+            if path_col is None:
+                raise ValueError(
+                    f"Corpus CSV {corpus_csv} is missing a MusicXML path column. Tried: {path_col_candidates}"
+                )
+
+            iterable: Iterable[Tuple[object, object, object]] = (
+                (row.get(composer_col) if composer_col else None, row.get(title_col) if title_col else None, row.get(path_col))
+                for _, row in df.iterrows()
+            )
+        elif paths_file is not None:
+            if not paths_file.exists():
+                raise FileNotFoundError(f"Paths file not found: {paths_file}")
+            lines = [line.strip() for line in paths_file.read_text(encoding="utf-8").splitlines() if line.strip()]
+            total_records = int(len(lines))
+            iterable = ((None, None, line) for line in lines)
+        else:
+            raise ValueError("Provide either --corpus-csv or --paths to define which pieces to cache.")
+
+        _maybe_print_progress(force=True)
+
+        for composer_raw, title_raw, raw_path in iterable:
+            if limit is not None and scanned >= limit:
                 break
-            processed += 1
+            scanned += 1
+            _maybe_print_progress()
+
+            if not isinstance(raw_path, str):
+                continue
+            resolved = _resolve_musicxml_path(raw_path, repo_root=repo_root, dataset_root=dataset_root_resolved)
+            if resolved is None:
+                continue
+
+            composer = _coerce_label(composer_raw, "Unknown")
+            title = _coerce_label(title_raw, resolved.stem)
+            abs_path = resolved
 
             mxl_abs = normalize_path(abs_path)
             needs_embedding = output_embedding_csv is not None and mxl_abs not in done_embeddings
@@ -655,7 +755,11 @@ def cache_corpus_long_running(
             if not needs_embedding and not needs_features:
                 continue
 
+            work_items += 1
+
             try:
+                if progress_every > 0 and work_items % progress_every == 0:
+                    print(f"[work] {composer} — {title}", flush=True)
                 score = parse_score(abs_path)
                 harmonic_metrics = compute_harmonic_features(score)
                 melodic_metrics = compute_melodic_features(score)
@@ -693,6 +797,9 @@ def cache_corpus_long_running(
                 if done_handle_embed is not None:
                     done_handle_embed.write(mxl_abs + "\n")
                     done_handle_embed.flush()
+                last_written = mxl_abs
+                last_written_composer = composer
+                last_written_title = title
 
             if needs_features and output_features_csv is not None and feature_schema is not None:
                 fieldnames = list(FEATURE_CACHE_ID_COLUMNS) + list(feature_schema)
@@ -709,6 +816,9 @@ def cache_corpus_long_running(
                 if done_handle_feat is not None:
                     done_handle_feat.write(mxl_abs + "\n")
                     done_handle_feat.flush()
+                last_written = mxl_abs
+                last_written_composer = composer
+                last_written_title = title
 
             written_since_checkpoint += 1
 
@@ -724,6 +834,13 @@ def cache_corpus_long_running(
                     meta_feat["piece_count"] = int(len(done_features))
                     meta_feat["last_checkpoint_at"] = now
                     _atomic_write_text(meta_path_for(output_features_csv), json.dumps(meta_feat, indent=2, sort_keys=True))
+                embed_count = len(done_embeddings) if output_embedding_csv is not None else 0
+                feat_count = len(done_features) if output_features_csv is not None else 0
+                if last_written is not None:
+                    hint = f"last={last_written_composer or 'Unknown'} — {last_written_title or ''}".strip()
+                    print(f"[checkpoint] embeddings={embed_count} features={feat_count} {hint}", flush=True)
+                else:
+                    print(f"[checkpoint] embeddings={embed_count} features={feat_count}", flush=True)
                 written_since_checkpoint = 0
 
     finally:
@@ -937,6 +1054,15 @@ def parse_arguments() -> argparse.Namespace:
         help="Update meta + flush progress every N new cached pieces (projection mode).",
     )
     parser.add_argument(
+        "--progress-every",
+        type=int,
+        default=50,
+        help=(
+            "Print a short progress line every N new work items (0 disables). "
+            "Useful for long-running jobs so terminals don't appear idle."
+        ),
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="Rebuild cache even if an apparently compatible cache already exists.",
@@ -970,6 +1096,7 @@ def main() -> int:
                 limit=args.limit,
                 skip_errors=not args.no_skip_errors,
                 checkpoint_every=int(args.checkpoint_every),
+                progress_every=int(args.progress_every),
             )
         except KeyboardInterrupt:
             print("[warn] Interrupted; progress preserved. Re-run with --resume to continue.")

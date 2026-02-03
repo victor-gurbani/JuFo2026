@@ -331,6 +331,29 @@ Notes:
 - `src/highlight_pca_piece.py` now reuses `data/embeddings/pca_embedding_cache.csv` when it exists and is compatible; if the requested piece is missing, it projects it into the cached PCA space instead of refitting PCA.
 - The Next.js API route `web-interface/app/api/pca/route.ts` prefers the cache CSV when present.
 
+#### 4) Instant subset clouds from the full-feature cache (canonical axes vs refit axes)
+
+Once you have cached full feature vectors for a large corpus (e.g. the full PDMX), you can generate composer clouds *instantly* for arbitrary composer sets without re-parsing MusicXML.
+
+Use `src/clouds_from_feature_cache.py`:
+
+- **Canonical axes**: project your subset into the fixed PCA space fit on the canonical dataset (Bach/Mozart/Chopin/Debussy). This is the best view for cross-subset comparability.
+- **Refit axes**: refit PCA on the subset itself. This emphasizes local structure but changes axes.
+
+Example using the provided config groups in `configs/composer_sets.example.json`:
+
+```bash
+python3 src/clouds_from_feature_cache.py \
+	--feature-cache data/features/full_pdmx_feature_cache.csv \
+	--config configs/composer_sets.example.json \
+	--group jazz_classic \
+	--axes both \
+	--max-per-composer 60 \
+	--write-subset-csv
+```
+
+See `COMPOSER_SETS.md` for more curated example groups (jazz, Spanish nationalist, pop/modern, anime/film, video-game, etc.).
+
 </details>
 
 <details>
