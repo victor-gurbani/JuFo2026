@@ -12,6 +12,7 @@ type ConfigGroup = {
   exclude_composer?: string[];
   include_title?: string[];
   exclude_title?: string[];
+  composer_aliases?: Record<string, string[] | string>;
 };
 
 type ConfigFile = {
@@ -52,6 +53,7 @@ export async function GET(request: Request) {
         exclude_composer: g.exclude_composer ?? [],
         include_title: g.include_title ?? [],
         exclude_title: g.exclude_title ?? [],
+        composer_aliases: g.composer_aliases ?? undefined,
       }));
       return {
         id: filename,

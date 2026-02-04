@@ -15,6 +15,7 @@ type ConfigGroup = {
   exclude_composer?: string[];
   include_title?: string[];
   exclude_title?: string[];
+  composer_aliases?: Record<string, string[] | string>;
 };
 
 type ConfigFile = {
@@ -48,6 +49,23 @@ function linesToArray(text: string): string[] {
     .filter(Boolean);
 }
 
+function normalizeKey(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^A-Za-z0-9]+/g, " ")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+type DiyComposer = {
+  display: string;
+  key: string;
+  patterns: string[];
+  groups: string[];
+};
+
 export default function CloudsPage() {
   const [featureCaches, setFeatureCaches] = useState<FeatureCacheItem[]>([]);
   const [selectedFeatureCacheId, setSelectedFeatureCacheId] = useState<string>("");
@@ -55,6 +73,11 @@ export default function CloudsPage() {
   const [configs, setConfigs] = useState<Array<{ id: string; groupCount: number; groups: ConfigGroup[]; notes?: string[] }>>([]);
   const [selectedConfigId, setSelectedConfigId] = useState<string>("");
   const [selectedGroup, setSelectedGroup] = useState<string>("");
+
+  const [useDiy, setUseDiy] = useState<boolean>(false);
+  const [diySearch, setDiySearch] = useState<string>("");
+  const [diySelected, setDiySelected] = useState<string[]>([]);
+  const [diyPrefillGroup, setDiyPrefillGroup] = useState<string>("");
 
   const [axes, setAxes] = useState<Axes>("both");
   const [seed, setSeed] = useState<number>(42);
@@ -102,6 +125,60 @@ export default function CloudsPage() {
       .catch(() => setConfigs([]));
   }, []);
 
+  const composerSetsConfig = useMemo(() => {
+    return configs.find((c) => c.id === "composer_sets.example.json") ?? null;
+  }, [configs]);
+
+  const diyComposers = useMemo((): DiyComposer[] => {
+    if (!composerSetsConfig) return [];
+    const byKey = new Map<string, DiyComposer>();
+    for (const group of composerSetsConfig.groups ?? []) {
+      const aliases = group.composer_aliases;
+      if (!aliases || typeof aliases !== "object") continue;
+      for (const [canonical, rawPatterns] of Object.entries(aliases)) {
+        const display = String(canonical).trim();
+        if (!display) continue;
+        const key = normalizeKey(display);
+        const patterns: string[] = [];
+        if (Array.isArray(rawPatterns)) {
+          for (const p of rawPatterns) {
+            const text = String(p).trim();
+            if (text) patterns.push(text);
+          }
+        } else if (typeof rawPatterns === "string") {
+          const text = rawPatterns.trim();
+          if (text) patterns.push(text);
+        }
+        if (patterns.length === 0) continue;
+
+        const existing = byKey.get(key);
+        if (!existing) {
+          byKey.set(key, { display, key, patterns: [...patterns], groups: [group.name] });
+        } else {
+          existing.groups = Array.from(new Set([...existing.groups, group.name]));
+          for (const pat of patterns) {
+            if (!existing.patterns.includes(pat)) existing.patterns.push(pat);
+          }
+        }
+      }
+    }
+    return Array.from(byKey.values()).sort((a, b) => a.display.localeCompare(b.display));
+  }, [composerSetsConfig]);
+
+  const diyComposerMap = useMemo(() => {
+    const map: Record<string, { display: string; patterns: string[] }> = {};
+    for (const c of diyComposers) {
+      map[c.display] = { display: c.display, patterns: c.patterns };
+    }
+    return map;
+  }, [diyComposers]);
+
+  const diyVisibleComposers = useMemo(() => {
+    const q = normalizeKey(diySearch);
+    if (!q) return diyComposers;
+    return diyComposers.filter((c) => c.key.includes(q) || c.groups.some((g) => normalizeKey(g).includes(q)));
+  }, [diyComposers, diySearch]);
+
   const selectedConfig = useMemo(() => configs.find((c) => c.id === selectedConfigId) ?? null, [configs, selectedConfigId]);
 
   useEffect(() => {
@@ -121,6 +198,17 @@ export default function CloudsPage() {
       return;
     }
 
+    if (useDiy) {
+      if (!composerSetsConfig) {
+        setStatus("DIY composer selection requires configs/composer_sets.example.json to be present.");
+        return;
+      }
+      if (diySelected.length < 1) {
+        setStatus("Pick at least one composer in DIY mode.");
+        return;
+      }
+    }
+
     setStatus("Starting job…");
     setLogLines([]);
     setLogNext(0);
@@ -132,14 +220,21 @@ export default function CloudsPage() {
       seed: Number.isFinite(seed) ? seed : undefined,
       maxPerComposer: maxPerComposer > 0 ? maxPerComposer : undefined,
       limit: limit > 0 ? limit : undefined,
-      label: label.trim() || undefined,
+      label: label.trim() || (useDiy ? `diy_${diySelected.length}_composers` : undefined),
       writeSubsetCsv,
-      configId: selectedConfigId || undefined,
-      group: selectedConfigId ? (selectedGroup || undefined) : undefined,
+      configId: useDiy ? undefined : (selectedConfigId || undefined),
+      group: useDiy ? undefined : (selectedConfigId ? (selectedGroup || undefined) : undefined),
       includeComposer: linesToArray(includeComposer),
       excludeComposer: linesToArray(excludeComposer),
       includeTitle: linesToArray(includeTitle),
       excludeTitle: linesToArray(excludeTitle),
+      diyComposerAliases: useDiy
+        ? Object.fromEntries(
+            diySelected
+              .map((name) => [name, diyComposerMap[name]?.patterns ?? []] as const)
+              .filter(([, patterns]) => Array.isArray(patterns) && patterns.length > 0),
+          )
+        : undefined,
     };
 
     try {
@@ -266,6 +361,7 @@ export default function CloudsPage() {
               className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-sm"
               value={selectedConfigId}
               onChange={(e) => setSelectedConfigId(e.target.value)}
+              disabled={useDiy}
             >
               <option value="">(none)</option>
               {configs.map((c) => (
@@ -280,7 +376,7 @@ export default function CloudsPage() {
               className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-sm"
               value={selectedGroup}
               onChange={(e) => setSelectedGroup(e.target.value)}
-              disabled={!selectedConfigId || !selectedConfig}
+              disabled={useDiy || !selectedConfigId || !selectedConfig}
             >
               {(selectedConfig?.groups ?? []).map((g) => (
                 <option key={g.name} value={g.name}>
@@ -293,6 +389,142 @@ export default function CloudsPage() {
                 {selectedConfig.groups.find((g) => g.name === selectedGroup)?.description}
               </p>
             ) : null}
+
+            <div className="mt-6 rounded-2xl border border-white/10 bg-zinc-950/60 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-semibold text-zinc-200">DIY composer clouds</div>
+                  <p className="mt-1 text-[11px] text-zinc-400">
+                    Select canonical composers from <span className="font-mono text-zinc-300">configs/composer_sets.example.json</span>.
+                  </p>
+                </div>
+                <label className="flex items-center gap-2 text-xs text-zinc-300">
+                  <input type="checkbox" checked={useDiy} onChange={(e) => setUseDiy(e.target.checked)} />
+                  Use DIY
+                </label>
+              </div>
+
+              {!composerSetsConfig ? (
+                <p className="mt-3 text-[11px] text-rose-200">
+                  composer_sets.example.json not found under /configs. DIY mode needs it.
+                </p>
+              ) : null}
+
+              {useDiy ? (
+                <>
+                  <div className="mt-3 grid grid-cols-1 gap-3">
+                    <div>
+                      <label className="block text-[11px] text-zinc-300">Prefill from group</label>
+                      <div className="mt-2 flex gap-2">
+                        <select
+                          className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-xs"
+                          value={diyPrefillGroup}
+                          onChange={(e) => {
+                            const next = e.target.value;
+                            setDiyPrefillGroup(next);
+                            const group = composerSetsConfig?.groups.find((g) => g.name === next);
+                            const aliases = group?.composer_aliases;
+                            if (aliases && typeof aliases === "object") {
+                              const names = Object.keys(aliases).map((k) => String(k).trim()).filter(Boolean);
+                              // Deduplicate by normalized key.
+                              const dedup: string[] = [];
+                              const seen = new Set<string>();
+                              for (const n of names) {
+                                const kk = normalizeKey(n);
+                                if (seen.has(kk)) continue;
+                                seen.add(kk);
+                                dedup.push(n);
+                              }
+                              setDiySelected(dedup);
+                            }
+                          }}
+                        >
+                          <option value="">(choose)</option>
+                          {(composerSetsConfig?.groups ?? []).map((g) => (
+                            <option key={g.name} value={g.name}>
+                              {g.name}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-zinc-200 hover:bg-white/10"
+                          onClick={() => setDiySelected([])}
+                          type="button"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] text-zinc-300">Search</label>
+                      <input
+                        className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-xs"
+                        value={diySearch}
+                        onChange={(e) => setDiySearch(e.target.value)}
+                        placeholder="type a composer or group name"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between gap-3 text-[11px] text-zinc-400">
+                    <div>
+                      Available: <span className="text-zinc-200">{diyComposers.length}</span> · Selected: <span className="text-zinc-200">{diySelected.length}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-zinc-200 hover:bg-white/10"
+                        onClick={() => setDiySelected(diyComposers.map((c) => c.display))}
+                        type="button"
+                      >
+                        Select all
+                      </button>
+                      <button
+                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-zinc-200 hover:bg-white/10"
+                        onClick={() => setDiySelected([])}
+                        type="button"
+                      >
+                        None
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 max-h-56 overflow-auto rounded-2xl border border-white/10 bg-zinc-950/40 p-3">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {diyVisibleComposers.map((composer) => {
+                        const checked = diySelected.includes(composer.display);
+                        return (
+                          <label key={composer.key} className="flex cursor-pointer items-start gap-2 text-xs text-zinc-200">
+                            <input
+                              type="checkbox"
+                              className="mt-0.5 h-4 w-4"
+                              checked={checked}
+                              onChange={(e) => {
+                                const next = e.target.checked;
+                                setDiySelected((prev) => {
+                                  if (next) {
+                                    return prev.includes(composer.display) ? prev : [...prev, composer.display];
+                                  }
+                                  return prev.filter((x) => x !== composer.display);
+                                });
+                              }}
+                            />
+                            <div>
+                              <div>{composer.display}</div>
+                              <div className="text-[11px] text-zinc-500">{composer.groups.join(", ")}</div>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <p className="mt-3 text-[11px] text-zinc-400">
+                    Tip: Use the group dropdown to prefill (e.g. <span className="font-mono">jazz_classic</span>), then add/remove composers.
+                  </p>
+                </>
+              ) : null}
+            </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <div>
@@ -348,7 +580,7 @@ export default function CloudsPage() {
 
             <div className="mt-6 rounded-2xl border border-white/10 bg-zinc-950/60 p-4">
               <div className="text-xs font-semibold text-zinc-200">Custom regex filters (optional)</div>
-              <p className="mt-1 text-[11px] text-zinc-400">One regex per line. These are added on top of the selected group.</p>
+              <p className="mt-1 text-[11px] text-zinc-400">One regex per line. These are added on top of the selected group (or DIY selection).</p>
 
               <label className="mt-3 block text-[11px] text-zinc-300">Include composer</label>
               <textarea
@@ -357,6 +589,7 @@ export default function CloudsPage() {
                 value={includeComposer}
                 onChange={(e) => setIncludeComposer(e.target.value)}
                 placeholder="e.g. ^Debussy$\nRavel"
+                disabled={useDiy}
               />
 
               <label className="mt-3 block text-[11px] text-zinc-300">Exclude composer</label>
@@ -366,6 +599,7 @@ export default function CloudsPage() {
                 value={excludeComposer}
                 onChange={(e) => setExcludeComposer(e.target.value)}
                 placeholder="e.g. Bach|Mozart"
+                disabled={useDiy}
               />
 
               <label className="mt-3 block text-[11px] text-zinc-300">Include title</label>

@@ -54,7 +54,31 @@ type StartJobBody = {
   excludeComposer?: string[];
   includeTitle?: string[];
   excludeTitle?: string[];
+
+  // DIY composer selection: canonical name -> regex patterns.
+  diyComposerAliases?: Record<string, string[] | string>;
 };
+
+function sanitizeComposerAliases(input: unknown): Record<string, string[]> | null {
+  if (!input || typeof input !== "object") return null;
+  const out: Record<string, string[]> = {};
+  for (const [rawName, rawPatterns] of Object.entries(input as Record<string, unknown>)) {
+    const name = String(rawName).trim();
+    if (!name) continue;
+    const patterns: string[] = [];
+    if (Array.isArray(rawPatterns)) {
+      for (const p of rawPatterns) {
+        const text = String(p).trim();
+        if (text) patterns.push(text);
+      }
+    } else if (typeof rawPatterns === "string") {
+      const text = rawPatterns.trim();
+      if (text) patterns.push(text);
+    }
+    if (patterns.length > 0) out[name] = patterns;
+  }
+  return Object.keys(out).length > 0 ? out : null;
+}
 
 export async function GET() {
   return NextResponse.json({ jobs: listJobs().map((j) => ({
@@ -103,6 +127,8 @@ export async function POST(request: Request) {
       configPath = resolveConfigPath(repo, body.configId);
     }
 
+    const diyAliases = sanitizeComposerAliases(body.diyComposerAliases);
+
     const req: CloudsJobRequest = {
       featureCachePath,
       axes,
@@ -112,8 +138,17 @@ export async function POST(request: Request) {
       limit: typeof body.limit === "number" ? body.limit : undefined,
       label: typeof body.label === "string" ? body.label : undefined,
       writeSubsetCsv: Boolean(body.writeSubsetCsv),
-      configPath,
-      group: typeof body.group === "string" ? body.group : undefined,
+      configPath: diyAliases ? undefined : configPath,
+      group: diyAliases ? undefined : (typeof body.group === "string" ? body.group : undefined),
+      ephemeralGroup: diyAliases
+        ? {
+            groupName: "diy",
+            group: {
+              description: "DIY composer selection (ephemeral)",
+              composer_aliases: diyAliases,
+            },
+          }
+        : undefined,
       includeComposer: Array.isArray(body.includeComposer) ? body.includeComposer : undefined,
       excludeComposer: Array.isArray(body.excludeComposer) ? body.excludeComposer : undefined,
       includeTitle: Array.isArray(body.includeTitle) ? body.includeTitle : undefined,
