@@ -32,6 +32,13 @@ Each group can specify:
 - `include_title`: regex patterns applied to `title`
 - `exclude_title`: regex patterns applied to `title`
 
+Additionally, groups can specify:
+
+- `composer_aliases`: a mapping of **canonical composer display names** to a list of regex patterns.
+  - This solves the “two different clouds for the same composer” problem by remapping variants like
+    `Ravel`, `Maurice Ravel`, or `Ravel, Maurice` into a single label.
+  - When `composer_aliases` is present, the script keeps only rows that match one of the aliases.
+
 Patterns are case-insensitive.
 
 ### Why regex, not exact matches?

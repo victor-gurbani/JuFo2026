@@ -7,8 +7,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   turbopack: {
-    // Prevent Next.js from inferring an unrelated monorepo root
-    // (which can break file tracing on some symlinks).
+    // Root Turbopack at the Next.js app directory.
     root: here,
   },
 };

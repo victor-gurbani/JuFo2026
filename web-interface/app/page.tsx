@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, useRef } from "react";
 import CorpusSearch, { type CorpusEntry } from "../components/CorpusSearch";
 import StylisticSpace from "../components/StylisticSpace";
@@ -389,6 +390,13 @@ export default function Home() {
               >
                 {corpusMode === "full" ? "Full corpus (PDMX)" : "Curated corpus"}
               </button>
+
+              <Link
+                href="/clouds"
+                className="col-span-2 flex h-9 items-center justify-center rounded-xl border border-white/20 bg-white/40 px-3 transition hover:border-blue-300 dark:bg-black/30 dark:text-zinc-200"
+              >
+                Subset clouds (/clouds)
+              </Link>
             </div>
           </div>
 

@@ -1,7 +1,7 @@
-
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -17,7 +17,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Invalid folder" }, { status: 403 });
   }
 
-  const figuresPath = path.join(process.cwd(), "..", "figures", folder);
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const webRoot = path.resolve(here, "../../..");
+  const figuresPath = path.join(webRoot, "public", "figures", folder);
   
   try {
     const files = await fs.promises.readdir(figuresPath);

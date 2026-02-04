@@ -10,7 +10,6 @@ data/curated/solo_piano_*
 !data/curated/solo_piano_mxl_paths.txt
 
 project-logos/
-web-interface/public/generated/
 
 __pycache__/
 # figures/

@@ -27,9 +27,10 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -89,12 +90,27 @@ def _safe_text(value: object) -> str:
         return ""
 
 
+def _normalize_for_match(value: object) -> str:
+    """Normalize text for robust regex matching (case/punctuation/accents)."""
+    text = _safe_text(value)
+    if not text:
+        return ""
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    text = text.lower()
+    # Keep alnum and whitespace, drop punctuation.
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
 def _filter_rows(df: pd.DataFrame, spec: FilterSpec) -> pd.DataFrame:
     if df.empty:
         return df
 
-    composer_text = df.get("composer_label", pd.Series([""] * len(df))).apply(_safe_text)
-    title_text = df.get("title", pd.Series([""] * len(df))).apply(_safe_text)
+    # Match against normalized text to avoid splitting on punctuation/diacritics.
+    composer_text = df.get("composer_label", pd.Series([""] * len(df))).apply(_normalize_for_match)
+    title_text = df.get("title", pd.Series([""] * len(df))).apply(_normalize_for_match)
 
     inc_comp = _compile_patterns(spec.include_composer)
     exc_comp = _compile_patterns(spec.exclude_composer)
@@ -114,6 +130,42 @@ def _filter_rows(df: pd.DataFrame, spec: FilterSpec) -> pd.DataFrame:
         mask &= ~title_text.apply(lambda t: _matches_any(exc_title, t))
 
     return df.loc[mask].copy()
+
+
+def _apply_composer_aliases(
+    df: pd.DataFrame,
+    aliases: Mapping[str, Sequence[str]],
+    *,
+    drop_unmatched: bool,
+) -> pd.DataFrame:
+    """Map many composer label variants into canonical display names.
+
+    If drop_unmatched=True, rows that don't match any alias pattern are removed.
+    """
+    if df.empty or not aliases:
+        return df
+    if "composer_label" not in df.columns:
+        return df
+
+    composer_norm = df["composer_label"].apply(_normalize_for_match)
+    mapped = pd.Series([None] * len(df), index=df.index, dtype=object)
+
+    for canonical, patterns in aliases.items():
+        compiled = _compile_patterns(patterns)
+        if not compiled:
+            continue
+        hit = composer_norm.apply(lambda t: _matches_any(compiled, t))
+        # Only set where still unmapped to keep a deterministic first-match rule.
+        mapped.loc[hit & mapped.isna()] = canonical
+
+    out = df.copy()
+    if drop_unmatched:
+        keep = mapped.notna()
+        out = out.loc[keep].copy()
+        mapped = mapped.loc[keep]
+
+    out["composer_label"] = mapped.fillna(out.get("composer_label"))
+    return out
 
 
 def _balance_per_composer(df: pd.DataFrame, max_per_composer: Optional[int]) -> pd.DataFrame:
@@ -168,6 +220,12 @@ def _project_into_canonical_axes(df: pd.DataFrame, model_cache_csv: Path) -> np.
     pca_mean = np.array(pca.get("pca_mean", []), dtype=float)
     components = np.array(pca.get("pca_components", []), dtype=float)
 
+    scaler_mean = np.nan_to_num(scaler_mean, nan=0.0, posinf=0.0, neginf=0.0)
+    scaler_scale = np.nan_to_num(scaler_scale, nan=1.0, posinf=1.0, neginf=1.0)
+    pca_mean = np.nan_to_num(pca_mean, nan=0.0, posinf=0.0, neginf=0.0)
+    components = np.nan_to_num(components, nan=0.0, posinf=0.0, neginf=0.0)
+    components = np.clip(components, -10.0, 10.0)
+
     if scaler_mean.shape[0] != len(feature_columns) or scaler_scale.shape[0] != len(feature_columns):
         raise ValueError("Scaler parameters in model cache do not match feature vector length.")
     if pca_mean.shape[0] != len(feature_columns):
@@ -192,8 +250,17 @@ def _project_into_canonical_axes(df: pd.DataFrame, model_cache_csv: Path) -> np.
         aligned[col] = series.fillna(mean_num)
 
     x = aligned.values.astype(float)
-    x_scaled = (x - scaler_mean) / scaler_scale
-    coords = (x_scaled - pca_mean) @ components.T
+    safe_scale = np.where(np.isfinite(scaler_scale) & (np.abs(scaler_scale) > 1e-12), scaler_scale, 1.0)
+    x_scaled = (x - scaler_mean) / safe_scale
+    x_scaled = np.nan_to_num(x_scaled, nan=0.0, posinf=0.0, neginf=0.0)
+
+    centered = x_scaled - pca_mean
+    centered = np.nan_to_num(centered, nan=0.0, posinf=0.0, neginf=0.0)
+    centered = np.clip(centered, -1e6, 1e6)
+
+    with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
+        coords = centered @ components.T
+    coords = np.nan_to_num(coords, nan=0.0, posinf=0.0, neginf=0.0)
     return coords
 
 
@@ -356,6 +423,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     df = pd.read_csv(args.feature_cache)
     filtered = _filter_rows(df, spec)
+
+    # Optional alias mapping: avoid “double clouds” due to composer naming variants.
+    composer_aliases = group_meta.get("composer_aliases") if isinstance(group_meta, dict) else None
+    if isinstance(composer_aliases, dict):
+        # JSON may contain non-list values; coerce to string sequences.
+        cleaned: Dict[str, List[str]] = {}
+        for canonical, pats in composer_aliases.items():
+            if not isinstance(canonical, str) or not canonical.strip():
+                continue
+            if isinstance(pats, list):
+                cleaned[canonical] = [str(p) for p in pats if str(p).strip()]
+            elif isinstance(pats, str) and pats.strip():
+                cleaned[canonical] = [pats]
+        if cleaned:
+            filtered = _apply_composer_aliases(filtered, cleaned, drop_unmatched=True)
     if args.limit is not None and args.limit > 0:
         filtered = filtered.head(args.limit).copy()
 
