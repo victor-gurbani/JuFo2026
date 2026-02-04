@@ -104,6 +104,34 @@ To use your system python instead of a virtual environment:
 
 ---
 
+## Local Web Interface (Next.js)
+
+The interactive web UI lives in `web-interface/` and includes a **Subset Clouds** UI at `/clouds` (runs `src/clouds_from_feature_cache.py` locally and serves generated plots from `web-interface/public/generated/...`).
+
+### Start (recommended)
+
+From the repository root:
+
+```bash
+npm run web:install
+npm run web:dev
+```
+
+Then open:
+
+- `http://localhost:3000/` (main UI)
+- `http://localhost:3000/clouds` (subset clouds generator)
+
+### Start (manual)
+
+```bash
+cd web-interface
+npm install
+npm run dev
+```
+
+If you see an error like `Can't resolve 'tailwindcss' in .../JuFo2026`, it usually means the dev server was started from the wrong folder. Use the repo-root scripts above to force the correct working directory.
+
 ## Detailed Pipeline Steps
 
 <details>

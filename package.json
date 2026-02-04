@@ -1,0 +1,11 @@
+{
+  "name": "jufo2026",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "web:install": "npm --prefix web-interface install",
+    "web:dev": "npm --prefix web-interface run dev",
+    "web:build": "npm --prefix web-interface run build",
+    "web:lint": "npm --prefix web-interface run lint"
+  }
+}

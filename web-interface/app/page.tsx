@@ -8,6 +8,16 @@ type AnalysisResponse = {
   ok?: boolean;
   jsonUrl?: string;
   htmlUrl?: string;
+  cacheInfo?: {
+    used_embedding_cache: boolean;
+    embedding_cache?: string | null;
+    lookup_cache?: string | null;
+    compatible?: boolean;
+    reason?: string;
+    cache_primary_hits?: number;
+    cache_lookup_hits?: number;
+    cache_projected?: number;
+  } | null;
   error?: string;
 };
 
@@ -79,6 +89,7 @@ export default function Home() {
   const [selected, setSelected] = useState<CorpusEntry | null>(null);
   const [plotUrl, setPlotUrl] = useState(CANONICAL_PLOT);
   const [status, setStatus] = useState<string | null>(null);
+  const [analysisCacheInfo, setAnalysisCacheInfo] = useState<AnalysisResponse["cacheInfo"]>(null);
   const [darkMode, setDarkMode] = useState(true);
   const [kioskMode, setKioskMode] = useState(false);
   const [filterMode, setFilterMode] = useState<"all" | "clouds" | "composers" | "highlights">("all");
@@ -225,6 +236,7 @@ export default function Home() {
       return;
     }
     setStatus("Analyzing piece and projecting onto PCA map…");
+    setAnalysisCacheInfo(null);
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
@@ -241,6 +253,7 @@ export default function Home() {
       }
       setPlotUrl(`${payload.jsonUrl}?t=${Date.now()}`);
       setStatus("Analysis complete. Plot updated.");
+      setAnalysisCacheInfo(payload.cacheInfo ?? null);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Analysis failed");
     }
@@ -404,12 +417,41 @@ export default function Home() {
                   setPlotUrl(`${CANONICAL_PLOT}?t=${Date.now()}`);
                   setFilterMode("all");
                   setStatus("Showing canonical PCA cloud.");
+                  setAnalysisCacheInfo(null);
                 }}
                 className="h-10 rounded-xl border border-white/20 text-sm text-zinc-700 transition hover:border-blue-300 dark:border-white/10 dark:text-zinc-200"
               >
                 Reset to canonical
               </button>
               {status ? <div className="text-xs text-zinc-500 dark:text-zinc-400">{status}</div> : null}
+              {analysisCacheInfo ? (
+                <div className="rounded-xl border border-white/10 bg-black/10 p-3 text-[11px] text-zinc-600 dark:bg-black/30 dark:text-zinc-300">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
+                    Cache Used
+                  </div>
+                  <div className="mt-1">
+                    {analysisCacheInfo.used_embedding_cache ? "Yes" : "No"}
+                    {analysisCacheInfo.compatible === false && analysisCacheInfo.reason
+                      ? ` (incompatible: ${analysisCacheInfo.reason})`
+                      : ""}
+                  </div>
+                  <div className="mt-1 space-y-0.5">
+                    {analysisCacheInfo.embedding_cache ? (
+                      <div>Embedding: {analysisCacheInfo.embedding_cache.split("/").slice(-1)[0]}</div>
+                    ) : null}
+                    {analysisCacheInfo.lookup_cache ? (
+                      <div>Lookup: {analysisCacheInfo.lookup_cache.split("/").slice(-1)[0]}</div>
+                    ) : null}
+                    {typeof analysisCacheInfo.cache_primary_hits === "number" ||
+                    typeof analysisCacheInfo.cache_lookup_hits === "number" ||
+                    typeof analysisCacheInfo.cache_projected === "number" ? (
+                      <div>
+                        Hits: primary={analysisCacheInfo.cache_primary_hits ?? 0}, lookup={analysisCacheInfo.cache_lookup_hits ?? 0}, projected={analysisCacheInfo.cache_projected ?? 0}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </section>

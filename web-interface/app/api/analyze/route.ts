@@ -13,6 +13,33 @@ type AnalyzePayload = {
   composer?: string;
 };
 
+type CacheInfo = {
+  used_embedding_cache: boolean;
+  embedding_cache?: string | null;
+  lookup_cache?: string | null;
+  compatible?: boolean;
+  reason?: string;
+  cache_primary_hits?: number;
+  cache_lookup_hits?: number;
+  cache_projected?: number;
+};
+
+function parseCacheInfo(stdout: string): CacheInfo | null {
+  const lines = stdout.split(/\r?\n/);
+  for (const line of lines) {
+    if (!line.startsWith("CACHE_INFO ")) continue;
+    const jsonText = line.slice("CACHE_INFO ".length).trim();
+    try {
+      const parsed = JSON.parse(jsonText) as CacheInfo;
+      if (typeof parsed.used_embedding_cache !== "boolean") return null;
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function POST(request: Request) {
   try {
     const payload = (await request.json()) as AnalyzePayload;
@@ -75,12 +102,15 @@ export async function POST(request: Request) {
       args.push("--title", payload.title);
     }
 
-    await execFileAsync("python3", args, { cwd: repoRoot });
+    const { stdout, stderr } = await execFileAsync("python3", args, { cwd: repoRoot });
+    const cacheInfo = parseCacheInfo(stdout || "");
 
     return NextResponse.json({
       ok: true,
       jsonUrl: "/temp/latest_analysis.json",
       htmlUrl: "/temp/latest_analysis.html",
+      cacheInfo,
+      stderr: stderr || "",
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Analysis failed";

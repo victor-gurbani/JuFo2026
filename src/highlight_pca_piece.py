@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import tempfile
 from pathlib import Path
 
@@ -455,6 +456,9 @@ def main() -> int:
 
     # Fast path: use precomputed embedding cache if available and compatible.
     if not args.no_cache:
+        cache_primary_hits = 0
+        cache_lookup_hits = 0
+        cache_projected = 0
         meta_json = args.embedding_cache.with_suffix(args.embedding_cache.suffix + ".meta.json")
         compatible, reason = cache_is_compatible(
             args.embedding_cache,
@@ -485,6 +489,7 @@ def main() -> int:
                     if args.lookup_cache is not None:
                         found = _lookup_embedding_in_csv(args.lookup_cache, normalized_path)
                         if found is not None:
+                            cache_lookup_hits += 1
                             appended_rows.append(
                                 {
                                     "composer_label": composers[idx],
@@ -500,6 +505,7 @@ def main() -> int:
 
                     cached = lookup_cached_embedding(combined, normalized_path)
                     if cached is not None:
+                        cache_primary_hits += 1
                         continue
 
                     # Not present in cache: compute features and project into cached PCA space.
@@ -517,6 +523,8 @@ def main() -> int:
                             "falling back to full recomputation."
                         )
                         break
+
+                    cache_projected += 1
 
                     appended_rows.append(
                         {
@@ -557,12 +565,36 @@ def main() -> int:
                     output_path = determine_output_path(args.output, input_paths)
                     figure.write_html(str(output_path), include_plotlyjs="cdn")
                     figure.write_json(str(output_path.with_suffix(".json")))
+                    try:
+                        cache_info = {
+                            "used_embedding_cache": True,
+                            "embedding_cache": str(args.embedding_cache),
+                            "lookup_cache": str(args.lookup_cache) if args.lookup_cache is not None else None,
+                            "compatible": True,
+                            "cache_primary_hits": int(cache_primary_hits),
+                            "cache_lookup_hits": int(cache_lookup_hits),
+                            "cache_projected": int(cache_projected),
+                        }
+                        print("CACHE_INFO " + json.dumps(cache_info, sort_keys=True))
+                    except Exception:
+                        pass
                     print(f"Created PCA composer cloud with highlight at {output_path} (used embedding cache)")
                     return 0
         else:
             # Only informational; falling back keeps behavior identical.
             if args.embedding_cache.exists():
                 print(f"[info] Embedding cache not compatible; recomputing PCA ({reason}).")
+            try:
+                cache_info = {
+                    "used_embedding_cache": False,
+                    "embedding_cache": str(args.embedding_cache),
+                    "lookup_cache": str(args.lookup_cache) if args.lookup_cache is not None else None,
+                    "compatible": False,
+                    "reason": str(reason),
+                }
+                print("CACHE_INFO " + json.dumps(cache_info, sort_keys=True))
+            except Exception:
+                pass
 
     metrics_per_piece: list[tuple[dict[str, object], dict[str, object], dict[str, object]]] = []
     for idx, path in enumerate(input_paths):
