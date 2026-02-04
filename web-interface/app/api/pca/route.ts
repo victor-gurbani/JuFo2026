@@ -1,14 +1,60 @@
 import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, statSync } from "node:fs";
+import { basename, join, resolve } from "node:path";
 import Papa from "papaparse";
+
+type PcaPoint = {
+  dim1: number;
+  dim2: number;
+  dim3: number;
+  composer_label: string;
+  title: string;
+  mxl_path?: string;
+  mxl_abs_path?: string;
+};
+
+type PcaCacheEntry = {
+  mtimeMs: number;
+  pcaData: PcaPoint[];
+  source: string;
+};
+
+function getRepoRoot(): string {
+  // In dev, process.cwd() is typically web-interface/. Repo root is one level up.
+  return resolve(process.cwd(), "..");
+}
+
+function pickCachePath(repoRoot: string): string | null {
+  const envPath = process.env.JUFO_PCA_CACHE_CSV;
+  if (envPath && existsSync(envPath)) {
+    return envPath;
+  }
+  const candidates = [
+    join(repoRoot, "data", "embeddings", "pdmx_projected_cache.csv"),
+    join(repoRoot, "data", "embeddings", "pca_embedding_cache.csv"),
+  ];
+  return candidates.find((p) => existsSync(p)) ?? null;
+}
 
 export async function GET() {
   try {
-    // Prefer the embedding cache computed by src/embedding_cache.py (repo root).
-    const cachePath = join(process.cwd(), "..", "data", "embeddings", "pca_embedding_cache.csv");
-    if (existsSync(cachePath)) {
+    const repoRoot = getRepoRoot();
+    const cachePath = pickCachePath(repoRoot);
+    if (cachePath) {
+      const source = basename(cachePath);
+      const stat = statSync(cachePath);
+
+      const globalAny = globalThis as unknown as { __jufoPcaCache?: Record<string, PcaCacheEntry> };
+      if (!globalAny.__jufoPcaCache) {
+        globalAny.__jufoPcaCache = {};
+      }
+
+      const existing = globalAny.__jufoPcaCache[cachePath];
+      if (existing && existing.mtimeMs === stat.mtimeMs) {
+        return NextResponse.json({ pcaData: existing.pcaData, source: existing.source, cached: true });
+      }
+
       const csvText = await readFile(cachePath, "utf-8");
       const parsed = Papa.parse<Record<string, string>>(csvText, {
         header: true,
@@ -18,7 +64,7 @@ export async function GET() {
         throw new Error(parsed.errors[0]?.message ?? "Failed to parse embedding cache CSV");
       }
 
-      const pcaData = parsed.data
+      const pcaData: PcaPoint[] = parsed.data
         .filter((row) => row && row.dim1 !== undefined)
         .map((row) => ({
           dim1: Number.parseFloat(String(row.dim1)),
@@ -31,7 +77,8 @@ export async function GET() {
         }))
         .filter((row) => Number.isFinite(row.dim1) && Number.isFinite(row.dim2) && Number.isFinite(row.dim3));
 
-      return NextResponse.json({ pcaData, source: "cache" });
+      globalAny.__jufoPcaCache[cachePath] = { mtimeMs: stat.mtimeMs, pcaData, source };
+      return NextResponse.json({ pcaData, source, cached: false });
     }
 
     // Fallback: keep dev server usable even without data present.

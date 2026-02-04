@@ -305,6 +305,15 @@ python3 src/embedding_cache.py \
 	--resume
 ```
 
+<details>
+<summary>Copy/paste: full PDMX projection + full-feature cache (multi-core, resumable)</summary>
+
+```bash
+python3 -u src/embedding_cache.py --project-only --model-cache data/embeddings/pca_embedding_cache.csv --corpus-csv 15571083/PDMX.csv --dataset-root /Users/victor/JuFo2026/15571083 --output-csv data/embeddings/pdmx_projected_cache.csv --output-features-csv data/embeddings/full_pdmx_feature_cache.csv --resume --checkpoint-every 200 --progress-every 200 --workers 8 --chunksize 8
+```
+
+</details>
+
 #### 2b) Cache the full 36-feature vectors for a large corpus (enables instant subset-specific PCA)
 
 If you want to recompute PCA with *correct axes for any custom subset* (e.g., add jazz composers, switch eras, or compare arbitrary composer sets), cache the full feature vectors instead of only `dim1..dim3`.
@@ -348,7 +357,7 @@ Example using the provided config groups in `configs/composer_sets.example.json`
 
 ```bash
 python3 src/clouds_from_feature_cache.py \
-	--feature-cache data/features/full_pdmx_feature_cache.csv \
+	--feature-cache data/embeddings/full_pdmx_feature_cache.csv \
 	--config configs/composer_sets.example.json \
 	--group jazz_classic \
 	--axes both \
@@ -357,6 +366,19 @@ python3 src/clouds_from_feature_cache.py \
 ```
 
 See `COMPOSER_SETS.md` for more curated example groups (jazz, Spanish nationalist, pop/modern, anime/film, video-game, etc.).
+
+Quick start (cloud comparisons):
+
+```bash
+# Canonical axes (comparable across groups):
+python3 src/clouds_from_feature_cache.py --feature-cache data/embeddings/full_pdmx_feature_cache.csv --config configs/composer_sets.example.json --group spanish_nationalist --axes canonical --outdir figures/embeddings
+
+# Refit axes (best within-group structure, but axes change per group):
+python3 src/clouds_from_feature_cache.py --feature-cache data/embeddings/full_pdmx_feature_cache.csv --config configs/composer_sets.example.json --group spanish_nationalist --axes refit --outdir figures/embeddings
+
+# Both (writes canonical + refit outputs for easy A/B comparison):
+python3 src/clouds_from_feature_cache.py --feature-cache data/embeddings/full_pdmx_feature_cache.csv --config configs/composer_sets.example.json --group spanish_nationalist --axes both --outdir figures/embeddings --write-subset-csv
+```
 
 </details>
 

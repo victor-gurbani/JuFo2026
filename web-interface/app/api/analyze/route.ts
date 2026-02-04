@@ -49,12 +49,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `MusicXML not found: ${rawPath}` }, { status: 400 });
     }
 
+    // Use the small canonical cache for drawing clouds (fast), but optionally use the large
+    // full-PDMX projected cache for lookup of highlighted piece coordinates (instant).
+    const canonicalCache = path.join(repoRoot, "data", "embeddings", "pca_embedding_cache.csv");
+    const lookupCache = path.join(repoRoot, "data", "embeddings", "pdmx_projected_cache.csv");
+
     const args = [
       scriptPath,
       mxlPath,
       "--output",
       outputPath,
     ];
+
+    if (existsSync(canonicalCache)) {
+      args.push("--embedding-cache", canonicalCache);
+    }
+    if (existsSync(lookupCache)) {
+      args.push("--lookup-cache", lookupCache);
+    }
 
     if (payload.composer) {
       args.push("--composer", payload.composer);

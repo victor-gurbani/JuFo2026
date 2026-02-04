@@ -114,6 +114,16 @@ def parse_arguments() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--lookup-cache",
+        type=Path,
+        default=None,
+        help=(
+            "Optional secondary cache CSV used only to look up the highlighted piece coordinates (dim1..dim3). "
+            "Useful when you have a very large projected cache (e.g., full PDMX) but still want to draw clouds "
+            "from the smaller canonical cache."
+        ),
+    )
+    parser.add_argument(
         "--no-cache",
         action="store_true",
         help="Disable using the embedding cache even if present.",
@@ -157,6 +167,53 @@ def _normalize_path_or_none(value: object) -> str | None:
         return str(Path(text).expanduser().resolve())
     except Exception:
         return None
+
+
+def _lookup_embedding_in_csv(
+    cache_csv: Path,
+    mxl_abs_path: str,
+    *,
+    chunksize: int = 50_000,
+) -> dict[str, object] | None:
+    """Lookup one embedding row in a potentially huge cache CSV without loading it fully."""
+
+    if not cache_csv.exists():
+        return None
+
+    target = str(mxl_abs_path)
+    usecols = {"mxl_abs_path", "mxl_path", "dim1", "dim2", "dim3", "composer_label", "title"}
+
+    try:
+        reader = pd.read_csv(
+            cache_csv,
+            usecols=lambda c: c in usecols,
+            dtype=str,
+            chunksize=int(chunksize),
+        )
+        for chunk in reader:
+            if chunk.empty:
+                continue
+            candidate_col = "mxl_abs_path" if "mxl_abs_path" in chunk.columns else ("mxl_path" if "mxl_path" in chunk.columns else None)
+            if candidate_col is None:
+                return None
+            matches = chunk.index[chunk[candidate_col].astype(str) == target]
+            if len(matches) == 0:
+                continue
+            row = chunk.loc[matches[0]].to_dict()
+            for dim in ("dim1", "dim2", "dim3"):
+                try:
+                    row[dim] = float(str(row.get(dim, "nan")))
+                except Exception:
+                    row[dim] = float("nan")
+            if not (
+                np.isfinite(row["dim1"]) and np.isfinite(row["dim2"]) and np.isfinite(row["dim3"])
+            ):
+                return None
+            return row
+    except Exception:
+        return None
+
+    return None
 
 
 def _drop_existing_piece(df: pd.DataFrame, normalized_path: str) -> pd.DataFrame:
@@ -221,6 +278,25 @@ def _compute_piece_metrics(path: Path) -> tuple[dict[str, object], dict[str, obj
 
 
 def build_cloud_figure(df: pd.DataFrame, highlight_df: pd.DataFrame) -> go.Figure:
+    df = df.copy()
+    highlight_df = highlight_df.copy()
+
+    if "composer_label" not in df.columns:
+        df["composer_label"] = "Unknown"
+    if "title" not in df.columns:
+        df["title"] = "Untitled"
+
+    if "composer_label" not in highlight_df.columns:
+        highlight_df["composer_label"] = "External"
+    if "title" not in highlight_df.columns:
+        highlight_df["title"] = "Untitled"
+
+    # Pandas may parse missing values as NaN floats, which breaks sorting/masking.
+    df["composer_label"] = df["composer_label"].fillna("Unknown").astype(str)
+    df["title"] = df["title"].fillna("Untitled").astype(str)
+    highlight_df["composer_label"] = highlight_df["composer_label"].fillna("External").astype(str)
+    highlight_df["title"] = highlight_df["title"].fillna("Untitled").astype(str)
+
     coords = df[["dim1", "dim2", "dim3"]].to_numpy()
     mins = coords.min(axis=0)
     maxs = coords.max(axis=0)
@@ -242,7 +318,9 @@ def build_cloud_figure(df: pd.DataFrame, highlight_df: pd.DataFrame) -> go.Figur
     highlight_indices = set(highlight_df.index)
     highlight_mask = df.index.to_series().isin(highlight_indices)
 
-    for idx, composer in enumerate(sorted(df["composer_label"].unique())):
+    composers = sorted(df["composer_label"].unique())
+
+    for idx, composer in enumerate(composers):
         composer_mask = df["composer_label"] == composer
         composer_coords = coords[composer_mask.to_numpy()]
         if composer_coords.shape[0] < 4:
@@ -285,7 +363,7 @@ def build_cloud_figure(df: pd.DataFrame, highlight_df: pd.DataFrame) -> go.Figur
             )
         )
 
-    for idx, composer in enumerate(sorted(df["composer_label"].unique())):
+    for idx, composer in enumerate(composers):
         composer_mask = df["composer_label"] == composer
         scatter_mask = composer_mask & (~highlight_mask)
         if not scatter_mask.any():
@@ -403,6 +481,23 @@ def main() -> int:
                 appended_rows: list[dict[str, object]] = []
 
                 for idx, normalized_path in enumerate(normalized_paths):
+                    # First: optional secondary lookup cache (e.g. a huge full-PDMX projected cache).
+                    if args.lookup_cache is not None:
+                        found = _lookup_embedding_in_csv(args.lookup_cache, normalized_path)
+                        if found is not None:
+                            appended_rows.append(
+                                {
+                                    "composer_label": composers[idx],
+                                    "title": titles[idx],
+                                    "mxl_path": normalized_path,
+                                    "mxl_abs_path": normalized_path,
+                                    "dim1": float(str(found.get("dim1", "nan"))),
+                                    "dim2": float(str(found.get("dim2", "nan"))),
+                                    "dim3": float(str(found.get("dim3", "nan"))),
+                                }
+                            )
+                            continue
+
                     cached = lookup_cached_embedding(combined, normalized_path)
                     if cached is not None:
                         continue
