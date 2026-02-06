@@ -2,16 +2,13 @@
 
 ## Project Metrics at a Glance
 - Filtered 254,077 catalogue entries down to 144 balanced solo piano works (36 per composer) after expanding Debussy name matching and manually vetting the 14 newly admitted scores for solo-piano instrumentation.
-- Parsed ~73k quarter-note durations, around 13.5 hours of music at 90 BPM, with average pieces spanning roughly 160 measures and just over two staves.
+- Parsed 71,585 quarter-note durations, about 13.26 hours of music at 90 BPM, with average pieces spanning 148.22 measures and 2.10 parts.
 - Extracted 36 analytic descriptors grouped into harmonic (16), melodic (11), and rhythmic (9) feature families.
-- Evaluated 36 ANOVA hypotheses and 162 Tukey contrasts; the initial α=0.05 screen flagged 27 metrics and 56 composer pairings, but realizing that many simultaneous tests nearly guaranteed a false positive we kept that column for reference while adding Bonferroni (α/36≈0.0014) and Benjamini–Hochberg FDR (q<0.05) guards, leaving 11 and 26 metrics respectively and keeping those 56 pairings defensible.
-- Validated the most extreme rhythmic cases after introducing meter-aware syncopation detection: Debussy’s “La cathédrale engloutie” still shows the largest duration spread (std. note duration 1.63) from sustained pedal sonorities, and Bach’s chorale anthology remains the syncopation leader (ratio 0.356) because of suspension-rich half-bar ties across 11k note events.
+- Evaluated 36 ANOVA hypotheses and 174 Tukey contrasts; the initial α=0.05 screen flagged 29 metrics and 62 statistically significant pairwise comparisons, but realizing that many simultaneous tests nearly guaranteed a false positive we kept that column for reference while adding Bonferroni (α/36≈0.0014) and Benjamini–Hochberg FDR (q<0.05) guards, leaving 14 and 29 metrics respectively.
+- Validated the most extreme rhythmic cases after introducing meter-aware syncopation detection: Debussy’s “La cathédrale engloutie” still shows the largest duration spread (std. note duration 1.63) from sustained pedal sonorities, and Bach’s chorale anthology remains the syncopation leader (ratio 0.356) because of suspension-rich half-bar ties across 11.3k note events.
 - Delivered two new inspection tools: an interactive PCA/UMAP-style embedding (`src/feature_embedding.py`) that reports variance/loadings for each axis while automatically omitting the outsized count features (`note_count`, `note_event_count`, `chord_event_count`, `chord_quality_total`, `roman_chord_count`, `dissonant_note_count`) so density metrics can steer the view, adds a 2D scatter companion via `--output-2d`, and offers both 3D (`--clouds-output`) and 2D (`--clouds-output-2d`) four-cloud summaries for footprint comparisons; and an annotation pipeline (`src/annotate_musicxml.py`) that labels dissonant notes, mirrors chord analyses as both chord symbols and text expressions so MuseScore shows the Roman numerals outright, and flags chromatic/ambiguous harmonies in coloured MusicXML (with optional PDF/PNG renders via MuseScore’s CLI template).
 
 Recreate these tallies locally with `python3 src/aggregate_metrics.py`.
-
-# Step 1: Corpus Objective
-We set out to assemble a high-quality, composer-balanced solo piano corpus from the PDMX archive so that later analysis stages can compare Bach, Mozart, Chopin, and Debussy on equal footing.
 
 ## Dataset Structure
 - `15571083/PDMX.csv`: master metadata table with composer, rating, subset flags, and file pointers.
@@ -82,8 +79,8 @@ The balanced export with all safety filters active satisfies Step 1: it now su
 - When an omnibus test is significant, the script applies Tukey HSD (preferring `statsmodels`, falling back to SciPy) to pinpoint which composer pairs differ.
 - Top contrasts include registral span (`pitch_range_semitones`, F=39.66, p≈7e-18) and dissonance usage (Debussy vs. Bach, p≈1.3e-10); rhythmic entropy and duration variance also show strong era splits.
 - Outputs land in `data/stats/anova_summary.csv` and `data/stats/tukey_hsd.csv`, capturing F-statistics, adjusted p-values, and confidence intervals for downstream reporting.
-- Because inspecting the raw α=0.05 hits (27 metrics) raised the odds-of-a-false-positive question, we now log those alongside the Bonferroni and Benjamini–Hochberg counts (11 and 26), keeping the original column for transparency while grounding conclusions in the corrected thresholds.
-- `src/significance_visualizations.py` now converts those tables into figures under `figures/significance/`, including a top-15 `-log10(p)` bar chart, a pairwise-count heatmap, signed/absolute mean-difference heatmaps, and two feature-level views (sym-log + normalized). Count-heavy metrics (note/chord totals, Roman counts, dissonant note totals) are filtered out; after filtering, Debussy–Mozart still shows 16 distinct metrics, Bach–Debussy 10, while Chopin–Debussy remains at three with modest effect sizes.
+- Because inspecting the raw α=0.05 hits (29 metrics) raised the odds-of-a-false-positive question, we now log those alongside the Bonferroni and Benjamini–Hochberg counts (14 and 29), keeping the original column for transparency while grounding conclusions in the corrected thresholds.
+- `src/significance_visualizations.py` now converts those tables into figures under `figures/significance/`, including a top-15 `-log10(p)` bar chart, a pairwise-count heatmap, signed/absolute mean-difference heatmaps, and two feature-level views (sym-log + normalized). Count-heavy metrics (note/chord totals, Roman counts, dissonant note totals) are filtered out; after filtering, Debussy–Mozart still shows 16 distinct metrics, Bach–Debussy 9, while Chopin–Debussy remains at four with modest effect sizes.
 
 # Phase 2 Enhancements: Embedding & Annotation
 

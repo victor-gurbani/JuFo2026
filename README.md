@@ -32,12 +32,12 @@ Browse the interactive visualizations hosted online:
 ## Project Scale & Metrics
 
 *   **Filtered Corpus:** Narrowed a raw archive of **254,077** PDMX entries down to a safety-screened solo piano cohort.
-*   **Balanced Data:** **124** curated works (31 per composer) spanning **18,925** measures and ~11.8 hours of audio.
+*   **Balanced Data:** **144** curated works (36 per composer) spanning **21,344** measures and 71,585 quarter-note durations (13.26 hours at 90 BPM).
 *   **Feature Engineering:** **36** algorithms across three pillars:
     *   **Harmonic:** 16 features (Chord quality, Roman numerals, Dissonance).
     *   **Melodic:** 11 features (Contour, Interval size, Pitch entropy).
     *   **Rhythmic:** 9 features (Syncopation, Density, Polyrhythms).
-*   **Statistical Validation:** **36** omnibus ANOVA tests (27 significant @ p<0.05) and **162** post-hoc Tukey contrasts revealing 56 clear composer-to-composer separations.
+*   **Statistical Validation:** **36** omnibus ANOVA tests (29 significant @ p<0.05) and **174** post-hoc Tukey contrasts, with 62 statistically significant pairwise comparisons (Tukey HSD) spanning 29 distinct features.
 
 ---
 
@@ -49,7 +49,7 @@ The pipeline transforms raw MusicXML data into statistical insights through a mu
 flowchart TD
     subgraph Data["Phase 1: Data Curation"]
         Raw[("PDMX Raw Data")] --> Filter{Filters}
-        Filter -->|Safety & Balance| Curated[("Curated Corpus\n(124 Piano Works)")]
+		Filter -->|Safety & Balance| Curated[("Curated Corpus\n(144 Piano Works)")]
         Curated --> Parser["Music21 Score Parser"]
     end
 
