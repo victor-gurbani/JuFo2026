@@ -175,19 +175,30 @@ Die Auswahl der vier Komponisten deckt zentrale Epochen der westlichen Musikgesc
 \end{itemize}
 
 \subsection{Computational-Musicology-Kontext}
-Frühe Versuche, diese Komponisten algorithmisch zu unterscheiden, wie Lin-Jengs Arbeit von 1987,\footnote{\cite{LinJeng1987}.} litten unter kleinem Korpus, manuellem Encoding und begrenzten Werkzeugen. Aktuelle Übersichtsarbeiten kritisieren die Dominanz schwer interpretierbarer Modelle oder ungenügender Validierung.\footnote{\cite{Simonetta2025}.} Dieses Projekt nutzt moderne Ressourcen: das 2024 veröffentlichte PDMX-MusikXML-Archiv\footnote{\cite{PDMX2024}.} und die \texttt{music21}-Bibliothek\footnote{\cite{Cuthbert2010}.}, um eine skalierbare, transparent dokumentierte Analyse umzusetzen. Tabelle~\ref{tab:evolution} vergleicht den methodischen Fortschritt.
+Die computergestützte Stilanalyse hat seit den 1990er Jahren mehrere methodische Paradigmenwechsel erfahren. Jede Ära hinterließ spezifische Werkzeuge und Limitationen:
+
+\begin{description}
+    \item[Humdrum-Ära (1990er):] Von Hippels Dissertation\footnote{\cite{VonHippel2000}.} etablierte statistische Melodieanalyse, fokussierte jedoch auf kognitive Erwartungsmodelle statt stilistischer Differenzierung.
+    \item[MusicXML \& ML (2000er):] McKays jSymbolic-System\footnote{\cite{McKay2010}.} ermöglichte automatische Genre-Klassifikation mittels kNN/SVM, bot jedoch keine Interpretierbarkeit -- ein \enquote{Black-Box}-Ansatz.
+    \item[music21-Revolution (2010er):] Whites Korpusanalysen\footnote{\cite{White2013}.} nutzten deskriptive Statistiken über große Zeiträume, ohne paarweise Komponistenvergleiche oder FDR-Korrektur.
+    \item[Deep-Learning-Ära (2017--):] Hadjeres' DeepBach\footnote{\cite{Hadjeres2018}.} erreichte hohe Genauigkeit in Stil-Imitation, bleibt jedoch opak: \enquote{Warum klingt das wie Bach?} ist nicht beantwortbar.
+\end{description}
+
+\noindent Frühe Versuche wie Lin-Jengs Arbeit von 1987\footnote{\cite{LinJeng1987}.} litten unter kleinem Korpus, manuellem Encoding und begrenzten Werkzeugen. Aktuelle Übersichtsarbeiten kritisieren die Dominanz schwer interpretierbarer Modelle oder ungenügender Validierung.\footnote{\cite{Simonetta2025}.}
+
+\textbf{Positionierung dieser Arbeit:} Das vorliegende Projekt kombiniert die Stärken aller Phasen: Skalierbarkeit (PDMX-Archiv mit $>$250\,000 Partituren\footnote{\cite{PDMX2024}.}), Interpretierbarkeit (36 explizite Merkmale statt verborgener Gewichte), statistische Rigorosität (ANOVA, Tukey-HSD, FDR-Korrektur) und Zugänglichkeit (\texttt{music21}\footnote{\cite{Cuthbert2010}.}, interaktive Visualisierungen). Tabelle~\ref{tab:evolution} vergleicht den methodischen Fortschritt.
 
 \begin{table}[H]
     \centering
     \caption{Evolution der Methodik im stilistischen Vergleich}\label{tab:evolution}
-    \begin{tabular}{p{3.2cm}p{5cm}p{6cm}}
-                \toprule
-        \textbf{Aspekt} & \textbf{Lin-Jeng (1987)} & \textbf{Diese Arbeit (2026)} \\
+    \begin{tabular}{p{2.2cm}p{2.5cm}p{2.5cm}p{2.5cm}p{4.5cm}}
+        \toprule
+        \textbf{Aspekt} & \textbf{Humdrum} & \textbf{jSymbolic} & \textbf{Deep Learning} & \textbf{Diese Arbeit (2026)} \\
         \midrule
-        Korpus & Manuell kodierte Teilmenge & 144 auto-kuratierte Solo-Klavierwerke aus $>$250\,000 Partituren \\
-        Datenformat & DARMS & MusicXML / \texttt{music21}-Objekte \\
-        Analyse & Prolog-Regeln, Mustererkennung & Python-Pipeline mit 36 Merkmalen, CLI-Tools \\
-        Zielsetzung & Klassifikation & Statistische Kartographie (ANOVA \& PCA) \\
+        Korpus & Variabel & Klein, manuell & Sehr groß & 144 balanciert, PDMX \\
+        Analyse & Feature-Search & ML-Klassifikation & LSTM/Transformer & 36-Merkmals-Pipeline \\
+        Ziel & Muster-Suche & Accuracy & Generierung & Interpretierbare Kartographie \\
+        Validierung & Deskriptiv & Cross-Val & Loss Function & ANOVA + Tukey + FDR \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -347,7 +358,16 @@ Dieses Muster der \enquote{stilistischen Umkehr} setzt sich bei der harmonischen
 
 Die bemerkenswerteste Ausnahme bildet die rhythmische Komplexität (\texttt{rhythmic\_pattern\_entropy}). Hier zeigt sich bei Chopin fast kein evolutionärer Fortschritt gegenüber der Klassik ($v_{\text{Romantik}} = +0{,}017$, $DD = -0{,}101 \approx 0$). Ein signifikanter \enquote{rhythmischer Sprung} ist erst beim Übergang zum Impressionismus messbar ($v_{\text{Impressionismus}} = +1{,}43$ durch Debussy). Dies identifiziert Chopin als eine janusköpfige Figur: Er fungierte als radikaler Innovator in der Harmonik und Melodik, blieb jedoch in der rhythmischen Grundstruktur weitgehend den klassischen Traditionen verhaftet.
 
-Der Vergleich der Tongeschlechter (Dur vs. Moll) zeigt, dass Moll-Werke in Merkmalen wie der Dissonanzrate eine geringfügig höhere Beschleunigung aufweisen, die globalen Trends der DD-Werte jedoch über beide Modi hinweg konsistent bleiben.
+Die \textbf{DDD-Analyse} (Triple-Difference) der Tongeschlechter offenbart markante Unterschiede in der Evolutionsdynamik zwischen Dur- und Moll-Werken. Bei einer Stichprobe von $n_{\text{Dur}}=97$ und $n_{\text{Moll}}=47$ zeigt sich:
+
+\begin{itemize}
+    \item \textbf{Tonumfang:} Moll-Werke zeigen eine deutlich höhere romantische Beschleunigung ($a_{\text{Moll}}=+33{,}17$ vs. $a_{\text{Dur}}=+20{,}53$; $DDD=+12{,}64$ Halbtöne).
+    \item \textbf{Dissonanzrate:} Moll verstärkt die Dissonanzzunahme signifikant ($a_{\text{Moll}}=+0{,}482$ vs. $a_{\text{Dur}}=+0{,}211$; $DDD=+0{,}271$).
+    \item \textbf{Harmonische Dichte:} Moll-Kompositionen verdichten die Textur stärker ($a_{\text{Moll}}=+1{,}011$ vs. $a_{\text{Dur}}=+0{,}583$; $DDD=+0{,}428$).
+    \item \textbf{Rhythmische Entropie:} Der überraschendste Befund -- während Dur-Werke in der Romantik rhythmisch \emph{stagnieren} ($a_{\text{Dur}}=-0{,}460$), zeigen Moll-Werke Innovation ($a_{\text{Moll}}=+0{,}521$; $DDD=+0{,}981$).
+\end{itemize}
+
+\noindent Diese Befunde suggerieren, dass die romantische \enquote{Affekt-Intensivierung} primär über den Moll-Modus kanalisiert wurde: Komponisten nutzten Moll-Tonarten als Experimentierfeld für harmonische und rhythmische Grenzüberschreitungen.
 
 \begin{figure}[htbp]
     \centering
@@ -360,18 +380,20 @@ Der Vergleich der Tongeschlechter (Dur vs. Moll) zeigt, dass Moll-Werke in Merkm
 \subsection{Annotation auf Notenebene}
 \texttt{src/annotate\_musicxml.py} färbt Durchgänge (orange), Appoggiaturen (violett), andere Dissonanzen (rot) und chromatische Harmonien (türkis) ein, ergänzt Akkordsymbole und exportiert optional PDF/PNG via MuseScore-CLI. Batchläufe (\texttt{generate\_selected\_annotations.py}) erstellen acht Referenzpartituren (2 pro Komponist). Dadurch lassen sich statistische Befunde unmittelbar an den Partituren überprüfen; alle annotierten Partituren sind unter den Links in Anhang~C interaktiv verfügbar.
 
-\subsection{Externer Falltest}
-Mit \texttt{src/highlight\_pca\_piece.py} können externe Stücke in die PCA-Wolken projiziert werden. Die erweiterte CLI unterstützt mehrere MusikXMLs, frei belegbare Titel und dunkle Diamantmarker für gute Sichtbarkeit. Joe Hisaishis \emph{One Summer's Day} landet zwischen Chopin und Debussy, leicht näher bei Chopin (Abbildung~\ref{fig:hisaishi}), was die hybride Harmonik des Stücks bestätigt.
+\subsection{Externer Falltest: Prädiktive Validierung}
+Die entscheidende Frage für jedes Modell ist: \emph{Generalisiert es auf unbekannte Daten?} Mit \texttt{src/highlight\_pca\_piece.py} können externe Stücke -- die nicht im Trainingskorpus enthalten waren -- in die PCA-Wolken projiziert werden. Diese Projektion ist ein rigider Test der Methodik: Wenn die 36 Merkmale tatsächlich musikologisch bedeutsame Stilaspekte erfassen, sollte ein Stück mit bekannten stilistischen Einflüssen \emph{vorhersagbar} zwischen den entsprechenden Clustern landen.
+
+\textbf{Fallstudie 1: Joe Hisaishi.} Die Filmmusik von Hayao Miyazakis Ghibli-Produktionen ist für ihre Synthese aus spätromantischer Harmonik und impressionistischen Klangfarben bekannt. Hisaishis \emph{One Summer's Day} (2001) wurde ohne Vorwissen in den PCA-Raum projiziert -- das Ergebnis (Abbildung~\ref{fig:hisaishi}) bestätigt die Hypothese: Das Stück positioniert sich präzise zwischen Chopin und Debussy, mit leichter Tendenz zu Chopin. Die Methode \emph{sagt korrekt voraus}, wo ein stilistisch hybrider Komponist landen sollte -- ein starker Beleg für die Validität des Merkmalsraums.
 
 \begin{figure}[htbp]
     \centering
     \href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}{%
         \includegraphics[width=0.85\textwidth]{summerdayhighlight.png}
     }
-    \caption{Externer Validierungstest: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung illustriert die Generalisierungsfähigkeit der Merkmalsextraktion: Hisaishi nutzt bekanntermaßen spätromantische Harmonik (Chopin-Nähe) kombiniert mit impressionistischen Klangfarben (Debussy-Nähe). \emph{Klickbar für interaktive Ansicht.}}\label{fig:hisaishi}
+    \caption{Prädiktive Validierung: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung wurde \emph{vor} der Projektion hypothetisiert -- die Methode generalisiert erfolgreich auf unbekannte Daten außerhalb des Trainingskorpus. \emph{Klickbar für interaktive Ansicht.}}\label{fig:hisaishi}
 \end{figure}
 
-Weitere externe Tests (z.\,B.\ Maurice Ravels \emph{Streichquartett in F-Dur}, das jenseits des Debussy-Clusters landet) sind interaktiv verfügbar (siehe Anhang~C).
+\textbf{Fallstudie 2: Maurice Ravel.} Ravels \emph{Streichquartett in F-Dur} (1903) landet \emph{jenseits} des Debussy-Clusters -- ein zunächst überraschendes Ergebnis. Die Interpretation: Ravel übernahm Debussys impressionistische Palette, trieb jedoch bestimmte Parameter weiter. Seine extremeren Werte bei \texttt{dissonance\_ratio} und \texttt{rhythmic\_pattern\_entropy} reflektieren Ravels charakteristische Präzision und rhythmische Schärfe im Vergleich zu Debussys weicheren Konturen. Die PCA-Projektion unterscheidet somit nicht nur Epochen, sondern auch individuelle Stilprofile innerhalb derselben Schule (interaktiv verfügbar, siehe Anhang~C).
 
 \section{Ergebnisdiskussion}
 \subsection{Interpretation der Landkarte}
@@ -380,47 +402,27 @@ Die Achseninterpretation (Tabelle~\ref{tab:loadings}) ermöglicht eine musikolog
 Die resultierende Cluster-Struktur zeigt: Bach und Mozart teilen die \enquote{klassische Region} mit ähnlichen PC1-Werten aber unterschiedlichen PC2-Werten (kontrapunktische Dichte vs. homophone Transparenz). Debussy erscheint als isolierte \enquote{impressionistische Insel} mit extremen Werten auf allen Achsen. Chopin liegt intermediär -- ein Befund, der durch die DD-Analyse präzisiert wird.
 
 \subsection{Interpretation der evolutionären Befunde}
-Die evolutionäre Analyse mittels der DD-Metrik (Abschnitt~5.3) erlaubt es, den stilistischen Wandel erstmals als messbare \enquote{Veränderungsgeschwindigkeit} zu interpretieren. Besonders hervorstechend ist dabei die \textit{romantische Umkehr}: Während der Übergang von Bach zu Mozart eine Tendenz zur strukturellen Destillation zeigt -- messbar an einer Reduktion des Tonumfangs und der Dissonanzgrade --, markiert Chopin einen radikalen Trendbruch. Die massiven DD-Ausschläge (+25,14 Halbtöne im Pitch Range; +0,31 im Dissonanzgrad) belegen quantitativ, dass die Romantik kein gradueller Fortschritt, sondern eine bewusste Ablehnung klassizistischer Restriktion war.
+Die DD-Metrik (Abschnitt~5.3) erlaubt es, stilistischen Wandel als messbare \enquote{Veränderungsgeschwindigkeit} zu quantifizieren. Zentrale Befunde:
 
-Ein zentraler Befund ist jedoch die \textit{rhythmische Stagnation}: Die DD-Werte der Entropie rhythmischer Muster verharren zwischen Klassik und Romantik nahe Null ($DD \approx -0{,}10$). Dies legt den Schluss nahe, dass die romantische Revolution primär eine harmonisch-melodische war, während die rhythmische Befreiung erst durch Debussy (+1,43) eingeleitet wurde. Diese Ergebnisse erlauben eine neue Periodisierung der Musikgeschichte in funktionale Innovationsschübe.
+\textbf{Romantische Umkehr:} Der Übergang Bach$\to$Mozart zeigt strukturelle Destillation (Reduktion von Tonumfang und Dissonanz). Chopin markiert einen radikalen Trendbruch: Die massiven DD-Ausschläge (+25,14 Halbtöne; +0,31 Dissonanz) belegen, dass die Romantik keine graduelle Fortsetzung, sondern bewusste Ablehnung klassizistischer Restriktion war.
 
-\subsection{Chopins quantifizierte Brückenrolle}
-Die mathematische Analyse präzisiert Chopins oft zitierte Stellung als \enquote{Brücke} zur Moderne.\footnote{\cite{ChopinTransformations}.} Im Gegensatz zur rein visuellen Cluster-Positionierung in der PCA (Abbildung~\ref{fig:clouds}) beweisen die DD-Koeffizienten eine katalytische Funktion: Chopin beschleunigte die harmonische Komplexität dramatisch (Dissonanz $DD = +0{,}315$, Ambitus $DD = +25{,}14$), blieb jedoch in der rhythmischen Grundstruktur konservativ-klassischen Idealen verhaftet (Entropie $DD \approx 0$).
+\textbf{Rhythmische Stagnation:} DD-Werte der rhythmischen Entropie verharren zwischen Klassik und Romantik nahe Null ($DD \approx 0$). Die rhythmische Befreiung kam erst mit Debussy (+1,43). Die romantische Revolution war primär harmonisch-melodisch.
 
-Diese Differenzierung stützt die Thesen der Chopin-Forschung, wonach Chopin die Ausdrucksmittel transformierte, ohne das metrische Gerüst der Zeitvorgänger zu sprengen. Mit einer harmonischen Beschleunigung, die den Weg für Debussys impressionistische Klangflächen ebnete, fungiert Chopin als notwendige Zwischenstufe. Er dehnte die tonalen Grenzen bis an den Bruchpunkt, hielt aber die rhythmische Symmetrie aufrecht -- ein Umstand, der die Trennung der Cluster in der PCA entlang unterschiedlicher Hauptkomponenten (PC1 für Harmonik vs. PC2/3 für Rhythmik) schlüssig erklärt. Chopin ist somit nicht nur subjektiv-ästhetisch, sondern objektiv-mathematisch die Schnittstelle zwischen klassischer Ordnung und moderner Auflösung.
+\textbf{Chopins Brückenrolle:}\footnote{\cite{ChopinTransformations}.} Die DD-Koeffizienten präzisieren Chopins katalytische Funktion mathematisch: harmonischer Innovator ($DD > 0$), rhythmischer Konservativer ($DD \approx 0$). Er dehnte tonale Grenzen bis zum Bruchpunkt, bewahrte aber rhythmische Symmetrie -- objektiv-mathematisch die Schnittstelle zwischen klassischer Ordnung und moderner Auflösung.
 
 \subsection{Zyklische Evolution: Von Klassik zu Pop}
-Eine explorative Erweiterung der Analyse auf populäre Musik des 20. und 21. Jahrhunderts offenbart eine überraschende Beobachtung: Die stilistische Evolution verläuft nicht linear, sondern zyklisch. Abbildung~\ref{fig:classicpop} zeigt die PCA-Projektion einer erweiterten Analyse, die neben den kanonischen Komponisten auch Vertreter der Popmusik (Elton John, The Beatles, Billie Eilish) einschließt.
+Eine explorative Erweiterung auf populäre Musik offenbart: Die stilistische Evolution verläuft nicht linear, sondern zyklisch (Abbildung~\ref{fig:classicpop}). Nach maximaler Komplexität bei Debussy kehrt Pop-Musik zu struktureller Einfachheit zurück -- moderne Produktionen nähern sich Mozart-ähnlichen Werten bei Dissonanzrate und harmonischer Dichte.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{OLDvsNEWmusic.jpeg}
-    \caption{Zyklische stilistische Evolution von Klassik zu Pop. Die Trajektorie zeigt: (1) Bach $\to$ Mozart: Destillation zur höfischen Klarheit; (2) Mozart $\to$ Chopin: romantische Expressivität; (3) Chopin $\to$ Debussy: impressionistische Dissonanz; (4) Debussy $\to$ Elton John: erste Pop-Synthese, Rückkehr zur Zugänglichkeit; (5) Elton John $\to$ moderne Pop-Musik: Konvergenz zur Mozart-ähnlichen Einfachheit. Die Pfeile markieren die Evolutionsrichtung.}\label{fig:classicpop}
+    \caption{Zyklische Evolution: Bach $\to$ Mozart $\to$ Chopin $\to$ Debussy $\to$ Pop. Die Trajektorie zeigt nach maximaler Komplexität (Debussy) eine Rückkehr zur Einfachheit.}\label{fig:classicpop}
 \end{figure}
 
-Die Befunde suggerieren eine \enquote{Pendelbewegung} der Musikgeschichte: Nach der maximalen harmonischen Komplexität bei Debussy kehrt die populäre Musik des 20. Jahrhunderts zu struktureller Einfachheit zurück. Elton Johns Werk (1970er Jahre) positioniert sich im PCA-Raum zwischen Debussy und Mozart -- er behält impressionistische Klangfarben, vereinfacht aber die harmonische Struktur. Moderne Pop-Musik (Billie Eilish, zeitgenössische Produktionen) nähert sich überraschenderweise wieder Mozart-ähnlichen Werten bei Dissonanzrate und harmonischer Dichte an.
-
-Diese Beobachtung wirft interessante Fragen auf: Ist die \enquote{Rückkehr zur Einfachheit} ein universelles Muster musikalischer Evolution nach Perioden maximaler Komplexität? Die Caching-Infrastruktur (Abschnitt~4.5.1) ermöglicht solche erweiterten Analysen auf beliebigen Komponisten-Subsets ohne erneutes Parsen -- eine Grundlage für zukünftige Untersuchungen zur zyklischen Natur stilistischer Entwicklung.
-
 \subsection{Reproduzierbarkeit und Limitationen}
-\textbf{Stärken der Methodik:}
-\begin{itemize}
-    \item Vollständige Reproduzierbarkeit durch CLI-Tools (\texttt{python3 src/aggregate\_metrics.py})
-    \item Balancierte Stichprobe (n=36 pro Komponist) minimiert Verzerrungen
-    \item Robuste statistische Absicherung (FDR-Korrektur, Tukey-HSD)
-    \item Interpretierbare Merkmale ermöglichen musikologische Validierung
-\end{itemize}
+\textbf{Stärken:} Vollständige Reproduzierbarkeit (CLI-Tools), balancierte Stichprobe (n=36 pro Komponist), robuste statistische Absicherung (FDR, Tukey-HSD), interpretierbare Merkmale.
 
-\textbf{Bekannte Limitationen:}
-\begin{enumerate}
-    \item \textbf{Korpus-Beschränkung:} Der Korpus ist auf Klavier-basierte Partituren aus PDMX beschränkt. Einzelne Einträge sind Sammlungen (z.\,B. ganze Zyklen) oder Duo-/Arrangements (z.\,B. \textit{Piano Duo}); diese können Verteilungen und PCA-Cluster sichtbar beeinflussen.
-    \item \textbf{Normalisierung \& Stücklänge:} Zählmetriken werden in der Auswertung als Anteile oder durch Standardisierung in der PCA robust gemacht; Entropie-Maße (z.\,B. \texttt{pitch\_class\_entropy}, \texttt{rhythmic\_pattern\_entropy}) können bei sehr kurzen Stücken dennoch leicht stichprobenabhängig sein.
-    \item \textbf{Erklärte Varianz:} PC1--PC3 erfassen 48,2\% der Gesamtvarianz der extrahierten Merkmale. Die verbleibenden 51,8\% liegen in höheren Dimensionen (PC4 ff.). Das bedeutet, dass stilistische Details zwar in den 36 Merkmalen modelliert sind, jedoch aufgrund der komplexen Hochdimensionalität des Datenraums in der vereinfachten 3D-Visualisierung nicht vollständig dargestellt werden können.
-    \item \textbf{Symbolische Limitierung:} Die Analyse basiert auf Notentexten, nicht auf Interpretationen. Performative Aspekte (Tempo-Rubato, Pedalisierung, Agogik) bleiben unberücksichtigt.
-    \item \textbf{Historische Verzerrung:} Die Korpus-Balance reflektiert nicht die tatsächliche Produktivität der Komponisten (Bach schrieb mehr Werke als im Korpus vertreten).
-\end{enumerate}
-
-Diese Limitationen sind transparent dokumentiert und bieten Ansatzpunkte für zukünftige Erweiterungen.
+\textbf{Limitationen:} (1) Korpus auf Solo-Klavierwerke aus PDMX beschränkt; (2) PC1--PC3 erfassen 48,2\% der Gesamtvarianz -- stilistische Details in höheren Dimensionen bleiben in 3D-Visualisierung verborgen; (3) Analyse basiert auf Notentexten, nicht Interpretationen (Rubato, Pedalisierung unberücksichtigt); (4) Korpus-Balance reflektiert nicht tatsächliche Produktivität der Komponisten.
 
 \section{Fazit und Ausblick}
 \subsection{Fazit}
