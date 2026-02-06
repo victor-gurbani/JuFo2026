@@ -1,0 +1,8 @@
+
+# Temporary analysis files
+web-interface/public/temp/
+tmp/
+
+# Root-level image duplicates (should be in figures/)
+/*.png
+!data_funnel*.png
