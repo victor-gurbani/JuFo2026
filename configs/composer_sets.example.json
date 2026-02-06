@@ -166,6 +166,84 @@
       "exclude_title": [
         "tutorial|lesson|how\\s+to"
       ]
+    },
+    "classic_vs_jazz": {
+      "description": "",
+      "composer_aliases": {
+        "Bach": [
+          "\\bbach\\b",
+          "\\bj\\.?\\s*s\\.?\\s*bach\\b",
+          "\\bjs\\s*bach\\b",
+          "\\bjohann\\s+sebastian\\s+bach\\b",
+          "\\bbach,?\\s*j\\.?\\s*s\\.?\\b",
+          "\\bbach,?\\s*johann\\s+sebastian\\b"
+        ],
+        "Mozart": [
+          "\\bmozart\\b",
+          "\\bw\\.?\\s*a\\.?\\s*mozart\\b",
+          "\\bwolfgang\\s+amadeus\\s+mozart\\b",
+          "\\bmozart,?\\s*wolfgang\\b"
+        ],
+        "Chopin": [
+          "\\bchopin\\b",
+          "\\bfr[eé]d[eé]ric\\s+chopin\\b",
+          "\\bfrederic\\s+chopin\\b",
+          "\\bchopin,?\\s*frederic\\b"
+        ],
+        "Debussy": [
+          "\\bdebussy\\b",
+          "\\bclaude\\s+debussy\\b",
+          "\\bdebussy,?\\s*claude\\b",
+          "\\bc\\.?\\s*a\\.?\\s*debussy\\b"
+        ],
+        "George Gershwin": ["\\bgeorge\\s+gershwin\\b", "\\bgershwin\\s+george\\b", "\\bgershwin\\b"],
+        "Duke Ellington": ["\\bduke\\s+ellington\\b", "\\bellington\\s+duke\\b", "\\bellington\\b"],
+        "Scott Joplin": ["\\bscott\\s+joplin\\b", "\\bjoplin\\s+scott\\b", "\\bjoplin\\b"],
+        "Thelonious Monk": ["\\bthelonious\\s+monk\\b", "\\bmonk\\s+thelonious\\b", "\\bmonk\\b"],
+        "Bill Evans": ["\\bbill\\s+evans\\b", "\\bevans\\s+bill\\b", "\\bevans\\b"],
+        "Oscar Peterson": ["\\boscar\\s+peterson\\b", "\\bpeterson\\s+oscar\\b", "\\bpeterson\\b"]
+      }
+    },
+    "classic_vs_pop": {
+      "description": "Comparison set between canonical classical composers and modern pop/rock songwriters.",
+      "composer_aliases": {
+      "Bach": [
+        "\\bbach\\b",
+        "\\bj\\.?\\s*s\\.?\\s*bach\\b",
+        "\\bjs\\s*bach\\b",
+        "\\bjohann\\s+sebastian\\s+bach\\b",
+        "\\bbach,?\\s*j\\.?\\s*s\\.?\\b",
+        "\\bbach,?\\s*johann\\s+sebastian\\b"
+      ],
+      "Mozart": [
+        "\\bmozart\\b",
+        "\\bw\\.?\\s*a\\.?\\s*mozart\\b",
+        "\\bwolfgang\\s+amadeus\\s+mozart\\b",
+        "\\bmozart,?\\s*wolfgang\\b"
+      ],
+      "Chopin": [
+        "\\bchopin\\b",
+        "\\bfr[eé]d[eé]ric\\s+chopin\\b",
+        "\\bfrederic\\s+chopin\\b",
+        "\\bchopin,?\\s*frederic\\b"
+      ],
+      "Debussy": [
+        "\\bdebussy\\b",
+        "\\bclaude\\s+debussy\\b",
+        "\\bdebussy,?\\s*claude\\b",
+        "\\bc\\.?\\s*a\\.?\\s*debussy\\b"
+      ],
+      "Taylor Swift": ["\\btaylor\\s+swift\\b"],
+      "Adele": ["\\badele\\b"],
+      "Billie Eilish": ["\\bbillie\\s+eilish\\b", "\\beilish\\b"],
+      "Elton John": ["\\belton\\s+john\\b"],
+      "Queen": ["\\bqueen\\b", "\\bfreddie\\s+mercury\\b", "\\bmercury\\s+freddie\\b", "\\bmercury\\b"],
+      "The Beatles": ["\\bthe\\s+beatles\\b", "\\blennon\\s+john\\b", "\\bmccartney\\s+paul\\b", "\\blennon\\b", "\\bmccartney\\b"]
+      },
+      "exclude_title": [
+      "tutorial|lesson|how\\s+to"
+      ]
     }
+
   }
 }
