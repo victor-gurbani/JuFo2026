@@ -664,7 +664,7 @@ Das Quickstart-Skript orchestriert folgende Schritte:
 \begin{lstlisting}
 python3 src/corpus_curation.py --min-rating 0
 \end{lstlisting}
-\textit{Ausgabe}: \texttt{data/curated/solo\_piano\_corpus.csv} (144 Werke, balanciert), \texttt{solo\_piano\_mxl\_paths.txt}
+\textit{Ausgabe}: \texttt{data/curated/solo\_piano\_corpus.csv} (144~Werke), \newline\texttt{solo\_piano\_mxl\_paths.txt}
 
 \textbf{[2/10] Struktur-Parsing}
 \begin{lstlisting}
@@ -730,7 +730,7 @@ python3 src/significance_tests.py \
 \begin{lstlisting}
 python3 src/significance_visualizations.py --top-n 15
 \end{lstlisting}
-\textit{Ausgabe}: Bar-Charts, Heatmaps (Paar-Counts, Mean-Difference, Sym-Log) in \texttt{figures/significance/}
+\textit{Ausgabe}: Bar-Charts, Heatmaps (Paar-Counts, Mean-Diff., Sym-Log) in \newline\texttt{figures/significance/}
 
 \subsubsection{Stufe 9--10: Annotation und Aggregation}
 
@@ -843,7 +843,7 @@ python3 src/significance_tests.py --alpha 0.05
     
     \item[Matplotlib Backend-Fehler auf Headless-Systemen] Server ohne Display benötigen nicht-interaktives Backend. \textbf{Lösung}: \texttt{export MPLBACKEND=Agg} vor Ausführung setzen.
     
-    \item[Speicherprobleme bei Bach-Choralkompilationen] Einige Bach-Werke enthalten 100+ Choräle in einer Datei. \textbf{Lösung}: \texttt{--limit} Parameter nutzen oder RAM auf mindestens 16 GB erhöhen.
+    \item[Speicherprobleme bei Bach-Chorälen] Einige Bach-Werke enthalten 100+ Choräle. \textbf{Lösung}: \texttt{-{}-limit} Parameter nutzen oder RAM auf min.\ 16\,GB erhöhen.
     
     \item[Abweichende PCA-Ergebnisse trotz \texttt{random\_state=42}] Unterschiedliche \texttt{scikit-learn}-Versionen können minimal andere Rotationen erzeugen. \textbf{Lösung}: Für exakte Replikation Versionen pinnen (z.\,B. via \texttt{pip freeze > requirements-lock.txt}) und die Analyse in einer frischen Umgebung ausführen.
     
@@ -889,7 +889,7 @@ Einheitliches Format für alle drei Feature-Typen:
 
 \section{Anhang C: Online-Links und Indexseiten}
 
-\newcommand{\linkurl}[1]{\href{#1}{\textcolor{blue}{\underline{\nolinkurl{#1}}}}}
+\newcommand{\linkurl}[1]{\href{#1}{\textcolor{blue}{\underline{\small\nolinkurl{#1}}}}}
 
 Alle Abbildungen im PDF sind klickbar und führen zu den interaktiven Online-Versionen. Zur Sicherheit sind alle Links hier gesammelt aufgeführt (für Leserinnen und Leser ohne PDF-Link-Unterstützung).
 
