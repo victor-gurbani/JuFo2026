@@ -204,7 +204,7 @@ Die computergestützte Stilanalyse hat seit den 1990er Jahren mehrere methodisch
 \end{table}
 
 \section{Vorgehensweise, Materialien und Methoden}
-Die Pipeline wurde vollständig in Python~3.10 entwickelt (\texttt{pandas}, \texttt{numpy}, \texttt{scipy}, \texttt{scikit-learn}, \texttt{plotly}, \texttt{music21}). Alle Skripte liegen im Verzeichnis \texttt{src/}.
+Die Pipeline wurde vollständig in Python~3.10 entwickelt (\\texttt{pandas}, \\texttt{numpy}, \\texttt{scipy}, \\texttt{scikit-learn}, \\texttt{plotly}, \\texttt{music21}). Alle Skripte liegen im Verzeichnis \\texttt{src/}; eine visuelle Übersicht der vierstufigen Architektur findet sich in Abbildung~\\ref{fig:pipeline} (Anhang~B).
 
 \subsection{Materialien: Kuratierung des PDMX-Korpus}
 \begin{itemize}
@@ -613,6 +613,16 @@ Diese vollständige Dokumentation ermöglicht die Replikation und Erweiterung de
 \section{Anhang B: Reproduzierbarkeits-Leitfaden}
 
 Dieser Anhang dokumentiert die vollständige Software-Pipeline zur exakten Replikation aller Ergebnisse. Alle Befehle und Skripte sind im Projekt-Repository verfügbar.
+
+\subsection{Pipeline-Architektur}
+
+Abbildung~\ref{fig:pipeline} zeigt den vollständigen Datenfluss von den Rohdaten bis zur Visualisierung.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/pipeline_architecture.png}
+    \caption{Systemarchitektur der Analyse-Pipeline. Phase~1 filtert 254\,077 PDMX-Einträge auf 144 balancierte Klavierwerke. Phase~2 extrahiert 36 Merkmale in drei Kategorien. Phase~3 führt statistische Tests durch. Phase~4 erzeugt interaktive Visualisierungen und Evolutionsmetriken.}\label{fig:pipeline}
+\end{figure}
 
 \subsection{Systemvoraussetzungen und Ressourcenbedarf}
 
