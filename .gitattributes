@@ -11,15 +11,18 @@
 # === Language Statistics (Linguist) ===
 # Mark generated files so they don't skew stats
 # Using 'linguist-vendored' forces them to be treated as 3rd party code (excluded from stats)
-figures/**/*.html linguist-generated=true 
+#figures/**/*.html linguist-generated=true 
+*.html linguist-generated=true
 # text diff
-tmp/**/*.html  linguist-generated=true 
+#tmp/**/*.html  linguist-generated=true 
 # text diff
 figures/**/*.svg  linguist-generated=true 
 # text diff
 
 # Unmark index files (handwritten/templated)
-figures/**/index.html linguist-vendored=false linguist-generated=false text diff
+# figures/**/index.html linguist-vendored=false linguist-generated=false text diff
+index.html linguist-vendored=false linguist-generated=false
+
 
 # === Diff & Merge Drivers ===
 # Use nbdime for clean Jupyter diffs
