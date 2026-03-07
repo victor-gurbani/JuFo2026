@@ -27,6 +27,41 @@
 \usepackage[ngerman]{babel}
 \usepackage{csquotes}
 \usepackage[backend=biber,style=ieee,sorting=nyt]{biblatex}
+\DeclareAutoCiteCommand{footfull}{\footfullcite}{\footfullcites}
+\ExecuteBibliographyOptions{autocite=footfull}
+
+% Shorten footnote citations to crucial info
+
+
+\AtEveryCitekey{%
+  \clearfield{url}%
+  \clearfield{urldate}%
+  \clearfield{doi}%
+  \clearfield{issn}%
+  \clearfield{isbn}%
+  \clearfield{note}%
+  \clearfield{volume}%
+  \clearfield{number}%
+  \clearfield{pages}%
+  \clearfield{journaltitle}%
+  \clearfield{booktitle}%
+  \clearfield{eventtitle}%
+  \clearfield{howpublished}%
+  \clearlist{publisher}%
+  \clearlist{location}%
+  \clearname{editor}%
+  \iffieldundef{shorttitle}{}{\clearfield{title}\clearfield{subtitle}}%
+}
+
+% Make sure shorttitle is printed if title is cleared
+\renewbibmacro*{title}{%
+  \iffieldundef{title}
+    {\iffieldundef{shorttitle}
+       {}
+       {\printfield[title]{shorttitle}}}
+    {\printfield[title]{title}}%
+}
+
 \addbibresource{references.bib}
 
 % Better figure placement defaults
@@ -148,7 +183,7 @@ Alle Skripte, Daten und Visualisierungen sind dokumentiert und ermöglichen repr
 \section{Motivation und Fragestellung}
 In der historischen Musikwissenschaft wird der Wandel von Epochen meist durch qualitative Stilmerkmale beschrieben. Die Frage, mit welcher Dynamik und in welche Richtung sich musikalische Parameter über die Zeit verändern, bleibt jedoch oft rein deskriptiv. Diese Arbeit verfolgt das Ziel, die Evolution der Musiksprache von der Barockzeit bis zum Impressionismus als messbare Trajektorie in einem multidimensionalen Merkmalsraum zu kartographieren.
 
-Während bisherige Studien meist auf die Trennung von Stilen fokussierten\footnote{Vgl.\ \cite{LinJeng1987, Simonetta2025}.}, rückt hier die \enquote{Vektorgeschwindigkeit} des Wandels in den Fokus. Lin-Jengs Pionierarbeit von 1987 versuchte bereits, Mozart, Chopin und Debussy mittels Prolog-Regeln zu unterscheiden, war jedoch durch manuelles DARMS-Encoding und kleine Stichproben limitiert. Moderne Ressourcen -- das 2024 veröffentlichte PDMX-MusikXML-Archiv\footnote{\cite{PDMX2024}.} mit 254\,077 Partituren und die \texttt{music21}-Bibliothek\footnote{\cite{Cuthbert2010}.} -- ermöglichen nun eine skalierbare Neubearbeitung.
+Während bisherige Studien meist auf die Trennung von Stilen fokussierten\autocite[Vgl.][]{LinJeng1987, Simonetta2025}, rückt hier die \enquote{Vektorgeschwindigkeit} des Wandels in den Fokus. Lin-Jengs Pionierarbeit von 1987 versuchte bereits, Mozart, Chopin und Debussy mittels Prolog-Regeln zu unterscheiden, war jedoch durch manuelles DARMS-Encoding und kleine Stichproben limitiert. Moderne Ressourcen -- das 2024 veröffentlichte PDMX-MusikXML-Archiv\autocite{PDMX2024} mit 254\,077 Partituren und die \texttt{music21}-Bibliothek\autocite{Cuthbert2010} -- ermöglichen nun eine skalierbare Neubearbeitung.
 
 Besonders Chopin nimmt dabei eine Schlüsselrolle ein: Er wird hier mathematisch als \enquote{Brückenfigur} verifiziert, an der die stilistische Beschleunigung der Romantik messbar kulminiert. Unter Verwendung des \textit{music21}-Frameworks soll die traditionelle Analyse durch eine empirische Kartographie ergänzt werden, die den \enquote{Puls} der Musikgeschichte greifbar macht.
 
@@ -166,7 +201,7 @@ Daraus ergeben sich die folgenden zentralen Fragestellungen:
 
 \section{Hintergrund und theoretische Grundlagen}
 \subsection{Musikwissenschaftlicher Kontext}
-Die Auswahl der vier Komponisten deckt zentrale Epochen der westlichen Musikgeschichte ab:\footnote{Vgl. etwa \cite{DebussyCharacteristics,ChopinTransformations}.}
+Die Auswahl der vier Komponisten deckt zentrale Epochen der westlichen Musikgeschichte ab:\autocite[Vgl. etwa][]{DebussyCharacteristics,ChopinTransformations}
 \begin{itemize}
     \item \textbf{Johann Sebastian Bach (Barock)}: polyphone Dichte, kontrapunktische Strenge, funktionale Harmonik.
     \item \textbf{Wolfgang Amadeus Mozart (Klassik)}: homophone Klarheit, symmetrische Phrasen, kadenzielle Disziplin.
@@ -178,15 +213,15 @@ Die Auswahl der vier Komponisten deckt zentrale Epochen der westlichen Musikgesc
 Die computergestützte Stilanalyse hat seit den 1990er Jahren mehrere methodische Paradigmenwechsel erfahren. Jede Ära hinterließ spezifische Werkzeuge und Limitationen:
 
 \begin{description}
-    \item[Humdrum-Ära (1990er):] Von Hippels Dissertation\footnote{\cite{VonHippel2000}.} etablierte statistische Melodieanalyse, fokussierte jedoch auf kognitive Erwartungsmodelle statt stilistischer Differenzierung.
-    \item[MusicXML \& ML (2000er):] McKays jSymbolic-System\footnote{\cite{McKay2010}.} ermöglichte automatische Genre-Klassifikation mittels kNN/SVM, bot jedoch keine Interpretierbarkeit -- ein \enquote{Black-Box}-Ansatz.
-    \item[music21-Revolution (2010er):] Whites Korpusanalysen\footnote{\cite{White2013}.} nutzten deskriptive Statistiken über große Zeiträume, ohne paarweise Komponistenvergleiche oder FDR-Korrektur.
-    \item[Deep-Learning-Ära (2017--):] Hadjeres' DeepBach\footnote{\cite{Hadjeres2018}.} erreichte hohe Genauigkeit in Stil-Imitation, bleibt jedoch opak: \enquote{Warum klingt das wie Bach?} ist nicht beantwortbar.
+    \item[Humdrum-Ära (1990er):] Von Hippels Dissertation\autocite{VonHippel2000} etablierte statistische Melodieanalyse, fokussierte jedoch auf kognitive Erwartungsmodelle statt stilistischer Differenzierung.
+    \item[MusicXML \& ML (2000er):] McKays jSymbolic-System\autocite{McKay2010} ermöglichte automatische Genre-Klassifikation mittels kNN/SVM, bot jedoch keine Interpretierbarkeit -- ein \enquote{Black-Box}-Ansatz.
+    \item[music21-Revolution (2010er):] Whites Korpusanalysen\autocite{White2013} nutzten deskriptive Statistiken über große Zeiträume, ohne paarweise Komponistenvergleiche oder FDR-Korrektur.
+    \item[Deep-Learning-Ära (2017--):] Hadjeres' DeepBach\autocite{Hadjeres2018} erreichte hohe Genauigkeit in Stil-Imitation, bleibt jedoch opak: \enquote{Warum klingt das wie Bach?} ist nicht beantwortbar.
 \end{description}
 
-\noindent Frühe Versuche wie Lin-Jengs Arbeit von 1987\footnote{\cite{LinJeng1987}.} litten unter kleinem Korpus, manuellem Encoding und begrenzten Werkzeugen. Aktuelle Übersichtsarbeiten kritisieren die Dominanz schwer interpretierbarer Modelle oder ungenügender Validierung.\footnote{\cite{Simonetta2025}.}
+\noindent Frühe Versuche wie Lin-Jengs Arbeit von 1987\autocite{LinJeng1987} litten unter kleinem Korpus, manuellem Encoding und begrenzten Werkzeugen. Aktuelle Übersichtsarbeiten kritisieren die Dominanz schwer interpretierbarer Modelle oder ungenügender Validierung.\autocite{Simonetta2025}
 
-\textbf{Positionierung dieser Arbeit:} Das vorliegende Projekt kombiniert die Stärken aller Phasen: Skalierbarkeit (PDMX-Archiv mit $>$250\,000 Partituren\footnote{\cite{PDMX2024}.}), Interpretierbarkeit (36 explizite Merkmale statt verborgener Gewichte), statistische Rigorosität (ANOVA, Tukey-HSD, FDR-Korrektur) und Zugänglichkeit (\texttt{music21}\footnote{\cite{Cuthbert2010}.}, interaktive Visualisierungen). Tabelle~\ref{tab:evolution} vergleicht den methodischen Fortschritt.
+\textbf{Positionierung dieser Arbeit:} Das vorliegende Projekt kombiniert die Stärken aller Phasen: Skalierbarkeit (PDMX-Archiv mit $>$250\,000 Partituren\autocite{PDMX2024}), Interpretierbarkeit (36 explizite Merkmale statt verborgener Gewichte), statistische Rigorosität (ANOVA, Tukey-HSD, FDR-Korrektur) und Zugänglichkeit (\texttt{music21}\autocite{Cuthbert2010}, interaktive Visualisierungen). Tabelle~\ref{tab:evolution} vergleicht den methodischen Fortschritt.
 
 \begin{table}[H]
     \centering
@@ -258,7 +293,7 @@ Tabelle~\ref{tab:features} erklärt zentrale Merkmale, die später als signifika
 \begin{enumerate}
     \item \textbf{ANOVA}: Einweg-ANOVA pro Merkmal testet globale Mittelwertunterschiede zwischen vier Gruppen. Die 36 Tests wurden auf Mindeststichproben (36 Werke/Komponist) geprüft.
     \item \textbf{Tukey HSD}: Bei signifikanten ANOVA-Ergebnissen identifiziert Tukey HSD die betroffenen Komponistenpaare mit Konfidenzintervallen und adjustierten \textit{p}-Werten.
-    \item \textbf{Multiple-Testing-Korrektur}: Bonferroni ist bei 36 Tests streng (14 statt 29 Treffer bei \(\alpha=0{,}05\)). Benjamini--Hochberg FDR (\(q<0{,}05\)) bestätigt in der aktuellen Auswertung ebenfalls 29 Merkmale; im Export werden dennoch FDR-adjustierte \textit{p}-Werte berichtet.\footnote{Vgl.\ \cite{Benjamini1995}.}
+    \item \textbf{Multiple-Testing-Korrektur}: Bonferroni ist bei 36 Tests streng (14 statt 29 Treffer bei \(\alpha=0{,}05\)). Benjamini--Hochberg FDR (\(q<0{,}05\)) bestätigt in der aktuellen Auswertung ebenfalls 29 Merkmale; im Export werden dennoch FDR-adjustierte \textit{p}-Werte berichtet.\autocite[Vgl.][]{Benjamini1995}
     \item \textbf{PCA}: Für die PCA wurden aus den 36 Merkmalen reine Zähl- und Größenmerkmale entfernt (\texttt{note\_count}, \texttt{note\_event\_count}, \texttt{chord\_event\_count}, \texttt{chord\_quality\_total}, \texttt{roman\_chord\_count}, \texttt{dissonant\_note\_count}), sodass eine standardisierte 144×30-Matrix entsteht. Die PCA wurde mit Seed 42 durchgeführt; PC1--PC3 erklären 48{,}2\% der Varianz (22{,}3\%, 16{,}1\%, 9{,}8\%). Gaußsche Dichtewolken (Plotly-Isosurfaces) visualisieren Cluster.
 \end{enumerate}
 
@@ -408,7 +443,7 @@ Die DD-Metrik (Abschnitt~5.3) erlaubt es, stilistischen Wandel als messbare \enq
 
 \textbf{Rhythmische Stagnation:} DD-Werte der rhythmischen Entropie verharren zwischen Klassik und Romantik nahe Null ($DD \approx 0$). Die rhythmische Befreiung kam erst mit Debussy (+1,43). Die romantische Revolution war primär harmonisch-melodisch.
 
-\textbf{Chopins Brückenrolle:}\footnote{\cite{ChopinTransformations}. Chopin transformierte die Ausdrucksmittel, ohne das metrische Gerüst der Zeitvorgänger zu sprengen. Die Trennung der PCA-Cluster entlang unterschiedlicher Hauptkomponenten (PC1 für Harmonik vs. PC2/3 für Rhythmik) erklärt sich schlüssig aus dieser Dichotomie.} Die DD-Koeffizienten präzisieren Chopins katalytische Funktion mathematisch: harmonischer Innovator ($DD > 0$), rhythmischer Konservativer ($DD \approx 0$). Er dehnte tonale Grenzen bis zum Bruchpunkt, bewahrte aber rhythmische Symmetrie -- objektiv-mathematisch die Schnittstelle zwischen klassischer Ordnung und moderner Auflösung.
+\textbf{Chopins Brückenrolle:}\autocite[][Chopin transformierte die Ausdrucksmittel, ohne das metrische Gerüst der Zeitvorgänger zu sprengen. Die Trennung der PCA-Cluster entlang unterschiedlicher Hauptkomponenten (PC1 für Harmonik vs. PC2/3 für Rhythmik) erklärt sich schlüssig aus dieser Dichotomie.]{ChopinTransformations} Die DD-Koeffizienten präzisieren Chopins katalytische Funktion mathematisch: harmonischer Innovator ($DD > 0$), rhythmischer Konservativer ($DD \approx 0$). Er dehnte tonale Grenzen bis zum Bruchpunkt, bewahrte aber rhythmische Symmetrie -- objektiv-mathematisch die Schnittstelle zwischen klassischer Ordnung und moderner Auflösung.
 
 \subsection{Zyklische Evolution: Von Klassik zu Pop}
 Eine explorative Erweiterung auf populäre Musik offenbart: Die stilistische Evolution verläuft nicht linear, sondern zyklisch (Abbildung~\ref{fig:classicpop}).\footnote{Die Befunde suggerieren eine \enquote{Pendelbewegung} der Musikgeschichte: Nach maximaler harmonischer Komplexität bei Debussy kehrt die populäre Musik des 20. Jahrhunderts zu struktureller Einfachheit zurück. Elton Johns Werk (1970er Jahre) positioniert sich im PCA-Raum zwischen Debussy und Mozart -- er behält impressionistische Klangfarben, vereinfacht aber die harmonische Struktur. Ob diese \enquote{Rückkehr zur Einfachheit} ein universelles Muster musikalischer Evolution nach Perioden maximaler Komplexität darstellt, ist eine offene Forschungsfrage.} Nach maximaler Komplexität bei Debussy kehrt Pop-Musik zu struktureller Einfachheit zurück -- moderne Produktionen nähern sich Mozart-ähnlichen Werten bei Dissonanzrate und harmonischer Dichte.
