@@ -335,6 +335,12 @@ export default function Home() {
               Explore stylistic evolution in real time. Load precomputed PCA clouds or analyze a new score
               from the corpus to project it into the stylistic space.
             </p>
+            <Link
+              href="/clouds"
+              className="mt-4 inline-flex h-10 items-center justify-center rounded-xl bg-blue-500/90 px-4 text-sm font-semibold text-white transition hover:bg-blue-400"
+            >
+              Open subset clouds
+            </Link>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/70 p-4 backdrop-blur-xl dark:bg-white/5">
