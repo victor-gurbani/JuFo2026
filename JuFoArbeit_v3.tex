@@ -415,6 +415,45 @@ Die \textbf{DDD-Analyse} (Triple-Difference) der Tongeschlechter offenbart marka
 \subsection{Annotation auf Notenebene}
 \texttt{src/annotate\_musicxml.py} färbt Durchgänge (orange), Appoggiaturen (violett), andere Dissonanzen (rot) und chromatische Harmonien (türkis) ein, ergänzt Akkordsymbole und exportiert optional PDF/PNG via MuseScore-CLI. Batchläufe (\texttt{generate\_selected\_annotations.py}) erstellen acht Referenzpartituren (2 pro Komponist). Dadurch lassen sich statistische Befunde unmittelbar an den Partituren überprüfen; alle annotierten Partituren sind unter den Links in Anhang~C interaktiv verfügbar.
 
+\subsection{Klassifikation: Interpretierbarer Random Forest vs. Neuronale Netze}
+Die statistische Trennbarkeit der Komponisten (Abschnitt~5.1) legt nahe, dass ein maschinelles Lernmodell die Stilzugehörigkeit unbekannter Werke mit hoher Sicherheit vorhersagen kann. In der Musikwissenschaft stehen solche Modelle jedoch oft in der Kritik, da sie als \enquote{Black Box} zwar Ergebnisse liefern, aber deren Entstehung nicht transparent machen. In dieser Arbeit verfolgen wir daher einen dualen Ansatz: Ein hochgradig interpretierbarer Random Forest (RF) wird gegen ein klassisches neuronales Netz (MLP) getestet, um den \enquote{Preis der Erklärbarkeit} zu quantifizieren.
+
+\subsubsection{Der interpretierbare Random Forest}
+Das Ziel des Random-Forest-Modells war nicht die maximale Genauigkeit, sondern die Identifikation derjenigen Entscheidungsregeln, die den Stilwandel am stärksten prägen. Um dies zu erreichen, wurde die Pipeline unter drei strengen Bedingungen optimiert:
+
+\begin{enumerate}
+    \item \textbf{Kollinearitätsfilterung:} Um redundante Merkmale zu entfernen, die die Interpretierbarkeit verwässern, wurde eine Spearman-Rangkorrelationsmatrix erstellt. Cluster von Merkmalen mit einer Korrelation von $r > 0{,}8$ wurden durch das jeweils aussagekräftigste Merkmal ersetzt. Dieser Schritt reduzierte den Merkmalsraum von 30 auf 23 unabhängige Variablen.
+    
+    \item \textbf{Cost-Complexity Pruning:} Mittels \textit{Minimal Cost-Complexity Pruning} ($ccp\_alpha$) wurde die Baumtiefe im Ensemble gezielt begrenzt. Anstatt tiefe, überangepasste Bäume zu generieren, wurden flache Strukturen erzwungen, die oft nur 3--5 Entscheidungsebenen aufweisen.
+    
+    \item \textbf{Globale Logik-Dekodierung via SHAP:} Zur Analyse der Ensemble-Logik wurden SHAP-Werte (SHapley Additive exPlanations) berechnet. Diese erlauben es, den Einfluss jedes Merkmals auf die Klassifikationsentscheidung global zu gewichten und musikalisch zu interpretieren.
+\end{enumerate}
+
+\noindent In der 5-Fold Cross-Validation erreichte dieser interpretierbare RF eine Genauigkeit von $\approx 70\,\%$. Die Verwechslungsmatrix (Abbildung~\ref{fig:rf_cm}) zeigt, dass Fehlklassifikationen meist zwischen chronologisch benachbarten Epochen (z.\,B. Chopin und Debussy) auftreten, was die These der fließenden Stilübergänge stützt.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/random_forest/confusion_matrix.png}
+    \caption{Verwechslungsmatrix des Random-Forest-Modells (5-Fold Cross-Validation). Die Diagonale zeigt die korrekten Zuweisungen. Die meisten Fehler treten zwischen Chopin und Debussy auf, was die stilistische Nähe dieser Epochen im Merkmalsraum widerspiegelt.}\label{fig:rf_cm}
+\end{figure}
+
+\subsubsection{Vergleich mit neuronalen Netzen (MLP)}
+Parallel zum Random Forest wurde ein \textit{Multi-Layer Perceptron} (MLP) trainiert. Dieses neuronale Netz durfte den vollen Merkmalsraum (30 Features) ohne Vorfilterung oder Komplexitätsbeschränkung nutzen. Es diente als Referenz für das theoretisch erreichbare Maximum an Genauigkeit auf dem 144-Stücke-Datensatz.
+
+Das Ergebnis war überraschend: Der interpretierbare RF schnitt mit $70{,}1\,\%$ Genauigkeit leicht besser ab als das unbeschränkte neuronale Netz ($68{,}7\,\%$; vgl. Abbildung~\ref{fig:nn_comparison}). Wir interpretieren diesen Befund dahingehend, dass die Kombination aus Kollinearitätsfilterung und striktem Pruning als effektive Regularisierung wirkte. Während das neuronale Netz auf dem relativ kleinen Datensatz (144 Werke) zu leichtem Overfitting neigte, zwang die interpretierbare Architektur das Modell dazu, sich auf die robustesten musikalischen Merkmale -- wie den Tonumfang und die harmonische Dichte -- zu konzentrieren (Abbildung~\ref{fig:rf_scatter}).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/random_forest/nn_vs_rf_comparison.png}
+    \caption{Vergleich der Klassifikationsleistung: Der interpretierbare Random Forest (RF) erzielt trotz seiner Komplexitätsbeschränkung eine leicht höhere Genauigkeit als das neuronale Netz (MLP). Die Filterung redundanter Merkmale fungiert hier als effiziente Regularisierung.}\label{fig:nn_comparison}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/random_forest/classification_scatter.png}
+    \caption{Precision-Recall-Scatterplot des Random Forests. Mozart und Debussy zeigen die höchste Trennschärfe, während Bach und Chopin aufgrund ihrer breiteren stilistischen Streuung komplexere Entscheidungsgrenzen erfordern.}\label{fig:rf_scatter}
+\end{figure}
+
 \subsection{Externer Falltest: Prädiktive Validierung}
 Die entscheidende Frage für jedes Modell ist: \emph{Generalisiert es auf unbekannte Daten?} Mit \texttt{src/highlight\_pca\_piece.py} können externe Stücke -- die nicht im Trainingskorpus enthalten waren -- in die PCA-Wolken projiziert werden. Diese Projektion ist ein rigider Test der Methodik: Wenn die 36 Merkmale tatsächlich musikologisch bedeutsame Stilaspekte erfassen, sollte ein Stück mit bekannten stilistischen Einflüssen \emph{vorhersagbar} zwischen den entsprechenden Clustern landen.
 
