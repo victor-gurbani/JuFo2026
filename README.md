@@ -440,6 +440,29 @@ python3 src/generate_selected_annotations.py
 
 </details>
 
+<details>
+<summary><strong>9. Random Forest Classification (Phase 3 Step 3)</strong></summary>
+
+Train and evaluate a high-accuracy Random Forest classifier to predict composer style from the extracted feature vectors. This stage includes automatic collinearity removal (via hierarchical clustering) and hyperparameter optimization to balance accuracy with model interpretability.
+
+1. Confirm harmonic, melodic, and rhythmic CSVs exist under `data/features/`.
+2. Run the classifier:
+	```bash
+	python3 src/classify_rf.py
+	```
+3. Useful flags:
+	- `--seed VALUE`: set the random seed for reproducibility (default `42`).
+	- `--harmonic PATH`: override the harmonic features CSV path.
+	- `--melodic PATH`: override the melodic features CSV path.
+	- `--rhythmic PATH`: override the rhythmic features CSV path.
+4. Outputs:
+	- `data/models/random_forest_composer.pkl`: serialized model and artifacts (scaler, encoders).
+	- `figures/rf_sample_tree.png` / `.txt`: visual and text exports of a sample decision tree.
+	- `figures/rf_shap_summary.png`: SHAP value plot showing which features contribute most to the classification.
+	- A comparison table in the console contrasting the baseline unpruned model against the optimized pruned version (metrics: accuracy, average tree depth, and total nodes).
+
+</details>
+
 ---
 
 ## Code Highlights
