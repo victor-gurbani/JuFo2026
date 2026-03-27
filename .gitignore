@@ -5,7 +5,9 @@ tmp*.csv
 tmp*.txt
 tmp*.xml
 tmp*.mxl
-data/curated/solo_piano_*
+tmp*.py
+_tmp*
+odata/curated/solo_piano_*
 !data/curated/solo_piano_corpus.csv
 !data/curated/solo_piano_mxl_paths.txt
 
@@ -26,6 +28,7 @@ data/features/*feature_cache*.csv.meta.json
 logs/
 figures/embeddings/subsets/
 tmp/
+web-interface/public/temp/
 
 # LaTeX
 *.aux
