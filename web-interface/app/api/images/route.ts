@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   }
 
   // Safe list of allowed folders to prevent directory traversal
-  const allowedFolders = ["harmonic", "melodic", "rhythmic", "significance", "embeddings", "highlights"];
+  const allowedFolders = ["harmonic", "melodic", "rhythmic", "significance", "embeddings", "highlights", "random_forest"];
   if (!allowedFolders.includes(folder)) {
     return NextResponse.json({ error: "Invalid folder" }, { status: 403 });
   }

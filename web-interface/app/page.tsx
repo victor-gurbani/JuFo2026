@@ -69,6 +69,12 @@ const kioskCarousels: CarouselDef[] = [
     folder: "rhythmic",
   },
   {
+    id: "random_forest",
+    label: "Random Forest & NN",
+    type: "image",
+    folder: "random_forest",
+  },
+  {
     id: "annotated",
     label: "Annotated scores",
     type: "html",
