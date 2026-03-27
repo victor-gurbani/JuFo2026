@@ -20,7 +20,7 @@ from scipy.spatial.distance import squareform
 import scipy.cluster.hierarchy as hc
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import RandomizedSearchCV, train_test_split
+from sklearn.model_selection import RandomizedSearchCV, train_test_split, StratifiedKFold, cross_val_predict
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, ConfusionMatrixDisplay
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import plot_tree, export_text
@@ -64,7 +64,7 @@ def _print_comparison_table(
     acc_change = best_acc - baseline_acc
     acc_pct_change = (acc_change / baseline_acc * 100) if baseline_acc > 0 else 0
     print(
-        f"{'Accuracy':<25} {baseline_acc:<25.4f} {best_acc:<25.4f} "
+        f"{'5-Fold CV Accuracy':<25} {baseline_acc:<25.4f} {best_acc:<25.4f} "
         f"{acc_change:+.4f} ({acc_pct_change:+.1f}%)"
     )
 
@@ -176,7 +176,7 @@ def main() -> int:
     feature_cols = selected_features
     print(f"Selected uncorrelated features count: {len(feature_cols)}")
 
-    print("Splitting data into train/test sets...")
+    print("Splitting data into train/test sets for final model building...")
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=args.seed, stratify=y
     )
@@ -191,23 +191,17 @@ def main() -> int:
         n_jobs=-1,
     )
     baseline_rf.fit(X_train, y_train)
-    baseline_pred = baseline_rf.predict(X_test)
-    baseline_acc = accuracy_score(y_test, baseline_pred)
     baseline_metrics = _compute_tree_metrics(baseline_rf)
-    print(f"Baseline Unpruned - Accuracy: {baseline_acc:.4f}")
-    print(
-        f"  Avg Tree Depth: {baseline_metrics['avg_depth']:.2f}, "
-        f"Total Nodes: {baseline_metrics['total_nodes']}"
-    )
 
     print("\nOptimizing Random Forest hyperparameters...")
     rf = RandomForestClassifier(random_state=args.seed)
 
+    # FORCED PRUNING: We remove ccp_alpha=0.0 to strictly enforce tree simplification.
     param_distributions = {
-        "n_estimators": [100, 200, 300, 500],
-        "max_depth": [None, 10, 20, 30],
-        "min_samples_leaf": [1, 2, 4],
-        "ccp_alpha": [0.0, 0.001, 0.005, 0.01, 0.02],
+        "n_estimators": [100, 200, 300],
+        "max_depth": [5, 10, 15, 20],
+        "min_samples_leaf": [2, 3, 4],
+        "ccp_alpha": [0.005, 0.01, 0.015, 0.02, 0.03],
     }
 
     search = RandomizedSearchCV(
@@ -223,30 +217,63 @@ def main() -> int:
     search.fit(X_train, y_train)
     best_rf = search.best_estimator_
     print(f"Best parameters found: {search.best_params_}")
-
-    print("Evaluating model on test set...")
-    y_pred = best_rf.predict(X_test)
-    best_acc = accuracy_score(y_test, y_pred)
     best_metrics = _compute_tree_metrics(best_rf)
+
+    print("\nEvaluating model using 5-Fold Cross-Validation on the ENTIRE dataset...")
+    # This evaluates on 5 different test splits and aggregates them,
+    # ensuring every single piece in the 144 dataset is tested exactly once as an "unseen" holdout.
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=args.seed)
+    cv_baseline_pred = cross_val_predict(baseline_rf, X, y, cv=cv, n_jobs=-1)
+    cv_best_pred = cross_val_predict(best_rf, X, y, cv=cv, n_jobs=-1)
+
+    baseline_acc = accuracy_score(y, cv_baseline_pred)
+    best_acc = accuracy_score(y, cv_best_pred)
 
     _print_comparison_table(baseline_acc, best_acc, baseline_metrics, best_metrics)
 
-    print("\nClassification Report:")
-    print(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
+    print("\nClassification Report (Aggregated 5-Fold CV):")
+    cr_text = classification_report(y, cv_best_pred, target_names=label_encoder.classes_)
+    print(cr_text)
 
-    print("Confusion Matrix:")
-    cm = confusion_matrix(y_test, y_pred)
+    print("Confusion Matrix (Aggregated 5-Fold CV):")
+    cm = confusion_matrix(y, cv_best_pred)
     print(cm)
     
     print("Generating color-coded Confusion Matrix plot...")
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=label_encoder.classes_)
     fig, ax = plt.subplots(figsize=(8, 6))
     disp.plot(cmap=plt.cm.Blues, ax=ax)
-    plt.title("Random Forest Confusion Matrix")
+    plt.title("Random Forest Confusion Matrix (5-Fold CV)")
     cm_path = DEFAULT_FIG_DIR / "confusion_matrix.png"
     plt.savefig(cm_path, dpi=300, bbox_inches="tight")
     plt.close()
     print(f"Confusion Matrix plot saved to {cm_path}")
+
+    print("Generating Precision vs Recall scatter plot...")
+    cr_dict = classification_report(y, cv_best_pred, target_names=label_encoder.classes_, output_dict=True)
+    
+    plt.figure(figsize=(8, 6))
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] # Distinct colors for the 4 composers
+    for idx, cls in enumerate(label_encoder.classes_):
+        if cls in cr_dict:
+            plt.scatter(cr_dict[cls]['recall'], cr_dict[cls]['precision'], 
+                        label=cls, s=150, color=colors[idx], edgecolor='black', zorder=5)
+            plt.annotate(cls, (cr_dict[cls]['recall'], cr_dict[cls]['precision']), 
+                         xytext=(10, 5), textcoords='offset points', fontweight='bold')
+    
+    plt.plot([0, 1], [0, 1], 'k--', alpha=0.3, zorder=1) # Diagonal line
+    plt.xlabel('Recall (How many actual pieces were found?)')
+    plt.ylabel('Precision (How many predicted pieces were correct?)')
+    plt.title('Classification Performance by Composer (5-Fold CV)')
+    plt.xlim(0.3, 1.05)
+    plt.ylim(0.3, 1.05)
+    plt.grid(True, linestyle=':', alpha=0.7)
+    plt.legend(loc='lower left')
+    
+    scatter_path = DEFAULT_FIG_DIR / "classification_scatter.png"
+    plt.savefig(scatter_path, dpi=300, bbox_inches="tight")
+    plt.close()
+    print(f"Classification scatter plot saved to {scatter_path}")
 
     print("Finding the single most accurate tree in the forest for visualization...")
     # Evaluate all trees in the forest on the test set to find the best representative tree
@@ -257,7 +284,7 @@ def main() -> int:
     
     best_tree_idx = np.argmax(tree_accuracies)
     best_single_tree = best_rf.estimators_[best_tree_idx]
-    print(f"  -> Selected Tree #{best_tree_idx} (Single-tree accuracy: {tree_accuracies[best_tree_idx]:.4f})")
+    print(f"  -> Selected Tree #{best_tree_idx} (Single-tree accuracy on holdout: {tree_accuracies[best_tree_idx]:.4f})")
 
     print("Exporting best single tree visualizations...")
     first_tree = best_single_tree
