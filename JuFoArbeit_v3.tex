@@ -436,7 +436,7 @@ Das Ziel des Random-Forest-Modells war nicht die maximale Genauigkeit, sondern d
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/random_forest/confusion_matrix.png}
-    \caption{Verwechslungsmatrix des Random-Forest-Modells (5-Fold Cross-Validation). Die Diagonale zeigt die korrekten Zuweisungen. Die meisten Fehler treten zwischen Chopin und Debussy auf, was die stilistische Nähe dieser Epochen im Merkmalsraum widerspiegelt.}\label{fig:rf_cm}
+    \caption{Verwechslungsmatrix des Random-Forest-Modells (5-Fold Cross-Validation). Die Diagonale zeigt die korrekten Zuweisungen. Die Diagonale zeigt die korrekten Zuweisungen. Auffällig ist, dass Werke von Chopin relativ häufig fälschlicherweise Bach (8-mal) oder Debussy (7-mal) zugeordnet werden, während Bach und Mozart sehr zuverlässig klassifiziert werden..}\label{fig:rf_cm}
 \end{figure}
 
 \subsubsection{Vergleich mit neuronalen Netzen (MLP)}
@@ -453,7 +453,7 @@ Das Ergebnis war überraschend: Der interpretierbare RF schnitt mit $70{,}1\,\%$
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.75\textwidth]{figures/random_forest/classification_scatter.png}
-    \caption{Precision-Recall-Scatterplot des Random Forests. Mozart und Debussy zeigen die höchste Trennschärfe, während Bach und Chopin aufgrund ihrer breiteren stilistischen Streuung komplexere Entscheidungsgrenzen erfordern.}\label{fig:rf_scatter}
+    \caption{Precision-Recall-Scatterplot des Random Forests. Bach und Mozart weisen sowohl eine hohe Recall-Rate als auch Präzision auf und werden vom Modell am besten erkannt. Chopin hingegen fällt im Graphen deutlich ab, da das Modell Schwierigkeiten hat, seine stilistischen Muster eindeutig von den anderen Komponisten abzugrenzen.}\label{fig:rf_scatter}
 \end{figure}
 
 \subsection{Externer Falltest: Prädiktive Validierung}
