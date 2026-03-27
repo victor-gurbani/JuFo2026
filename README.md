@@ -411,7 +411,23 @@ python3 src/clouds_from_feature_cache.py --feature-cache data/embeddings/full_pd
 </details>
 
 <details>
-<summary><strong>8. MusicXML Harmonic Annotation</strong></summary>
+<summary><strong>8. Cluster Evaluation Metrics</strong></summary>
+
+Calculate hard mathematical metrics confirming the statistical validity of the composer clusters in the PCA mapping and raw 36D feature space.
+
+```bash
+python3 src/cluster_evaluation.py \
+    --cache data/embeddings/pca_embedding_cache.csv \
+    --output data/stats/cluster_metrics.json
+```
+
+- Produces the **Silhouette Score**: Measures how similar an object is to its own cluster compared to other clusters. Values $>0$ indicate appropriate clustering, values near $1$ denote perfectly isolated clusters.
+- Produces the **Davies-Bouldin Index**: Evaluates the average 'similarity' between clusters (lower variance and greater distance between centers means a lower index). A lower score indicates better clustering.
+
+</details>
+
+<details>
+<summary><strong>9. MusicXML Harmonic Annotation</strong></summary>
 
 Generate colour-coded MusicXML files that highlight dissonant material and the harmonic backdrop for inspection in MuseScore or other editors:
 
@@ -441,7 +457,7 @@ python3 src/generate_selected_annotations.py
 </details>
 
 <details>
-<summary><strong>9. Random Forest Classification (Phase 3 Step 3)</strong></summary>
+<summary><strong>10. Random Forest Classification (Phase 3 Step 3)</strong></summary>
 
 Train and evaluate a highly interpretable Random Forest classifier to predict composer style. This script emphasizes strict performance evaluation and mathematical transparency over black-box accuracy.
 

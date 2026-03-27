@@ -1,0 +1,10 @@
+{
+    "pca_3d": {
+        "silhouette_score": 0.010012833042082503,
+        "davies_bouldin_index": 3.5108620568058853
+    },
+    "full_36d": {
+        "silhouette_score": 0.017556824812731613,
+        "davies_bouldin_index": 4.096714360380421
+    }
+}
