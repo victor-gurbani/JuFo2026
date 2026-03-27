@@ -303,12 +303,39 @@ def main() -> int:
     plt.tight_layout()
     plt.savefig(tree_png_path, dpi=150, bbox_inches="tight")
     plt.close()
-    print(f"Tree visualization (PNG) saved to {tree_png_path}")
+    print(f"Best Tree visualization (PNG) saved to {tree_png_path}")
 
     tree_text = export_text(first_tree, feature_names=feature_cols)
     with open(tree_txt_path, "w") as f:
         f.write(tree_text)
-    print(f"Tree text export saved to {tree_txt_path}")
+    print(f"Best Tree text export saved to {tree_txt_path}")
+
+    print("Exporting ALL trees in the forest to figures/random_forest/all_trees/...")
+    all_trees_dir = DEFAULT_FIG_DIR / "all_trees"
+    all_trees_dir.mkdir(parents=True, exist_ok=True)
+    
+    for i, tree in enumerate(best_rf.estimators_):
+        tree_png_path = all_trees_dir / f"tree_{i:03d}.png"
+        tree_txt_path = all_trees_dir / f"tree_{i:03d}.txt"
+        
+        plt.figure(figsize=(15, 10))
+        plot_tree(
+            tree,
+            feature_names=feature_cols,
+            class_names=label_encoder.classes_,
+            filled=True,
+            rounded=True,
+            fontsize=8,
+        )
+        plt.tight_layout()
+        plt.savefig(tree_png_path, dpi=100, bbox_inches="tight")  # Lower DPI for bulk export
+        plt.close()
+        
+        tree_text = export_text(tree, feature_names=feature_cols)
+        with open(tree_txt_path, "w") as f:
+            f.write(tree_text)
+            
+    print(f"Exported {len(best_rf.estimators_)} trees to {all_trees_dir}")
 
     print("Generating SHAP values and summary plot...")
     explainer = shap.TreeExplainer(best_rf)
