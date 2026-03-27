@@ -21,7 +21,7 @@ import scipy.cluster.hierarchy as hc
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV, train_test_split
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, ConfusionMatrixDisplay
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import plot_tree, export_text
 
@@ -30,7 +30,7 @@ from feature_embedding import _merge_feature_tables, _prepare_feature_matrix
 DEFAULT_HARMONIC = Path("data/features/harmonic_features.csv")
 DEFAULT_MELODIC = Path("data/features/melodic_features.csv")
 DEFAULT_RHYTHMIC = Path("data/features/rhythmic_features.csv")
-DEFAULT_FIG_DIR = Path("figures")
+DEFAULT_FIG_DIR = Path("figures/random_forest")
 DEFAULT_MODEL_DIR = Path("data/models")
 
 
@@ -232,7 +232,18 @@ def main() -> int:
     print(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
 
     print("Confusion Matrix:")
-    print(confusion_matrix(y_test, y_pred))
+    cm = confusion_matrix(y_test, y_pred)
+    print(cm)
+    
+    print("Generating color-coded Confusion Matrix plot...")
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=label_encoder.classes_)
+    fig, ax = plt.subplots(figsize=(8, 6))
+    disp.plot(cmap=plt.cm.Blues, ax=ax)
+    plt.title("Random Forest Confusion Matrix")
+    cm_path = DEFAULT_FIG_DIR / "confusion_matrix.png"
+    plt.savefig(cm_path, dpi=300, bbox_inches="tight")
+    plt.close()
+    print(f"Confusion Matrix plot saved to {cm_path}")
 
     print("Exporting sample tree visualizations...")
     first_tree = best_rf.estimators_[0]
