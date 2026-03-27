@@ -471,6 +471,22 @@ Key features of this pipeline:
 
 </details>
 
+<details>
+<summary><strong>10. Neural Network Comparison (Phase 3 Step 4)</strong></summary>
+
+Trains a black-box Multi-Layer Perceptron (`MLPClassifier`) Neural Network and pits it head-to-head against the Interpretable Random Forest to evaluate the "Cost of Interpretability".
+
+1. Ensure the Random Forest model was trained first (`src/classify_rf.py` creates `random_forest_composer.pkl`).
+2. Run the comparison:
+	```bash
+	python3 src/classify_nn.py
+	```
+3. Outputs:
+	- A head-to-head terminal table directly comparing 5-Fold Cross Validation Accuracy and Macro F1 scores.
+	- `figures/random_forest/nn_vs_rf_comparison.png`: A grouped bar chart visually contrasting the Precision and Recall of both models for each specific composer.
+
+</details>
+
 ---
 
 ## Code Highlights
