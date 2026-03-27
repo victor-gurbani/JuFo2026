@@ -75,6 +75,18 @@ const kioskCarousels: CarouselDef[] = [
     folder: "random_forest",
   },
   {
+    id: "evolution",
+    label: "Stylistic Evolution & DDD",
+    type: "image",
+    folder: "evolution",
+  },
+  {
+    id: "architecture",
+    label: "Pipeline Architecture",
+    type: "image",
+    folder: "architecture",
+  },
+  {
     id: "annotated",
     label: "Annotated scores",
     type: "html",
