@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from collections import defaultdict
 import joblib
+import json
 
 import numpy as np
 import pandas as pd
@@ -375,6 +376,27 @@ def main() -> int:
         "label_encoder": label_encoder,
     }
     joblib.dump(artifacts, model_path)
+
+    print("Exporting JSON metrics...")
+    metrics_path = DEFAULT_MODEL_DIR / "random_forest_metrics.json"
+    metrics_dict = {
+        "best_parameters": search.best_params_,
+        "baseline_metrics": {
+            "accuracy": float(baseline_acc),
+            "avg_tree_depth": float(baseline_metrics["avg_depth"]),
+            "total_nodes": int(baseline_metrics["total_nodes"])
+        },
+        "pruned_metrics": {
+            "accuracy": float(best_acc),
+            "avg_tree_depth": float(best_metrics["avg_depth"]),
+            "total_nodes": int(best_metrics["total_nodes"])
+        },
+        "selected_features_count": len(feature_cols),
+        "total_features_count": X.shape[1] if hasattr(X, "shape") else len(X.columns)
+    }
+    with open(metrics_path, "w") as f:
+        json.dump(metrics_dict, f, indent=2)
+    print(f"Metrics saved to {metrics_path}")
 
     print("Done.")
     return 0

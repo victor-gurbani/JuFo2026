@@ -253,6 +253,37 @@ def main() -> int:
     print("Generating side-by-side bar chart of Precision and Recall...")
     generate_bar_chart(rf_cr, nn_cr, label_encoder.classes_, chart_path)
 
+    print("Exporting JSON metrics...")
+    metrics_path = Path("data/models/nn_vs_rf_metrics.json")
+    
+    # Handle potentially non-serializable types in hidden_layer_sizes
+    h_sizes = search.best_params_["hidden_layer_sizes"]
+    if isinstance(h_sizes, int):
+        h_sizes = [h_sizes]
+    else:
+        h_sizes = list(h_sizes)
+        
+    metrics_dict = {
+        "random_forest": {
+            "accuracy": float(rf_acc),
+            "macro_f1": float(rf_f1)
+        },
+        "neural_network": {
+            "best_parameters": {
+                "learning_rate_init": float(search.best_params_["learning_rate_init"]),
+                "hidden_layer_sizes": h_sizes,
+                "alpha": float(search.best_params_["alpha"]),
+                "activation": search.best_params_["activation"]
+            },
+            "accuracy": float(nn_acc),
+            "macro_f1": float(nn_f1)
+        },
+        "winner": winner
+    }
+    with open(metrics_path, "w") as f:
+        json.dump(metrics_dict, f, indent=2)
+    print(f"Metrics saved to {metrics_path}")
+
     print("Done.")
     return 0
 
