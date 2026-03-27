@@ -178,7 +178,26 @@ def main() -> int:
         X, y, test_size=0.2, random_state=args.seed, stratify=y
     )
 
-    print("Optimizing Random Forest hyperparameters...")
+    print("Training baseline unpruned Random Forest for comparison...")
+    baseline_rf = RandomForestClassifier(
+        n_estimators=100,
+        max_depth=None,
+        min_samples_leaf=1,
+        ccp_alpha=0.0,
+        random_state=args.seed,
+        n_jobs=-1,
+    )
+    baseline_rf.fit(X_train, y_train)
+    baseline_pred = baseline_rf.predict(X_test)
+    baseline_acc = accuracy_score(y_test, baseline_pred)
+    baseline_metrics = _compute_tree_metrics(baseline_rf)
+    print(f"Baseline Unpruned - Accuracy: {baseline_acc:.4f}")
+    print(
+        f"  Avg Tree Depth: {baseline_metrics['avg_depth']:.2f}, "
+        f"Total Nodes: {baseline_metrics['total_nodes']}"
+    )
+
+    print("\nOptimizing Random Forest hyperparameters...")
     rf = RandomForestClassifier(random_state=args.seed)
 
     param_distributions = {
@@ -204,12 +223,40 @@ def main() -> int:
 
     print("Evaluating model on test set...")
     y_pred = best_rf.predict(X_test)
+    best_acc = accuracy_score(y_test, y_pred)
+    best_metrics = _compute_tree_metrics(best_rf)
+
+    _print_comparison_table(baseline_acc, best_acc, baseline_metrics, best_metrics)
 
     print("\nClassification Report:")
     print(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
 
     print("Confusion Matrix:")
     print(confusion_matrix(y_test, y_pred))
+
+    print("Exporting sample tree visualizations...")
+    first_tree = best_rf.estimators_[0]
+    tree_png_path = DEFAULT_FIG_DIR / "rf_sample_tree.png"
+    tree_txt_path = DEFAULT_FIG_DIR / "rf_sample_tree.txt"
+
+    plt.figure(figsize=(20, 15))
+    plot_tree(
+        first_tree,
+        feature_names=feature_cols,
+        class_names=label_encoder.classes_,
+        filled=True,
+        rounded=True,
+        fontsize=10,
+    )
+    plt.tight_layout()
+    plt.savefig(tree_png_path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Tree visualization (PNG) saved to {tree_png_path}")
+
+    tree_text = export_text(first_tree, feature_names=feature_cols)
+    with open(tree_txt_path, "w") as f:
+        f.write(tree_text)
+    print(f"Tree text export saved to {tree_txt_path}")
 
     print("Generating SHAP values and summary plot...")
     explainer = shap.TreeExplainer(best_rf)
