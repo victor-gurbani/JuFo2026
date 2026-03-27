@@ -143,8 +143,11 @@ def main() -> int:
     matrix, feature_cols, scaler = _prepare_feature_matrix(combined)
     X = pd.DataFrame(matrix, columns=feature_cols)
 
+    COMPOSER_ORDER = ["Bach", "Mozart", "Chopin", "Debussy"]
+    # Ensure chronological order for labels
     label_encoder = LabelEncoder()
-    y = label_encoder.fit_transform(combined["composer_label"])
+    label_encoder.classes_ = np.array(COMPOSER_ORDER)
+    y = combined["composer_label"].map({c: i for i, c in enumerate(COMPOSER_ORDER)}).values
 
     print(f"Original features count: {len(feature_cols)}")
     print("Computing Spearman rank correlation matrix...")
@@ -245,8 +248,19 @@ def main() -> int:
     plt.close()
     print(f"Confusion Matrix plot saved to {cm_path}")
 
-    print("Exporting sample tree visualizations...")
-    first_tree = best_rf.estimators_[0]
+    print("Finding the single most accurate tree in the forest for visualization...")
+    # Evaluate all trees in the forest on the test set to find the best representative tree
+    tree_accuracies = []
+    for tree in best_rf.estimators_:
+        tree_pred = tree.predict(X_test.values if hasattr(X_test, "values") else X_test)
+        tree_accuracies.append(accuracy_score(y_test, tree_pred))
+    
+    best_tree_idx = np.argmax(tree_accuracies)
+    best_single_tree = best_rf.estimators_[best_tree_idx]
+    print(f"  -> Selected Tree #{best_tree_idx} (Single-tree accuracy: {tree_accuracies[best_tree_idx]:.4f})")
+
+    print("Exporting best single tree visualizations...")
+    first_tree = best_single_tree
     tree_png_path = DEFAULT_FIG_DIR / "rf_sample_tree.png"
     tree_txt_path = DEFAULT_FIG_DIR / "rf_sample_tree.txt"
 
