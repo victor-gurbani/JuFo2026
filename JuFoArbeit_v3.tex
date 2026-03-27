@@ -1047,12 +1047,12 @@ Während einzelne Entscheidungsbäume eine \textit{Mikro-Logik} zeigen, aggregie
     \begin{minipage}{0.48\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/random_forest/rf_shap_summary_Bach.png}
-        \caption{SHAP-Werte für Johann Sebastian Bach. Niedrige Werte in \texttt{avg\_melodic\_interval} (blau, rechts) treiben die Vorhersage stark in Richtung Bach.}
+        \caption{SHAP-Werte für Johann Sebastian Bach. Niedrige Werte (blau) beim Tonumfang (\texttt{pitch\_range\_semitones}) und der Downbeat-Betonung (\texttt{downbeat\_emphasis\_ratio}) führen zu positiven SHAP-Werten (rechts der vertikalen Linie) und erhöhen somit die Wahrscheinlichkeit für Bach. Im Gegensatz dazu deuten hohe Werte (rot) bei Trugschlüssen (\texttt{deceptive\_cadence\_ratio}) und den Noten pro Taktschlag (\texttt{notes\_per\_beat}) stark auf Bach hin.}
     \end{minipage}\hfill
     \begin{minipage}{0.48\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/random_forest/rf_shap_summary_Debussy.png}
-        \caption{SHAP-Werte für Claude Debussy. Hohe Werte in der strukturellen und rhythmischen Dichte treiben die Vorhersage zu Debussy.}
+        \caption{SHAP-Werte für Claude Debussy. Hohe Werte (rot) bei der rhythmischen Varianz (\texttt{std\_note\_duration}), dem Tonumfang (\texttt{pitch\_range\_semitones}), der rhythmischen Entropie (\texttt{rhythmic\_pattern\_entropy}) und der harmonischen Dichte (\texttt{harmonic\_density\_mean}) erzeugen positive SHAP-Werte (rechts der vertikalen Linie) und sind starke Indikatoren für Debussy. Umgekehrt sprechen niedrige Werte (blau) bei der Trugschlussrate (\texttt{deceptive\_cadence\_ratio}) eher für Debussy.}
     \end{minipage}
 \end{figure}
 
