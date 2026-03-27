@@ -20,16 +20,25 @@ Each box (node) in the tree visualizes a step in the decision-making process:
   * *Example: `[0, 5, 0, 0]` means 0 Bach, 5 Mozart, 0 Chopin, 0 Debussy.*
 * **`class`**: The model's prediction if the decision path ends at this node (the majority vote of the `value` array).
 
-## 2. SHAP Summary Plot (`rf_shap_summary.png`)
+## 2. SHAP Summary Plots (`rf_shap_summary_[Composer].png`)
 
-While a single tree shows *micro-logic*, SHAP (SHapley Additive exPlanations) visualizes the *macro-logic* of the entire forest combined. It uses game theory to calculate the exact contribution of each feature.
+While a single tree shows *micro-logic*, SHAP (SHapley Additive exPlanations) visualizes the *macro-logic* of the entire forest combined. It uses game theory to calculate the exact contribution of each feature. We generate 4 separate plots—one for each composer—to see exactly what features drive the model toward that specific class. We display the **Top 10 most influential features** for each composer.
 
-* **Y-Axis (Top to Bottom)**: Features are ranked by global importance. The top feature is the most defining characteristic across the entire dataset.
-* **Dots & Colors**: Each dot represents one piece of music. 
+* **Y-Axis (Top to Bottom)**: Features are ranked by global importance for that specific composer. The top feature is the most defining characteristic.
+* **Dots & Colors**: Each dot represents one piece of music from the test set.
   * **Red dot**: The piece had a *HIGH* value for that feature.
   * **Blue dot**: The piece had a *LOW* value for that feature.
-* **X-Axis (Left to Right)**: Shows how the feature shifted the model's prediction. 
-  * *Example*: If you look at the "Bach" section, and the feature `polyphonic_density` has a cluster of **Red** dots pushed far to the **Right**, it means: "When a piece has high polyphonic density, the model strongly leans toward predicting Bach."
+* **X-Axis (Left to Right)**: Shows how the feature shifted the model's prediction.
+  * *Example (Bach)*: If the feature `avg_melodic_interval` has a cluster of **Blue** dots pushed far to the **Right** (positive SHAP value), it means: "When a piece has a unusually low (blue) average melodic interval, the model strongly leans toward predicting Bach."
+  * *Negative SHAP value (Left)*: Pushes the model *away* from predicting that composer.
+
+### Why are the top features here different from the top features in the Significance Tests/PCA?
+
+If you compare these SHAP plots to the ANOVA tests or PCA loadings, you will notice different features bubbling to the top. This is mathematically correct and expected for three reasons:
+
+1. **Collinearity Pruning:** Statistical tests evaluate features in a vacuum. If `note_density` and `polyphonic_density` are 95% correlated, the statistical tests will highlight *both* of them as highly significant. Our Random Forest pipeline explicitly uses Spearman clustering to group redundant features and *delete the duplicates*. Therefore, the RF will only ever show one of them, making room for other unique features to shine.
+2. **Linear vs. Non-Linear Interactions:** PCA and ANOVA look for linear, generalized differences. Random Forests look for *conditional* differences. Feature X might not seem statistically significant across the whole dataset, but the Random Forest might discover: *"If Feature Y is low, then Feature X becomes the absolute perfect separator between Chopin and Debussy."* SHAP captures these hidden, interconnected rules.
+3. **Variance vs. Classification:** PCA's goal is to explain *variance* in the data (even if that variance doesn't help guess the composer). The Random Forest's goal is strictly *classification*. It ignores "loud" features if they don't help sort the composers properly.
 
 ## 3. Confusion Matrix (`confusion_matrix.png`)
 

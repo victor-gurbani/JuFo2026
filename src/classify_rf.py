@@ -337,24 +337,33 @@ def main() -> int:
             
     print(f"Exported {len(best_rf.estimators_)} trees to {all_trees_dir}")
 
-    print("Generating SHAP values and summary plot...")
+    print("Generating distinct SHAP summary plots for each composer...")
     explainer = shap.TreeExplainer(best_rf)
     shap_values = explainer.shap_values(X_test)
 
-    plt.figure(figsize=(10, 8))
-    shap.summary_plot(
-        shap_values,
-        X_test,
-        feature_names=feature_cols,
-        class_names=label_encoder.classes_,
-        show=False,
-    )
-
-    shap_fig_path = DEFAULT_FIG_DIR / "rf_shap_summary.png"
-    plt.tight_layout()
-    plt.savefig(shap_fig_path, dpi=300, bbox_inches="tight")
-    plt.close()
-    print(f"SHAP summary plot saved to {shap_fig_path}")
+    # For multi-class, shap_values can be a list of arrays (older versions) or a 3D array (newer)
+    for i, composer in enumerate(label_encoder.classes_):
+        plt.figure(figsize=(10, 6))
+        
+        sv = shap_values[i] if isinstance(shap_values, list) else shap_values[:, :, i]
+        
+        shap.summary_plot(
+            sv,
+            X_test,
+            feature_names=feature_cols,
+            max_display=10,  # Show top 10 features instead of default
+            show=False,
+            plot_type="dot"  # Force beeswarm red/blue dot plot
+        )
+        
+        plt.title(f"What makes a piece sound like {composer}? (SHAP Values)")
+        shap_fig_path = DEFAULT_FIG_DIR / f"rf_shap_summary_{composer}.png"
+        
+        # Ensure title doesn't get cut off
+        plt.tight_layout()
+        plt.savefig(shap_fig_path, dpi=300, bbox_inches="tight")
+        plt.close()
+        print(f"SHAP summary plot for {composer} saved to {shap_fig_path}")
 
     model_path = DEFAULT_MODEL_DIR / "random_forest_composer.pkl"
     print(f"Saving model and artifacts to {model_path}...")
