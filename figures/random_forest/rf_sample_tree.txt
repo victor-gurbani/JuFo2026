@@ -1,0 +1,43 @@
+|--- pitch_range_semitones <= 0.41
+|   |--- harmonic_density_mean <= 0.77
+|   |   |--- contrary_motion_ratio <= -0.07
+|   |   |   |--- std_note_duration <= -0.15
+|   |   |   |   |--- class: 1.0
+|   |   |   |--- std_note_duration >  -0.15
+|   |   |   |   |--- deceptive_cadence_ratio <= 0.73
+|   |   |   |   |   |--- avg_note_duration <= 0.05
+|   |   |   |   |   |   |--- class: 0.0
+|   |   |   |   |   |--- avg_note_duration >  0.05
+|   |   |   |   |   |   |--- class: 1.0
+|   |   |   |   |--- deceptive_cadence_ratio >  0.73
+|   |   |   |   |   |--- class: 2.0
+|   |   |--- contrary_motion_ratio >  -0.07
+|   |   |   |--- modal_interchange_ratio <= -0.81
+|   |   |   |   |--- class: 1.0
+|   |   |   |--- modal_interchange_ratio >  -0.81
+|   |   |   |   |--- class: 0.0
+|   |--- harmonic_density_mean >  0.77
+|   |   |--- avg_note_duration <= 1.56
+|   |   |   |--- class: 0.0
+|   |   |--- avg_note_duration >  1.56
+|   |   |   |--- class: 2.0
+|--- pitch_range_semitones >  0.41
+|   |--- melodic_interval_std <= 0.97
+|   |   |--- chord_quality_minor_pct <= 0.36
+|   |   |   |--- chord_quality_diminished_pct <= -0.13
+|   |   |   |   |--- class: 2.0
+|   |   |   |--- chord_quality_diminished_pct >  -0.13
+|   |   |   |   |--- chord_quality_diminished_pct <= 0.29
+|   |   |   |   |   |--- chord_quality_minor_pct <= -0.05
+|   |   |   |   |   |   |--- class: 3.0
+|   |   |   |   |   |--- chord_quality_minor_pct >  -0.05
+|   |   |   |   |   |   |--- class: 0.0
+|   |   |   |   |--- chord_quality_diminished_pct >  0.29
+|   |   |   |   |   |--- class: 2.0
+|   |   |--- chord_quality_minor_pct >  0.36
+|   |   |   |--- class: 3.0
+|   |--- melodic_interval_std >  0.97
+|   |   |--- syncopation_ratio <= -0.28
+|   |   |   |--- class: 0.0
+|   |   |--- syncopation_ratio >  -0.28
+|   |   |   |--- class: 3.0
