@@ -523,7 +523,9 @@ Das Projekt liefert somit mehr als eine statistische Analyse: Es erstellt eine \
 Die entwickelte Infrastruktur bietet Ansatzpunkte für Erweiterungen: Korpus-Expansion auf weitere Komponisten (Liszt, Ravel, Schönberg), andere Besetzungen und feinere zeitliche Auflösung; methodische Erweiterungen durch Machine Learning, temporale Modellierung und erweiterte Dissonanzklassifikation; langfristig die Brücke zur audiobasierten Analyse. Das Annotationswerkzeug könnte zudem musikpädagogisch eingesetzt werden.
 
 \subsubsection{Interaktive Weboberfläche}
-Für die explorative Analyse wurde eine lokale Next.js-Weboberfläche entwickelt (\texttt{web-interface/}). Die \enquote{Subset Clouds}-Seite (\texttt{/clouds}) ermöglicht:
+Für die explorative Analyse wurde eine lokale Next.js-Weboberfläche entwickelt (\texttt{web-interface/}). Diese fungiert als interaktives \enquote{Museum} für die gewonnenen Daten. Die Haupt-Dashboard-Seite bietet nahtlosen Zugriff auf dynamische Karussells, welche die Pipeline-Architektur, animierte \enquote{Stylistic Evolution}-GIFs, statistische Signifikanz-Heatmaps und alle Machine-Learning-Visualisierungen bündeln. 
+
+Die spezialisierte \enquote{Subset Clouds}-Seite (\texttt{/clouds}) ermöglicht darüber hinaus:
 \begin{itemize}
     \item Auswahl beliebiger Komponisten-Kombinationen aus dem Feature-Cache
     \item Echtzeit-Generierung neuer PCA-Wolken (canonical oder refit)
@@ -1031,7 +1033,7 @@ Um den konkreten Effekt des \textit{Cost-Complexity Prunings} (\texttt{ccp\_alph
 Der Verzicht auf nur $\sim$3,5\,\% Genauigkeit führte zu einer massiven Reduzierung der Modellkomplexität um \textbf{35,8\,\% weniger Entscheidungsknoten}.
 
 \subsection{D.2 Beispielhafter Entscheidungsbaum}
-Ein Random Forest trifft Vorhersagen durch einen Mehrheitsentscheid vieler individueller Bäume. Um die Nachvollziehbarkeit zu demonstrieren, wurde der mathematisch akkurateste Einzelbaum aus dem 100-Bäume-Ensemble (Baum \#71) extrahiert. Dieser Baum erreichte alleingestellt eine Genauigkeit von 72,4\,\% auf dem Testset.
+Ein Random Forest trifft Vorhersagen durch einen Mehrheitsentscheid vieler individueller Bäume. Um die Nachvollziehbarkeit zu demonstrieren, wurde der mathematisch akkurateste Einzelbaum aus dem 100-Bäume-Ensemble (Baum \#71) extrahiert. Dieser Baum erreichte alleingestellt eine Genauigkeit von 72,4\,\% auf dem Testset. Zur Gewährleistung uneingeschränkter Transparenz (\enquote{White-Box}-Paradigma) exportiert die Pipeline zudem alle 100 Entscheidungsbäume vollständig als grafische und textuelle Regelwerke zur manuellen Auditierung.
 
 \begin{figure}[htbp]
     \centering
@@ -1040,7 +1042,7 @@ Ein Random Forest trifft Vorhersagen durch einen Mehrheitsentscheid vieler indiv
 \end{figure}
 
 \subsection{D.3 Komponistenspezifische SHAP-Analysen}
-Während einzelne Entscheidungsbäume eine \textit{Mikro-Logik} zeigen, aggregieren SHAP-Werte (SHapley Additive exPlanations) die spieltheoretischen Einflüsse aller Merkmale über das \textit{gesamte} Ensemble. Da die Merkmale im Vorfeld mittels Spearman-Clustering von Kollinearität befreit wurden, zeigen diese Plots die isoliertesten und aussagekräftigsten Unterscheidungsmerkmale.
+Während einzelne Entscheidungsbäume eine \textit{Mikro-Logik} zeigen, aggregieren SHAP-Werte (SHapley Additive exPlanations) die spieltheoretischen Einflüsse aller Merkmale über das \textit{gesamte} Ensemble. Da die Merkmale im Vorfeld mittels Spearman-Clustering von Kollinearität befreit wurden, zeigen diese Plots die isoliertesten und aussagekräftigsten Unterscheidungsmerkmale. Dass diese sich teilweise von den Top-Merkmalen der ANOVA/PCA unterscheiden, liegt methodisch in der Natur des Modells: Während die statistischen Tests lineare, isolierte Varianzen messen, erfasst der Random Forest \textit{nicht-lineare, konditionale Interaktionen} (z.\,B. \enquote{Wenn Merkmal X niedrig ist, trennt Merkmal Y perfekt}) und optimiert ausschließlich auf die Klassifikationsgrenze statt auf die globale Datenvarianz.
 
 \begin{figure}[htbp]
     \centering
