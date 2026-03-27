@@ -1010,4 +1010,51 @@ Alle Abbildungen im PDF sind klickbar und führen zu den interaktiven Online-Ver
 
 Dieser Leitfaden ermöglicht vollständige Reproduktion aller Ergebnisse sowie deren Erweiterung auf neue Fragestellungen. Bei Problemen: GitHub-Issues im Repository oder Kontakt über verfügbare Adresse.
 
+\section{Anhang D: Erweiterte Details zur Machine-Learning-Pipeline}
+
+Um die Transparenz und Reproduzierbarkeit der durchgeführten Klassifikationsexperimente (Random Forest und Neuronales Netz) weiter zu erhöhen, werden in diesem Anhang tiefere Einblicke in die Hyperparameter-Optimierung, die Baumstrukturen und die lokalen SHAP-Erklärungen gegeben.
+
+\subsection{D.1 Hyperparameter-Optimierung und Pruning-Statistiken}
+Das Training des interpretierbaren Random Forests zielte auf eine maximale Reduktion der Komplexität ab, um "White-Box"-Eigenschaften zu bewahren, ohne die Genauigkeit drastisch zu opfern. Die Optimierung erfolgte mittels \texttt{RandomizedSearchCV} (5-Fold Cross-Validation) über folgendes Raster:
+\begin{itemize}
+    \item \texttt{n\_estimators}: [100, 200, 300]
+    \item \texttt{max\_depth}: [5, 10, 15, 20]
+    \item \texttt{min\_samples\_leaf}: [2, 3, 4]
+    \item \texttt{ccp\_alpha}: [0.005, 0.01, 0.015, 0.02, 0.03]
+\end{itemize}
+
+Um den konkreten Effekt des \textit{Cost-Complexity Prunings} (\texttt{ccp\_alpha}) zu quantifizieren, wurde ein komplett unbeschränkter Basis-Forest mit dem optimierten, beschnittenen Forest verglichen.
+\begin{itemize}
+    \item \textbf{Unpruned Baseline}: 73,61\,\% Genauigkeit, $\varnothing$ Baumtiefe: 7,90, Gesamtzahl der Knoten: 5.094
+    \item \textbf{Best Pruned Model} (\texttt{ccp\_alpha=0.01}): 70,14\,\% Genauigkeit, $\varnothing$ Baumtiefe: 6,66, Gesamtzahl der Knoten: 3.270
+\end{itemize}
+Der Verzicht auf nur $\sim$3,5\,\% Genauigkeit führte zu einer massiven Reduzierung der Modellkomplexität um \textbf{35,8\,\% weniger Entscheidungsknoten}.
+
+\subsection{D.2 Beispielhafter Entscheidungsbaum}
+Ein Random Forest trifft Vorhersagen durch einen Mehrheitsentscheid vieler individueller Bäume. Um die Nachvollziehbarkeit zu demonstrieren, wurde der mathematisch akkurateste Einzelbaum aus dem 100-Bäume-Ensemble (Baum \#71) extrahiert. Dieser Baum erreichte alleingestellt eine Genauigkeit von 72,4\,\% auf dem Testset.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/random_forest/rf_sample_tree.png}
+    \caption{Der akkurateste Einzelbaum des Random-Forest-Ensembles. Jeder Knoten zeigt das Entscheidungskriterium (Merkmal), die Gini-Impurity (Grad der Mischung), die verbleibende Anzahl von Stücken (Samples) und deren Verteilung auf die vier chronologischen Klassen: [Bach, Mozart, Chopin, Debussy].}\label{fig:rf_tree}
+\end{figure}
+
+\subsection{D.3 Komponistenspezifische SHAP-Analysen}
+Während einzelne Entscheidungsbäume eine \textit{Mikro-Logik} zeigen, aggregieren SHAP-Werte (SHapley Additive exPlanations) die spieltheoretischen Einflüsse aller Merkmale über das \textit{gesamte} Ensemble. Da die Merkmale im Vorfeld mittels Spearman-Clustering von Kollinearität befreit wurden, zeigen diese Plots die isoliertesten und aussagekräftigsten Unterscheidungsmerkmale.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/random_forest/rf_shap_summary_Bach.png}
+        \caption{SHAP-Werte für Johann Sebastian Bach. Niedrige Werte in \texttt{avg\_melodic\_interval} (blau, rechts) treiben die Vorhersage stark in Richtung Bach.}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/random_forest/rf_shap_summary_Debussy.png}
+        \caption{SHAP-Werte für Claude Debussy. Hohe Werte in der strukturellen und rhythmischen Dichte treiben die Vorhersage zu Debussy.}
+    \end{minipage}
+\end{figure}
+
+
 \end{document}
