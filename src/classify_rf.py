@@ -25,7 +25,7 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import plot_tree, export_text
 
-from src.feature_embedding import _merge_feature_tables, _prepare_feature_matrix
+from feature_embedding import _merge_feature_tables, _prepare_feature_matrix
 
 DEFAULT_HARMONIC = Path("data/features/harmonic_features.csv")
 DEFAULT_MELODIC = Path("data/features/melodic_features.csv")
