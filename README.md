@@ -12,9 +12,9 @@
 
 ---
 
-## Interactive Results (GitHub Pages)
+## Interactive Web Interfaces
 
-Browse the interactive visualizations hosted online:
+Browse the interactive visualizations hosted online at **[empirical-music.victorgurbani.com](https://empirical-music.victorgurbani.com)** to test out custom composer combinations, explore the stylistic clouds, and inspect all plots.
 
 | **3D Stylistic Cloud** | **Significance Matrix** | **Annotated Scores** |
 |:---:|:---:|:---:|
