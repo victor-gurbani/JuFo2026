@@ -520,6 +520,15 @@ Trains a black-box Multi-Layer Perceptron (`MLPClassifier`) Neural Network and p
 
 ---
 
+## Utility Scripts & Tools
+
+Beyond the core analysis pipeline, the repository includes interactive CLI tools designed for ease of use, manual spot-checking, and project sharing:
+
+- **Interactive Score Annotator (`analyse_corpus_sheet.py`)**: A terminal UI helper that prompts you to select any piece from the curated corpus. It runs the full harmonic annotation pipeline on the selected piece and automatically exports the resulting color-coded MusicXML score directly to your local `~/Documents` folder for immediate review in MuseScore or Finale.
+- **Feature Bundler (`package_features.py`)**: A deployment utility that automatically converts the scattered Markdown feature documentation (`*_Features.md`) into a cohesive PDF (via Pandoc) and packages it alongside all generated statistical figures into a single `feature_bundle.zip` archive for easy distribution.
+
+---
+
 ## Code Highlights
 
 ### Intelligent Feature Pre-processing
