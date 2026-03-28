@@ -114,11 +114,11 @@ To use your system python instead of a virtual environment:
 
 ---
 
-## Local Web Interface (Next.js)
+## Web Interface (Next.js)
 
-The interactive web UI lives in `web-interface/` and includes a **Subset Clouds** UI at `/clouds` (runs `src/clouds_from_feature_cache.py` locally and serves generated plots from `web-interface/public/generated/...`).
+The interactive web UI lives in `web-interface/` and is deployed at [https://empirical-music.victorgurbani.com/](https://empirical-music.victorgurbani.com/). It uses a Next.js `standalone` build alongside Apache reverse proxy routing to securely stream local caches. It includes a **Subset Clouds** UI at `/clouds` which dynamically renders 3D PCA models for requested composers using the previously computed feature caches.
 
-### Start (recommended)
+### Dev Server Start (for local testing)
 
 From the repository root:
 
