@@ -534,6 +534,8 @@ Die spezialisierte \enquote{Subset Clouds}-Seite (\texttt{/clouds}) ermöglicht 
 \end{itemize}
 Diese Oberfläche ermöglicht Nicht-Programmierern, beliebige stilistische Vergleiche durchzuführen -- ein Schritt zur Demokratisierung der Computational Musicology.
 
+Um die Erreichbarkeit und globale Analysefähigkeit sicherzustellen, wurde diese Anwendung auf einen Oracle Linux Virtual Private Server (VPS) migriert, wobei serverseitige Fallbacks für Caching-Operationen integriert wurden (Details zur Server-Architektur und den technischen Deployment-Herausforderungen der Next.js-Umgebung finden sich in Anhang~E).
+
 Alle Skripte sind dokumentiert und ermöglichen reproduzierbare Folgeuntersuchungen (siehe Anhang~B).
 
 \clearpage
@@ -1057,6 +1059,22 @@ Während einzelne Entscheidungsbäume eine \textit{Mikro-Logik} zeigen, aggregie
         \caption{SHAP-Werte für Claude Debussy. Hohe Werte (rot) bei der rhythmischen Varianz (\texttt{std\_note\_duration}), dem Tonumfang (\texttt{pitch\_range\_semitones}), der rhythmischen Entropie (\texttt{rhythmic\_pattern\_entropy}) und der harmonischen Dichte (\texttt{harmonic\_density\_mean}) erzeugen positive SHAP-Werte (rechts der vertikalen Linie) und sind starke Indikatoren für Debussy. Umgekehrt sprechen niedrige Werte (blau) bei der Trugschlussrate (\texttt{deceptive\_cadence\_ratio}) eher für Debussy.}
     \end{minipage}
 \end{figure}
+
+\clearpage
+\section{Anhang E: Deployment und Web-Infrastruktur}
+
+Die Überführung der lokalen Next.js-Datenvisualisierung in eine öffentliche Web-Anwendung erforderte die Überwindung spezifischer infrastruktureller und softwarearchitektonischer Hürden. Die Applikation (gehostet auf \href{https://empirical-music.victorgurbani.com}{empirical-music.victorgurbani.com}) läuft auf einem ressourcenlimitierten Oracle Linux Virtual Private Server (VPS) unter Apache 2.4 und PM2. Die Beschränkungen in Speicher und Arbeitsspeicher setzten signifikante Optimierungen des Build-Prozesses voraus.
+
+\subsection{E.1 Limitierungen der Standalone-Kompilierung}
+Typischerweise verarbeitet das Next.js-Build-System (\texttt{Turbopack}) serverseitige Abhängigkeiten, indem es die im Quellcode verknüpften Ordnerstrukturen analysiert und in die endgültige Build-Datei integriert. In diesem Projekt operiert das Dashboard jedoch eng verzahnt mit dem Python-Backend und seinen Datensätzen (über 40\,GB an MusicXML-Dateien, extrahierten Features und gepickelten Modellen). Da Turbopack Aufrufe wie \texttt{path.join(repoRoot, rawPath)} für die serverseitigen API-Routen erfasste, versuchte der Compiler, diese gesamten 40\,GB als potenziell erforderliche serverseitige Fallback-Assets in den lokalen Build-Ordner (\texttt{.next/standalone}) zu kopieren. Dies stürzte in Schleifen ab (ENOSPC: No space left on device) oder überlastete den Arbeitsspeicher massiv.
+
+Die Lösung war die Implementierung untrackbarer String-Interpolations-Polymorphismen in Next.js: Anstelle direkter standardisierter Bibliotheksaufrufe wertet das System die Suchpfade nun dynamisch über Laufzeit-Strings (\texttt{const joinPath = (base, ...parts) => [base, ...parts].join(path.sep)}) aus. Dadurch kompilierte Next.js in einen schmalen 50\,MB-Microserver, ohne die Datensatz-Binärdateien einzubetten. 
+
+\subsection{E.2 Abruf dynamischer Cloud-Jobs}
+Weitere Hürden betrafen die dynamische Darstellung frisch berechneter PCA-Wolken. Im \texttt{standalone}-Modus \enquote{friert} der interne Node.js-Server von Next.js seinen statischen Datei-Router (für Assets innerhalb von \texttt{/public}) zum Zeitpunkt der Kompilierung ein. Starten Besucher der Webseite jedoch im Hintergrund einen Python-Subprozess, um eine neue Datensatzwolke zu berechnen, wurden die frisch generierten Metadaten (\texttt{.json} und \texttt{.html}) unter \texttt{public/generated/clouds/} vom Standalone-Server als 404 (Not Found) blockiert. Um dies zu umgehen, wurde in der Apache-Konfiguration ein Reverse-Proxy-Bypass integriert. Apache fängt Anfragen, die sich an die Verzeichnisse \texttt{/img} oder \texttt{/generated} richten (\texttt{Alias /generated /var/www/jufo2026/web-interface/public/generated}), explizit ab und serviert die frisch verfassten Dokumente nativ aus dem VPS-Dateisystem, während alle React- und API-spezifischen Endpunkte an den PM2-gewrappten Next.js-Dienst auf Port 3011 weitergeleitet werden. 
+
+\subsection{E.3 Das Caching-Resolver-Dilemma}
+Schlussendlich trat das Problem der Interoperabilität von Dateipfaden zwischen macOS-Entwicklungssystemen und Oracle-Linux-Hosting auf. Das Backend speicherte Caches mit absoluten Unix-Dateipfaden der MusicXML-Dateien, um Dimensionsreduktions-Metadaten effizienter heranzuziehen. Da die korrespondierenden MusicXML-Dateien aus Speicher-Gründen nicht auf den Server mitkopiert wurden (\texttt{--forceCache}-Flag überschreibt den Verzeichnis-Check), litten die Identifizierungs-Signaturen im Skript \texttt{embedding\_cache.py} unter fehlschlagenden Zuordnungen. Durch den Umbau der Abgleichoperation mithilfe von \texttt{Path(mxl\_abs\_path).name.endswith(...)} wurde gewährleistet, dass das Dashboard auch dann voll funktionsfähig agiert und Einzelstücke fehlerfrei visualisiert rekonstruieren kann, wenn nur der Feature-Cache der Pipeline lokalisiert wird, selbst in Cross-OS-Szenarien ohne korrespondierenden Rohdatensatz.
 
 
 \end{document}
