@@ -11,7 +11,8 @@ import {
 export const runtime = "nodejs";
 
 function repoRoot(): string {
-  return resolve(process.cwd(), "..");
+  // Obfuscated to avoid Next.js static file tracing of entire project folder
+  return resolve([process.cwd(), ".."].join("/"));
 }
 
 function appRoot(): string {

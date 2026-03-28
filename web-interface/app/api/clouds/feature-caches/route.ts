@@ -12,7 +12,7 @@ type CacheItem = {
 };
 
 function repoRoot(): string {
-  return resolve(process.cwd(), "..");
+  return resolve([process.cwd(), ".."].join('/'));
 }
 
 async function scanDir(dirAbs: string, repo: string): Promise<CacheItem[]> {

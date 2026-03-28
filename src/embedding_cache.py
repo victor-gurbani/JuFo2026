@@ -81,7 +81,8 @@ def lookup_cached_embedding(cache_df: pd.DataFrame, mxl_abs_path: str) -> Option
         return None
     if "mxl_abs_path" not in cache_df.columns:
         return None
-    matches = cache_df.index[cache_df["mxl_abs_path"].astype(str) == str(mxl_abs_path)]
+    target_name = Path(mxl_abs_path).name
+    matches = cache_df.index[cache_df["mxl_abs_path"].astype(str).str.endswith(target_name)]
     if len(matches) == 0:
         return None
     return cache_df.loc[matches[0]]

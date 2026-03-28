@@ -22,7 +22,7 @@ type PcaCacheEntry = {
 
 function getRepoRoot(): string {
   // In dev, process.cwd() is typically web-interface/. Repo root is one level up.
-  return resolve(process.cwd(), "..");
+  return resolve([process.cwd(), ".."].join('/'));
 }
 
 function pickCachePath(repoRoot: string): string | null {

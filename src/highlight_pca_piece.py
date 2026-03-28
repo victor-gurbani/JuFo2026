@@ -125,6 +125,11 @@ def parse_arguments() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--skip-file-check",
+        action="store_true",
+        help="Skip checking if the MusicXML file actually exists. Helpful when relying entirely on a cached projection.",
+    )
+    parser.add_argument(
         "--no-cache",
         action="store_true",
         help="Disable using the embedding cache even if present.",
@@ -197,7 +202,8 @@ def _lookup_embedding_in_csv(
             candidate_col = "mxl_abs_path" if "mxl_abs_path" in chunk.columns else ("mxl_path" if "mxl_path" in chunk.columns else None)
             if candidate_col is None:
                 return None
-            matches = chunk.index[chunk[candidate_col].astype(str) == target]
+            target_name = Path(target).name
+            matches = chunk.index[chunk[candidate_col].astype(str).str.endswith(target_name)]
             if len(matches) == 0:
                 continue
             row = chunk.loc[matches[0]].to_dict()
@@ -434,11 +440,12 @@ def determine_output_path(output: Path | None, musicxml_paths: list[Path]) -> Pa
 def main() -> int:
     args = parse_arguments()
     input_paths = args.musicxml
-    missing = [path for path in input_paths if not path.exists()]
-    if missing:
-        missing_str = "\n".join(str(path) for path in missing)
-        print(f"[error] The following MusicXML files were not found:\n{missing_str}")
-        return 1
+    if not args.skip_file_check:
+        missing = [path for path in input_paths if not path.exists()]
+        if missing:
+            missing_str = "\n".join(str(path) for path in missing)
+            print(f"[error] The following MusicXML files were not found:\n{missing_str}")
+            return 1
 
     composer_inputs = args.composer or []
     title_inputs = args.title or []
@@ -546,7 +553,8 @@ def main() -> int:
                     normalized_series = combined["mxl_abs_path"].astype(str)
                     highlight_indices = []
                     for normalized_path in normalized_paths:
-                        matches = combined.index[normalized_series == normalized_path]
+                        target_name = Path(normalized_path).name
+                        matches = combined.index[normalized_series.str.endswith(target_name)]
                         if len(matches) == 0:
                             print("[error] Highlighted piece could not be located in embedding cache.")
                             return 1
@@ -643,10 +651,11 @@ def main() -> int:
     combined["dim2"] = coords[:, 1]
     combined["dim3"] = coords[:, 2]
 
-    normalized_series = combined["mxl_path"].apply(_normalize_path_or_none)
+    normalized_series = combined["mxl_path"].apply(_normalize_path_or_none).astype(str)
     highlight_indices: list[int] = []
     for path in normalized_paths:
-        matches = combined.index[normalized_series == path]
+        target_name = Path(path).name
+        matches = combined.index[normalized_series.str.endswith(target_name)]
         if len(matches) == 0:
             print("[error] Highlighted piece could not be located after feature merge.")
             return 1

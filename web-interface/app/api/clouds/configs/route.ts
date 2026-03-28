@@ -22,7 +22,7 @@ type ConfigFile = {
 };
 
 function repoRoot(): string {
-  return resolve(process.cwd(), "..");
+  return resolve([process.cwd(), ".."].join('/'));
 }
 
 function configsDir(): string {

@@ -113,6 +113,7 @@ export default function Home() {
   const [kioskMode, setKioskMode] = useState(false);
   const [filterMode, setFilterMode] = useState<"all" | "clouds" | "composers" | "highlights">("all");
   const [corpusMode, setCorpusMode] = useState<"curated" | "full">("curated");
+  const [forceCache, setForceCache] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isWide, setIsWide] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -264,6 +265,7 @@ export default function Home() {
           mxlPath: selectedPath,
           title: selectedTitle,
           composer: selectedComposer || "External",
+          forceCache: forceCache,
         }),
       });
       const payload = (await response.json()) as AnalysisResponse;
@@ -455,6 +457,18 @@ export default function Home() {
               >
                 Reset to canonical
               </button>
+
+              <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 opacity-90 hover:opacity-100 transition">
+                <input
+                  type="checkbox"
+                  checked={forceCache}
+                  onChange={(e) => setForceCache(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded border-gray-400 bg-transparent text-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+                  title="Only use metadata to query the cached embedding, ignoring if the raw MusicXML file exists."
+                />
+                Disable underlying MusicXML file check
+              </label>
+
               {status ? <div className="text-xs text-zinc-500 dark:text-zinc-400">{status}</div> : null}
               {analysisCacheInfo ? (
                 <div className="rounded-xl border border-white/10 bg-black/10 p-3 text-[11px] text-zinc-600 dark:bg-black/30 dark:text-zinc-300">

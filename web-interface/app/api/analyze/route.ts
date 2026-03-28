@@ -11,6 +11,7 @@ type AnalyzePayload = {
   mxlPath?: string;
   title?: string;
   composer?: string;
+  forceCache?: boolean;
 };
 
 type CacheInfo = {
@@ -48,7 +49,9 @@ export async function POST(request: Request) {
     }
 
     const appRoot = process.cwd();
-    const repoRoot = path.resolve(appRoot, "..");
+    // Obfuscate path to prevent Next.js from tracing and bundling the entire 40GB repository
+    const ds = path.sep;
+    const repoRoot = path.resolve(appRoot + ds + "..");
     const scriptPath = path.join(repoRoot, "src", "highlight_pca_piece.py");
     const outputDir = path.join(appRoot, "public", "temp");
     const outputPath = path.join(outputDir, "latest_analysis.html");
@@ -57,23 +60,31 @@ export async function POST(request: Request) {
 
     const resolveCandidate = (candidate: string) => (existsSync(candidate) ? candidate : "");
     const rawPath = payload.mxlPath;
-    const candidates: string[] = [];
+    let mxlPath = "";
 
-    if (path.isAbsolute(rawPath)) {
-      candidates.push(rawPath);
+    if (payload.forceCache) {
+      const joinPath = (base: string, ...parts: string[]) => [base, ...parts].join(path.sep);
+      mxlPath = path.isAbsolute(rawPath) ? rawPath : joinPath(repoRoot, rawPath);
     } else {
-      candidates.push(path.join(repoRoot, rawPath));
-      candidates.push(path.join(repoRoot, "15571083", rawPath));
-      const mxlIndex = rawPath.indexOf("/mxl/");
-      if (mxlIndex >= 0) {
-        candidates.push(path.join(repoRoot, "15571083", rawPath.slice(mxlIndex + 1)));
-        candidates.push(path.join(repoRoot, "15571083", rawPath.slice(mxlIndex + 5)));
-      }
-    }
+      const candidates: string[] = [];
 
-    const mxlPath = candidates.map(resolveCandidate).find(Boolean);
-    if (!mxlPath) {
-      return NextResponse.json({ error: `MusicXML not found: ${rawPath}` }, { status: 400 });
+      if (path.isAbsolute(rawPath)) {
+        candidates.push(rawPath);
+      } else {
+        const joinPath = (base: string, ...parts: string[]) => [base, ...parts].join(path.sep);
+        candidates.push(joinPath(repoRoot, rawPath));
+        candidates.push(joinPath(repoRoot, "15571083", rawPath));
+        const mxlIndex = rawPath.indexOf("/mxl/");
+        if (mxlIndex >= 0) {
+          candidates.push(joinPath(repoRoot, "15571083", rawPath.slice(mxlIndex + 1)));
+          candidates.push(joinPath(repoRoot, "15571083", rawPath.slice(mxlIndex + 5)));
+        }
+      }
+
+      mxlPath = candidates.map(resolveCandidate).find(Boolean) || "";
+      if (!mxlPath) {
+        return NextResponse.json({ error: `MusicXML not found: ${rawPath}` }, { status: 400 });
+      }
     }
 
     // Use the small canonical cache for drawing clouds (fast), but optionally use the large
@@ -87,6 +98,10 @@ export async function POST(request: Request) {
       "--output",
       outputPath,
     ];
+
+    if (payload.forceCache) {
+      args.push("--skip-file-check");
+    }
 
     if (existsSync(canonicalCache)) {
       args.push("--embedding-cache", canonicalCache);

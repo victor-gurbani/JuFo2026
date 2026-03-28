@@ -162,7 +162,8 @@ def _write_plotly_figure(fig: go.Figure, output_path: Path, write_html_also: boo
     try:
         json_path = output_path.with_suffix(".json")
         fig.write_json(str(json_path))
-    except Exception:
+    except Exception as e:
+        print(f"Failed to write json: {e}")
         pass
     if suffix == ".html":
         fig.write_html(str(output_path), include_plotlyjs="cdn")
@@ -614,7 +615,8 @@ def main() -> int:
                 used_cache = True
                 try:
                     cached_meta = _load_cache_meta(args.embedding_cache)
-                except Exception:
+                except Exception as e:
+        print(f"Failed to write json: {e}")
                     cached_meta = None
             else:
                 print(f"[info] Cache is compatible but did not contain all rows; refitting PCA.")
@@ -680,7 +682,8 @@ def main() -> int:
         numeric_cols = [col for col in numeric_cols if col not in {"mxl_path"}]
         numeric_cols = [col for col in numeric_cols if col not in EXCLUDED_FEATURES]
         feature_count_note = str(len(numeric_cols))
-    except Exception:
+    except Exception as e:
+        print(f"Failed to write json: {e}")
         pass
     print(f"Embedding generated for {len(combined)} pieces using {feature_count_note} features -> {args.output}{cache_note}")
 
@@ -707,7 +710,8 @@ def main() -> int:
                         loadings_path.parent.mkdir(parents=True, exist_ok=True)
                         loadings.to_csv(loadings_path)
                         print(f"Saved PCA loadings to {loadings_path}")
-            except Exception:
+            except Exception as e:
+        print(f"Failed to write json: {e}")
                 pass
         elif pca_model is not None:
             explained = pca_model.explained_variance_ratio_ * 100.0
