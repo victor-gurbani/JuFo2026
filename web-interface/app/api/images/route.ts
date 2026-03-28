@@ -17,9 +17,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Invalid folder" }, { status: 403 });
   }
 
-  const here = path.dirname(fileURLToPath(import.meta.url));
-  const webRoot = path.resolve(here, "../../..");
-  const figuresPath = path.join(webRoot, "public", "figures", folder);
+  // Use process.cwd() to be resilient to standalone vs default outputs
+  const appRoot = process.cwd();
+  const figuresPath = path.join(appRoot, "public", "figures", folder);
   
   try {
     const files = await fs.promises.readdir(figuresPath);
