@@ -112,7 +112,7 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(true);
   const [kioskMode, setKioskMode] = useState(false);
   const [filterMode, setFilterMode] = useState<"all" | "clouds" | "composers" | "highlights">("all");
-  const [corpusMode, setCorpusMode] = useState<"curated" | "full">("curated");
+  const [corpusMode, setCorpusMode] = useState<"curated" | "full">("full");
   const [forceCache, setForceCache] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isWide, setIsWide] = useState(true);

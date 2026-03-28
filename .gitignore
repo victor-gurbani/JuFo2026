@@ -10,7 +10,7 @@ _tmp*
 odata/curated/solo_piano_*
 !data/curated/solo_piano_corpus.csv
 !data/curated/solo_piano_mxl_paths.txt
-
+figures/random_forest/all_trees/
 project-logos/
 
 __pycache__/
