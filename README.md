@@ -2,9 +2,9 @@
 
 ![Status](https://img.shields.io/badge/Status-In_Progress-yellow?style=flat-square)
 ![Competition](https://img.shields.io/badge/Competition-Jugend_Forscht-red?style=flat-square)
-![Platform](https://img.shields.io/badge/Platform-Python_|_Jupyter-blue?style=flat-square)
-![Language](https://img.shields.io/badge/Language-Python_3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
-![Lib](https://img.shields.io/badge/Lib-music21_|_scipy_|_plotly-green?style=flat-square)
+![Platform](https://img.shields.io/badge/Platform-Python_|_Next.js-blue?style=flat-square)
+![Language](https://img.shields.io/badge/Language-Python_3.10+_%7C_TypeScript-3776AB?style=flat-square&logo=python&logoColor=white)
+![Lib](https://img.shields.io/badge/Lib-music21_|_React_|_plotly-green?style=flat-square)
 
 > **Jugend Forscht 2026 Entry** | *Mathematics & Computer Science*
 >
