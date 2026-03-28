@@ -76,12 +76,19 @@ flowchart TD
 
 ## Tech Stack
 
+### Data Science & Analysis
 *   **Core Logic:** `Python 3.10+`
 *   **Symbolic Music Processing:** `music21` (Parsing, Chordification, Roman Numeral Analysis)
 *   **Data Manipulation:** `pandas`, `numpy`
 *   **Statistics:** `scipy.stats` (F_oneway), `statsmodels` (Tukey HSD)
 *   **Machine Learning:** `scikit-learn` (StandardScaler, PCA, t-SNE)
-*   **Visualization:** `plotly` (Interactive 3D/2D), `seaborn` (Static statistical plots), `matplotlib`
+*   **Visualization:** `plotly` (Interactive 3D/2D), `seaborn` (Static plots), `matplotlib`
+
+### Web Frontend & Infrastructure
+*   **Framework:** `Next.js 15+` (React 19, TypeScript)
+*   **Styling & State:** `Tailwind CSS v4`, `Zustand`
+*   **Web Visualization:** `react-plotly.js`
+*   **Deployment:** `Oracle Linux VPS` (Apache Reverse Proxy, PM2 Cluster)
 
 ---
 
