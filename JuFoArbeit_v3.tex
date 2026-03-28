@@ -8,6 +8,7 @@
 \setstretch{1.1}
 \usepackage{enumitem}
 \usepackage{hyperref} % se puede añadir hidelinks para evitar cuadros alrededor de los enlaces
+\usepackage[all]{hypcap} % jump to top of figure, not caption
 \usepackage{url}
 \usepackage{fontawesome5}
 \usepackage{tikz}
@@ -158,6 +159,8 @@
         % \end{tikzpicture}
     \end{titlepage}
 }
+\newcommand{\linkurl}[1]{\href{#1}{\textcolor{blue}{\underline{\small\nolinkurl{#1}}}}}
+
 
 \begin{document}
 
@@ -523,11 +526,11 @@ Das Projekt liefert somit mehr als eine statistische Analyse: Es erstellt eine \
 Die entwickelte Infrastruktur bietet Ansatzpunkte für Erweiterungen: Korpus-Expansion auf weitere Komponisten (Liszt, Ravel, Schönberg), andere Besetzungen und feinere zeitliche Auflösung; methodische Erweiterungen durch Machine Learning, temporale Modellierung und erweiterte Dissonanzklassifikation; langfristig die Brücke zur audiobasierten Analyse. Das Annotationswerkzeug könnte zudem musikpädagogisch eingesetzt werden.
 
 \subsubsection{Interaktive Weboberfläche}
-Für die explorative Analyse wurde eine interaktive Next.js-Weboberfläche entwickelt, die unter \url{https://empirical-music.victorgurbani.com} öffentlich zugänglich ist und Jury sowie interessierten Lesern ermöglicht, die Daten selbstständig zu erforschen. Die Haupt-Dashboard-Seite bietet nahtlosen Zugriff auf dynamische Karussells, welche die Pipeline-Architektur, animierte \enquote{Stylistic Evolution}-GIFs, statistische Signifikanz-Heatmaps und alle Machine-Learning-Visualisierungen bündeln. 
+Für die explorative Analyse wurde eine interaktive Next.js-Weboberfläche entwickelt, die unter \linkurl{https://empirical-music.victorgurbani.com} öffentlich zugänglich ist und Jury sowie interessierten Lesern ermöglicht, die Daten selbstständig zu erforschen. Die Haupt-Dashboard-Seite bietet nahtlosen Zugriff auf dynamische Karussells, welche die Pipeline-Architektur, animierte \enquote{Stylistic Evolution}-GIFs, statistische Signifikanz-Heatmaps und alle Machine-Learning-Visualisierungen bündeln. 
 
-Die spezialisierte \enquote{Subset Clouds}-Seite (\url{https://empirical-music.victorgurbani.com/clouds}) ermöglicht darüber hinaus:
+Die spezialisierte \enquote{Subset Clouds}-Seite (\linkurl{https://empirical-music.victorgurbani.com/clouds}) ermöglicht darüber hinaus:
 \begin{itemize}
-    \item Auswahl beliebig vieler Komponisten-Kombinationen aus dem Feature-Cache, um eigene "Clouds" (PCA-Punktwolken) zu generieren und stilistische Nähe interaktiv in 3D zu überprüfen
+    \item Auswahl beliebig vieler Komponisten-Kombinationen aus dem Feature-Cache, um eigene \enquote{Clouds} (PCA-Punktwolken) zu generieren und stilistische Nähe interaktiv in 3D zu überprüfen
     \item Echtzeit-Generierung neuer PCA-Wolken (canonical oder refit)
     \item Interaktive Suche und Analyse spezifischer Einzelstücke über die Suchfunktion auf der Startseite, um deren genaue Position im stilistischen Raum zu visualisieren
     \item Konfigurierbare Filter nach Komponist, Titel und Regex-Mustern
@@ -982,7 +985,6 @@ Einheitliches Format für alle drei Feature-Typen:
 \clearpage
 \section{Online-Links und Indexseiten}\label{app:C}
 
-\newcommand{\linkurl}[1]{\href{#1}{\textcolor{blue}{\underline{\small\nolinkurl{#1}}}}}
 
 Alle Abbildungen im PDF sind klickbar und führen zu den interaktiven Online-Versionen. Zur Sicherheit sind alle Links hier gesammelt aufgeführt (für Leserinnen und Leser ohne PDF-Link-Unterstützung).
 
@@ -1023,7 +1025,7 @@ Dieser Leitfaden ermöglicht vollständige Reproduktion aller Ergebnisse sowie d
 Um die Transparenz und Reproduzierbarkeit der durchgeführten Klassifikationsexperimente (Random Forest und Neuronales Netz) weiter zu erhöhen, werden in diesem Anhang tiefere Einblicke in die Hyperparameter-Optimierung, die Baumstrukturen und die lokalen SHAP-Erklärungen gegeben.
 
 \subsection{Hyperparameter-Optimierung und Pruning-Statistiken}
-Das Training des interpretierbaren Random Forests zielte auf eine maximale Reduktion der Komplexität ab, um "White-Box"-Eigenschaften zu bewahren, ohne die Genauigkeit drastisch zu opfern. Die Optimierung erfolgte mittels \texttt{RandomizedSearchCV} (5-Fold Cross-Validation) über folgendes Raster:
+Das Training des interpretierbaren Random Forests zielte auf eine maximale Reduktion der Komplexität ab, um \enquote{White-Box}-Eigenschaften zu bewahren, ohne die Genauigkeit drastisch zu opfern. Die Optimierung erfolgte mittels \texttt{RandomizedSearchCV} (5-Fold Cross-Validation) über folgendes Raster:
 \begin{itemize}
     \item \texttt{n\_estimators}: [100, 200, 300]
     \item \texttt{max\_depth}: [5, 10, 15, 20]
@@ -1067,7 +1069,7 @@ Während einzelne Entscheidungsbäume eine \textit{Mikro-Logik} zeigen, aggregie
 \clearpage
 \section{Deployment und Web-Infrastruktur}\label{app:E}
 
-Die Überführung der lokalen Next.js-Datenvisualisierung in eine öffentliche Web-Anwendung erforderte die Überwindung spezifischer infrastruktureller und softwarearchitektonischer Hürden. Die Applikation (gehostet auf \href{https://empirical-music.victorgurbani.com}{empirical-music.victorgurbani.com}) läuft auf einem ressourcenlimitierten Oracle Linux Virtual Private Server (VPS) unter Apache 2.4 und PM2. Die Beschränkungen in Speicher und Arbeitsspeicher setzten signifikante Optimierungen des Build-Prozesses voraus.
+Die Überführung der lokalen Next.js-Datenvisualisierung in eine öffentliche Web-Anwendung erforderte die Überwindung spezifischer infrastruktureller und softwarearchitektonischer Hürden. Die Applikation (gehostet auf \linkurl{https://empirical-music.victorgurbani.com}) läuft auf einem ressourcenlimitierten Oracle Linux Virtual Private Server (VPS) unter Apache 2.4 und PM2. Die Beschränkungen in Speicher und Arbeitsspeicher setzten signifikante Optimierungen des Build-Prozesses voraus.
 
 \subsection{Limitierungen der Standalone-Kompilierung}
 Typischerweise verarbeitet das Next.js-Build-System (\texttt{Turbopack}) serverseitige Abhängigkeiten, indem es die im Quellcode verknüpften Ordnerstrukturen analysiert und in die endgültige Build-Datei integriert. In diesem Projekt operiert das Dashboard jedoch eng verzahnt mit dem Python-Backend und seinen Datensätzen (über 40\,GB an MusicXML-Dateien, extrahierten Features und gepickelten Modellen). Da Turbopack Aufrufe wie \texttt{path.join(repoRoot, rawPath)} für die serverseitigen API-Routen erfasste, versuchte der Compiler, diese gesamten 40\,GB als potenziell erforderliche serverseitige Fallback-Assets in den lokalen Build-Ordner (\texttt{.next/standalone}) zu kopieren. Dies stürzte in Schleifen ab (ENOSPC: No space left on device) oder überlastete den Arbeitsspeicher massiv.
