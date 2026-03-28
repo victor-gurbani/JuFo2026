@@ -22,6 +22,9 @@ Browse the interactive visualizations hosted online at **[empirical-music.victor
 | *Embeds every piece in feature space* | *Pairwise composer differences* | *MusicXML analyzed with Roman numerals* |
 
 ### Highlights
+- **Subset Clouds:** Select arbitrary combinations from 144 composers to generate interactive PCA point clouds on-the-fly ([`/clouds`](https://empirical-music.victorgurbani.com/clouds)).
+- **Interactive Search:** Locate specific pieces in the stylistic 3D space directly from the homepage.
+- **Architectural Carousels:** Visual carousels combining the pipeline architecture, "Stylistic Evolution" animations, and significance testing results.
 - **Direct Highlights:**
     - [One Summer’s Day (Hisaishi) projection](https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html) – See how anime music blends Romantic and Impressionist traits.
     - [Ravel String Quartet projection](https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html)
