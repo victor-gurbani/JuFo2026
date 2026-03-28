@@ -178,7 +178,7 @@ Die vorliegende Arbeit untersucht die stilistische Entwicklung der Klaviermusik 
 
 Durch die Einführung von \enquote{Evolutionskoeffizienten} und die Anwendung eines \enquote{Difference-in-Differences}-Ansatzes (DDD) weisen wir nach, dass die Romantik eine dramatische Beschleunigung des Stilwandels darstellt. Insbesondere die Expansion des Ambitus (+25,14 Halbtöne DD-Wert) und die Zunahme der Dissonanz (+0,31 DD-Wert) markieren diesen evolutionären Sprung, während die rhythmische Komplexität erst bei Debussy signifikant ansteigt (+1,41 DD-Wert). Die PCA-Projektion visualisiert diese Befunde als dreidimensionale Landkarte: Chopin positioniert sich mathematisch nachweisbar als \enquote{Brückenfigur} zwischen klassischer Ordnung und impressionistischer Auflösung.
 
-Alle Skripte, Daten und Visualisierungen sind dokumentiert und ermöglichen reproduzierbare Folgeuntersuchungen zur stilistischen Evolution in der westlichen Kunstmusik. Die vollständige Merkmalsdokumentation und Reproduzierbarkeitsanleitungen finden sich in Anhang~A und~B.
+Alle Skripte, Daten und Visualisierungen sind dokumentiert und ermöglichen reproduzierbare Folgeuntersuchungen zur stilistischen Evolution in der westlichen Kunstmusik. Die vollständige Merkmalsdokumentation und Reproduzierbarkeitsanleitungen finden sich in \hyperref[app:A]{Anhang~\ref*{app:A}} und~\hyperref[app:B]{\ref*{app:B}}.
 
 \section{Motivation und Fragestellung}
 In der historischen Musikwissenschaft wird der Wandel von Epochen meist durch qualitative Stilmerkmale beschrieben. Die Frage, mit welcher Dynamik und in welche Richtung sich musikalische Parameter über die Zeit verändern, bleibt jedoch oft rein deskriptiv. Diese Arbeit verfolgt das Ziel, die Evolution der Musiksprache von der Barockzeit bis zum Impressionismus als messbare Trajektorie in einem multidimensionalen Merkmalsraum zu kartographieren.
@@ -221,7 +221,7 @@ Die computergestützte Stilanalyse hat seit den 1990er Jahren mehrere methodisch
 
 \noindent Frühe Versuche wie Lin-Jengs Arbeit von 1987\autocite{LinJeng1987} litten unter kleinem Korpus, manuellem Encoding und begrenzten Werkzeugen. Aktuelle Übersichtsarbeiten kritisieren die Dominanz schwer interpretierbarer Modelle oder ungenügender Validierung.\autocite{Simonetta2025}
 
-\textbf{Positionierung dieser Arbeit:} Das vorliegende Projekt kombiniert die Stärken aller Phasen: Skalierbarkeit (PDMX-Archiv mit $>$250\,000 Partituren\autocite{PDMX2024}), Interpretierbarkeit (36 explizite Merkmale statt verborgener Gewichte), statistische Rigorosität (ANOVA, Tukey-HSD, FDR-Korrektur) und Zugänglichkeit (\texttt{music21}\autocite{Cuthbert2010}, interaktive Visualisierungen). Tabelle~\ref{tab:evolution} vergleicht den methodischen Fortschritt.
+\textbf{Positionierung dieser Arbeit:} Das vorliegende Projekt kombiniert die Stärken aller Phasen: Skalierbarkeit (PDMX-Archiv mit $>$250\,000 Partituren\autocite{PDMX2024}), Interpretierbarkeit (36 explizite Merkmale statt verborgener Gewichte), statistische Rigorosität (ANOVA, Tukey-HSD, FDR-Korrektur) und Zugänglichkeit (\texttt{music21}\autocite{Cuthbert2010}, interaktive Visualisierungen). \hyperref[tab:evolution]{Tabelle~\ref*{tab:evolution}} vergleicht den methodischen Fortschritt.
 
 \begin{table}[H]
     \centering
@@ -239,7 +239,7 @@ Die computergestützte Stilanalyse hat seit den 1990er Jahren mehrere methodisch
 \end{table}
 
 \section{Vorgehensweise, Materialien und Methoden}
-Die Pipeline wurde vollständig in Python~3.10 entwickelt (\texttt{pandas}, \texttt{numpy}, \texttt{scipy}, \texttt{scikit-learn}, \texttt{plotly}, \texttt{music21}). Alle Skripte liegen im Verzeichnis \texttt{src/}; eine visuelle Übersicht der vierstufigen Architektur findet sich in Abbildung~\ref{fig:pipeline} (Anhang~B).
+Die Pipeline wurde vollständig in Python~3.10 entwickelt (\texttt{pandas}, \texttt{numpy}, \texttt{scipy}, \texttt{scikit-learn}, \texttt{plotly}, \texttt{music21}). Alle Skripte liegen im Verzeichnis \texttt{src/}; eine visuelle Übersicht der vierstufigen Architektur findet sich in \hyperref[fig:pipeline]{Abbildung~\ref*{fig:pipeline}} (\hyperref[app:B]{Anhang~\ref*{app:B}}).
 
 \subsection{Materialien: Kuratierung des PDMX-Korpus}
 \begin{itemize}
@@ -267,7 +267,7 @@ Für jede Partitur werden harmonische, melodische und rhythmische Deskriptoren e
     \item[Rhythmik (9 Merkmale)] Gleitfenster analysieren Dauerverteilungen, Downbeat-Betonung, Synkopationen, mikro-rhythmische Dichte und Cross-Rhythm-Mismatches zwischen Händen.
 \end{description}
 
-Tabelle~\ref{tab:features} erklärt zentrale Merkmale, die später als signifikant identifiziert wurden. Eine vollständige Dokumentation aller 36 Merkmale mit Berechnungsformeln und Beispielwerten findet sich in Anhang~A.
+\hyperref[tab:features]{Tabelle~\ref*{tab:features}} erklärt zentrale Merkmale, die später als signifikant identifiziert wurden. Eine vollständige Dokumentation aller 36 Merkmale mit Berechnungsformeln und Beispielwerten findet sich in \hyperref[app:A]{Anhang~\ref*{app:A}}.
 
 \begin{table}[H]
     \centering
@@ -319,7 +319,7 @@ DDD = a_{\text{Moll}} - a_{\text{Dur}}
 Dieser Wert gibt Aufschluss darüber, ob die stilistische Evolution in Moll-Werken systematisch von der in Dur-Werken abweicht. Diese Methodik wurde detailliert für die Merkmale \texttt{pitch\_range\_semitones}, \texttt{dissonance\_ratio}, \texttt{harmonic\_density\_mean} und \texttt{rhythmic\_pattern\_entropy} angewendet.
 
 \subsection{Software-Architektur und Reproduzierbarkeit}
-Die gesamte Analysepipeline wurde als modulares CLI-System implementiert. Detaillierte Reproduzierbarkeitsanleitungen finden sich in Anhang~B. Ein vollständiger Durchlauf vom Rohdatensatz bis zu allen Abbildungen benötigt etwa 2--3 Stunden auf einem modernen Laptop.
+Die gesamte Analysepipeline wurde als modulares CLI-System implementiert. Detaillierte Reproduzierbarkeitsanleitungen finden sich in \hyperref[app:B]{Anhang~\ref*{app:B}}. Ein vollständiger Durchlauf vom Rohdatensatz bis zu allen Abbildungen benötigt etwa 2--3 Stunden auf einem modernen Laptop.
 
 \subsubsection{Multicore-Caching-Infrastruktur}
 Um Analysen auf das vollständige PDMX-Archiv (254\,077 Partituren) zu ermöglichen, wurde ein skalierbares Caching-System entwickelt (\texttt{src/embedding\_cache.py}). Dieses System unterstützt:
@@ -333,7 +333,7 @@ Um Analysen auf das vollständige PDMX-Archiv (254\,077 Partituren) zu ermöglic
 
 \section{Ergebnisse}
 \subsection{Signifikante Stil-Merkmale}
-29 Merkmale überschreiten nach FDR-Korrektur \(q<0{,}05\). Abbildung~\ref{fig:anova} zeigt die 15 stärksten Omnibus-Treffer; Abbildung~\ref{fig:pairwise} quantifiziert signifikante Paarunterschiede (Debussy--Mozart: 16 Merkmale, Bach--Mozart: 10; inklusive reiner Zähl-/Größenmetriken sind es 16).
+29 Merkmale überschreiten nach FDR-Korrektur \(q<0{,}05\). \hyperref[fig:anova]{Abbildung~\ref*{fig:anova}} zeigt die 15 stärksten Omnibus-Treffer; \hyperref[fig:pairwise]{Abbildung~\ref*{fig:pairwise}} quantifiziert signifikante Paarunterschiede (Debussy--Mozart: 16 Merkmale, Bach--Mozart: 10; inklusive reiner Zähl-/Größenmetriken sind es 16).
 
 \begin{figure}[htbp]
     \centering
@@ -347,7 +347,7 @@ Um Analysen auf das vollständige PDMX-Archiv (254\,077 Partituren) zu ermöglic
     \caption{Anzahl signifikanter Merkmale je Komponistenpaar (Tukey HSD). Die Heatmap quantifiziert die stilistische Distanz: Debussy--Mozart zeigen 16 unterschiedliche Merkmale; Bach--Mozart unterscheiden sich in 10 Merkmalen (in dieser Darstellung ohne reine Zähl-/Größenmetriken; inklusive dieser sind es 16). Debussy bleibt in der Paarstatistik insgesamt am stärksten von Mozart separiert.}\label{fig:pairwise}
 \end{figure}
 
-Abbildung~\ref{fig:ambitus} zeigt exemplarisch die Verteilungsunterschiede für den Tonumfang; weitere Boxplots für alle 36 Merkmale sind online verfügbar (siehe Anhang~C).
+\hyperref[fig:ambitus]{Abbildung~\ref*{fig:ambitus}} zeigt exemplarisch die Verteilungsunterschiede für den Tonumfang; weitere Boxplots für alle 36 Merkmale sind online verfügbar (siehe \hyperref[app:C]{Anhang~\ref*{app:C}}).
 
 \begin{figure}[htbp]
     \centering
@@ -356,7 +356,7 @@ Abbildung~\ref{fig:ambitus} zeigt exemplarisch die Verteilungsunterschiede für 
 \end{figure}
 
 \subsection{Die empirische musikalische Landkarte}
-Die PCA-Visualisierung (Abbildung~\ref{fig:clouds}) fasst die 30 PCA-Eingangsmerkmale (36 Gesamtmerkmale abzüglich reiner Zähl-/Größenmerkmale) in drei Dimensionen zusammen. Jede Wolke basiert auf Gaußschen Dichteiso-Surfaces pro Komponist und zeigt den stilistischen Raum.
+Die PCA-Visualisierung (\hyperref[fig:clouds]{Abbildung~\ref*{fig:clouds}}) fasst die 30 PCA-Eingangsmerkmale (36 Gesamtmerkmale abzüglich reiner Zähl-/Größenmerkmale) in drei Dimensionen zusammen. Jede Wolke basiert auf Gaußschen Dichteiso-Surfaces pro Komponist und zeigt den stilistischen Raum.
 
 \begin{figure}[htbp]
     \centering
@@ -366,11 +366,11 @@ Die PCA-Visualisierung (Abbildung~\ref{fig:clouds}) fasst die 30 PCA-Eingangsmer
     \caption{3D-PCA-Projektion der 144 Partituren im standardisierten 30-Merkmalsraum. Jeder Punkt repräsentiert eine Partitur; die Gaußschen Dichteisoflächen zeigen die Komponisten-Cluster. Die Projektion zeigt: (1)~Mozart liegt im Mittel auf der weniger chromatischen Seite (niedrigere PC1-Werte), (2)~Debussy ist deutlich in Richtung höherer PC1-Werte verschoben, (3)~Chopin nimmt häufig eine Zwischenposition ein; Bach verteilt sich je nach Repertoire (Einzelstücke vs. Sammlungen) breiter. \emph{Klickbar für interaktive Ansicht.}}\label{fig:clouds}
 \end{figure}
 
-\noindent Interaktive Version der Abbildung der PCA-Wolken: \href{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}{\faLink\ composer\_clouds\_3d.html}.
+\noindent Interaktive Version der Abbildung der PCA-Wolken: \href{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}{\faLink\ composer\_clouds\_3d.html} (eine zentrale Anlaufstelle mit allen weiterführenden Links und interaktiven Inhalten bietet \hyperref[app:C]{Anhang~\ref*{app:C}}).
 
 Um mathematisch zu beweisen, dass die visuellen Gruppierungen nicht nur optische Artefakte der Projektion sind, wurde eine unüberwachte Cluster-Evaluation im dreidimensionalen PCA-Raum und im vollen 36-dimensionalen Raum durchgeführt. Eine Silhouette Score von 0.0100 ($>0$) in der 3D-Karte bestätigt die Validität der Trennung, was durch den verhältnismäßig niedrigen Davies-Bouldin-Index (3.5109) unterstrichen wird. Die mathematische Überschneidung entspringt der Natur der musikalischen Entwicklung, die weiche Übergänge und keine isolierten Kategorien kennt.
 
-Tabelle~\ref{tab:loadings} interpretiert die Achsen über die stärkst korrelierten Merkmale.
+\hyperref[tab:loadings]{Tabelle~\ref*{tab:loadings}} interpretiert die Achsen über die stärkst korrelierten Merkmale.
 
 \begin{table}[htbp]
     \centering
@@ -415,10 +415,10 @@ Die \textbf{DDD-Analyse} (Triple-Difference) der Tongeschlechter offenbart marka
 \noindent Eine animierte Visualisierung dieser Entwicklung zeigt die \enquote{Evolutionslinie} durch den PCA-Raum (\texttt{figures/evolution/evolution\_timelapse.gif}), in der die Cluster-Zentroide der vier Komponisten chronologisch verbunden werden. Diese Animation verdeutlicht die nicht-lineare Trajektorie: Der \enquote{Sprung} von Mozart zu Chopin ist im dreidimensionalen Raum deutlich größer als der von Bach zu Mozart -- ein visueller Beleg für die quantifizierten DD-Werte.
 
 \subsection{Annotation auf Notenebene}
-\texttt{src/annotate\_musicxml.py} färbt Durchgänge (orange), Appoggiaturen (violett), andere Dissonanzen (rot) und chromatische Harmonien (türkis) ein, ergänzt Akkordsymbole und exportiert optional PDF/PNG via MuseScore-CLI. Batchläufe (\texttt{generate\_selected\_annotations.py}) erstellen acht Referenzpartituren (2 pro Komponist). Dadurch lassen sich statistische Befunde unmittelbar an den Partituren überprüfen; alle annotierten Partituren sind unter den Links in Anhang~C interaktiv verfügbar.
+\texttt{src/annotate\_musicxml.py} färbt Durchgänge (orange), Appoggiaturen (violett), andere Dissonanzen (rot) und chromatische Harmonien (türkis) ein, ergänzt Akkordsymbole und exportiert optional PDF/PNG via MuseScore-CLI. Batchläufe (\texttt{generate\_selected\_annotations.py}) erstellen acht Referenzpartituren (2 pro Komponist). Dadurch lassen sich statistische Befunde unmittelbar an den Partituren überprüfen; alle annotierten Partituren sind unter den Links in \hyperref[app:C]{Anhang~\ref*{app:C}} interaktiv verfügbar.
 
 \subsection{Klassifikation: Interpretierbarer Random Forest vs. Neuronale Netze}
-Die statistische Trennbarkeit der Komponisten (Abschnitt~5.1) legt nahe, dass ein maschinelles Lernmodell die Stilzugehörigkeit unbekannter Werke mit hoher Sicherheit vorhersagen kann. In der Musikwissenschaft stehen solche Modelle jedoch oft in der Kritik, da sie als \enquote{Black Box} zwar Ergebnisse liefern, aber deren Entstehung nicht transparent machen. In dieser Arbeit verfolgen wir daher einen dualen Ansatz: Ein hochgradig interpretierbarer Random Forest (RF) wird gegen ein klassisches neuronales Netz (MLP) getestet, um den \enquote{Preis der Erklärbarkeit} zu quantifizieren.
+Die statistische Trennbarkeit der Komponisten (Abschnitt~5.1) legt nahe, dass ein maschinelles Lernmodell die Stilzugehörigkeit unbekannter Werke mit hoher Sicherheit vorhersagen kann. In der Musikwissenschaft stehen solche Modelle jedoch oft in der Kritik, da sie als \enquote{Black Box} zwar Ergebnisse liefern, aber deren Entstehung nicht transparent machen. In dieser Arbeit verfolgen wir daher einen dualen Ansatz: Ein hochgradig interpretierbarer Random Forest (RF) wird gegen ein klassisches neuronales Netz (MLP) getestet, um den \enquote{Preis der Erklärbarkeit} zu quantifizieren (für erweiterte technische Details zu Hyperparameter-Optimierung, Pruning und modellspezifischen SHAP-Analysen, siehe \hyperref[app:D]{Anhang~\ref*{app:D}}).
 
 \subsubsection{Der interpretierbare Random Forest}
 Das Ziel des Random-Forest-Modells war nicht die maximale Genauigkeit, sondern die Identifikation derjenigen Entscheidungsregeln, die den Stilwandel am stärksten prägen. Um dies zu erreichen, wurde die Pipeline unter drei strengen Bedingungen optimiert:
@@ -431,7 +431,7 @@ Das Ziel des Random-Forest-Modells war nicht die maximale Genauigkeit, sondern d
     \item \textbf{Globale Logik-Dekodierung via SHAP:} Zur Analyse der Ensemble-Logik wurden SHAP-Werte (SHapley Additive exPlanations) berechnet. Diese erlauben es, den Einfluss jedes Merkmals auf die Klassifikationsentscheidung global zu gewichten und musikalisch zu interpretieren.
 \end{enumerate}
 
-\noindent In der 5-Fold Cross-Validation erreichte dieser interpretierbare RF eine Genauigkeit von $\approx 70\,\%$. Die Verwechslungsmatrix (Abbildung~\ref{fig:rf_cm}) zeigt, dass Fehlklassifikationen meist zwischen chronologisch benachbarten Epochen (z.\,B. Chopin und Debussy) auftreten, was die These der fließenden Stilübergänge stützt.
+\noindent In der 5-Fold Cross-Validation erreichte dieser interpretierbare RF eine Genauigkeit von $\approx 70\,\%$. Die Verwechslungsmatrix (\hyperref[fig:rf_cm]{Abbildung~\ref*{fig:rf_cm}}) zeigt, dass Fehlklassifikationen meist zwischen chronologisch benachbarten Epochen (z.\,B. Chopin und Debussy) auftreten, was die These der fließenden Stilübergänge stützt.
 
 \begin{figure}[htbp]
     \centering
@@ -442,7 +442,7 @@ Das Ziel des Random-Forest-Modells war nicht die maximale Genauigkeit, sondern d
 \subsubsection{Vergleich mit neuronalen Netzen (MLP)}
 Parallel zum Random Forest wurde ein \textit{Multi-Layer Perceptron} (MLP) trainiert. Dieses neuronale Netz durfte den vollen Merkmalsraum (30 Features) ohne Vorfilterung oder Komplexitätsbeschränkung nutzen. Es diente als Referenz für das theoretisch erreichbare Maximum an Genauigkeit auf dem 144-Stücke-Datensatz.
 
-Das Ergebnis war überraschend: Der interpretierbare RF schnitt mit $70{,}1\,\%$ Genauigkeit leicht besser ab als das unbeschränkte neuronale Netz ($68{,}7\,\%$; vgl. Abbildung~\ref{fig:nn_comparison}). Wir interpretieren diesen Befund dahingehend, dass die Kombination aus Kollinearitätsfilterung und striktem Pruning als effektive Regularisierung wirkte. Während das neuronale Netz auf dem relativ kleinen Datensatz (144 Werke) zu leichtem Overfitting neigte, zwang die interpretierbare Architektur das Modell dazu, sich auf die robustesten musikalischen Merkmale -- wie den Tonumfang und die harmonische Dichte -- zu konzentrieren (Abbildung~\ref{fig:rf_scatter}).
+Das Ergebnis war überraschend: Der interpretierbare RF schnitt mit $70{,}1\,\%$ Genauigkeit leicht besser ab als das unbeschränkte neuronale Netz ($68{,}7\,\%$; vgl. \hyperref[fig:nn_comparison]{Abbildung~\ref*{fig:nn_comparison}}). Wir interpretieren diesen Befund dahingehend, dass die Kombination aus Kollinearitätsfilterung und striktem Pruning als effektive Regularisierung wirkte. Während das neuronale Netz auf dem relativ kleinen Datensatz (144 Werke) zu leichtem Overfitting neigte, zwang die interpretierbare Architektur das Modell dazu, sich auf die robustesten musikalischen Merkmale -- wie den Tonumfang und die harmonische Dichte -- zu konzentrieren (\hyperref[fig:rf_scatter]{Abbildung~\ref*{fig:rf_scatter}}).
 
 \begin{figure}[htbp]
     \centering
@@ -459,7 +459,7 @@ Das Ergebnis war überraschend: Der interpretierbare RF schnitt mit $70{,}1\,\%$
 \subsection{Externer Falltest: Prädiktive Validierung}
 Die entscheidende Frage für jedes Modell ist: \emph{Generalisiert es auf unbekannte Daten?} Mit \texttt{src/highlight\_pca\_piece.py} können externe Stücke -- die nicht im Trainingskorpus enthalten waren -- in die PCA-Wolken projiziert werden. Diese Projektion ist ein rigider Test der Methodik: Wenn die 36 Merkmale tatsächlich musikologisch bedeutsame Stilaspekte erfassen, sollte ein Stück mit bekannten stilistischen Einflüssen \emph{vorhersagbar} zwischen den entsprechenden Clustern landen.
 
-\textbf{Fallstudie 1: Joe Hisaishi.} Die Filmmusik von Hayao Miyazakis Ghibli-Produktionen ist für ihre Synthese aus spätromantischer Harmonik und impressionistischen Klangfarben bekannt. Hisaishis \emph{One Summer's Day} (2001) wurde ohne Vorwissen in den PCA-Raum projiziert -- das Ergebnis (Abbildung~\ref{fig:hisaishi}) bestätigt die Hypothese: Das Stück positioniert sich präzise zwischen Chopin und Debussy, mit leichter Tendenz zu Chopin. Die Methode \emph{sagt korrekt voraus}, wo ein stilistisch hybrider Komponist landen sollte -- ein starker Beleg für die Validität des Merkmalsraums.
+\textbf{Fallstudie 1: Joe Hisaishi.} Die Filmmusik von Hayao Miyazakis Ghibli-Produktionen ist für ihre Synthese aus spätromantischer Harmonik und impressionistischen Klangfarben bekannt. Hisaishis \emph{One Summer's Day} (2001) wurde ohne Vorwissen in den PCA-Raum projiziert -- das Ergebnis (\hyperref[fig:hisaishi]{Abbildung~\ref*{fig:hisaishi}}) bestätigt die Hypothese: Das Stück positioniert sich präzise zwischen Chopin und Debussy, mit leichter Tendenz zu Chopin. Die Methode \emph{sagt korrekt voraus}, wo ein stilistisch hybrider Komponist landen sollte -- ein starker Beleg für die Validität des Merkmalsraums.
 
 \begin{figure}[htbp]
     \centering
@@ -469,11 +469,11 @@ Die entscheidende Frage für jedes Modell ist: \emph{Generalisiert es auf unbeka
     \caption{Prädiktive Validierung: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung wurde \emph{vor} der Projektion hypothetisiert -- die Methode generalisiert erfolgreich auf unbekannte Daten außerhalb des Trainingskorpus. \emph{Klickbar für interaktive Ansicht.}}\label{fig:hisaishi}
 \end{figure}
 
-\textbf{Fallstudie 2: Maurice Ravel.} Ravels \emph{Streichquartett in F-Dur} (1903) landet \emph{jenseits} des Debussy-Clusters -- ein zunächst überraschendes Ergebnis. Die Interpretation: Ravel übernahm Debussys impressionistische Palette, trieb jedoch bestimmte Parameter weiter. Seine extremeren Werte bei \texttt{dissonance\_ratio} und \texttt{rhythmic\_pattern\_entropy} reflektieren Ravels charakteristische Präzision und rhythmische Schärfe im Vergleich zu Debussys weicheren Konturen. Die PCA-Projektion unterscheidet somit nicht nur Epochen, sondern auch individuelle Stilprofile innerhalb derselben Schule (interaktiv verfügbar, siehe Anhang~C).
+\textbf{Fallstudie 2: Maurice Ravel.} Ravels \emph{Streichquartett in F-Dur} (1903) landet \emph{jenseits} des Debussy-Clusters -- ein zunächst überraschendes Ergebnis. Die Interpretation: Ravel übernahm Debussys impressionistische Palette, trieb jedoch bestimmte Parameter weiter. Seine extremeren Werte bei \texttt{dissonance\_ratio} und \texttt{rhythmic\_pattern\_entropy} reflektieren Ravels charakteristische Präzision und rhythmische Schärfe im Vergleich zu Debussys weicheren Konturen. Die PCA-Projektion unterscheidet somit nicht nur Epochen, sondern auch individuelle Stilprofile innerhalb derselben Schule (interaktiv verfügbar, siehe \hyperref[app:C]{Anhang~\ref*{app:C}}).
 
 \section{Ergebnisdiskussion}
 \subsection{Interpretation der Landkarte}
-Die Achseninterpretation (Tabelle~\ref{tab:loadings}) ermöglicht eine musikologisch fundierte Deutung: PC1 (22,3\%) trennt nach harmonischer Komplexität (Chromatik, Dissonanz); PC2 (16,1\%) kontrastiert Notendichte gegen kadenzielle Klarheit; PC3 (9,8\%) misst registrale Spannweite.
+Die Achseninterpretation (\hyperref[tab:loadings]{Tabelle~\ref*{tab:loadings}}) ermöglicht eine musikologisch fundierte Deutung: PC1 (22,3\%) trennt nach harmonischer Komplexität (Chromatik, Dissonanz); PC2 (16,1\%) kontrastiert Notendichte gegen kadenzielle Klarheit; PC3 (9,8\%) misst registrale Spannweite.
 
 Die resultierende Cluster-Struktur zeigt: Bach und Mozart teilen die \enquote{klassische Region} mit ähnlichen PC1-Werten aber unterschiedlichen PC2-Werten (kontrapunktische Dichte vs. homophone Transparenz). Debussy erscheint als isolierte \enquote{impressionistische Insel} mit extremen Werten auf allen Achsen. Chopin liegt intermediär -- ein Befund, der durch die DD-Analyse präzisiert wird.
 
@@ -487,7 +487,7 @@ Die DD-Metrik (Abschnitt~5.3) erlaubt es, stilistischen Wandel als messbare \enq
 \textbf{Chopins Brückenrolle:}\autocite[][Chopin transformierte die Ausdrucksmittel, ohne das metrische Gerüst der Zeitvorgänger zu sprengen. Die Trennung der PCA-Cluster entlang unterschiedlicher Hauptkomponenten (PC1 für Harmonik vs. PC2/3 für Rhythmik) erklärt sich schlüssig aus dieser Dichotomie.]{ChopinTransformations} Die DD-Koeffizienten präzisieren Chopins katalytische Funktion mathematisch: harmonischer Innovator ($DD > 0$), rhythmischer Konservativer ($DD \approx 0$). Er dehnte tonale Grenzen bis zum Bruchpunkt, bewahrte aber rhythmische Symmetrie -- objektiv-mathematisch die Schnittstelle zwischen klassischer Ordnung und moderner Auflösung.
 
 \subsection{Zyklische Evolution: Von Klassik zu Pop}
-Eine explorative Erweiterung auf populäre Musik offenbart: Die stilistische Evolution verläuft nicht linear, sondern zyklisch (Abbildung~\ref{fig:classicpop}).\footnote{Die Befunde suggerieren eine \enquote{Pendelbewegung} der Musikgeschichte: Nach maximaler harmonischer Komplexität bei Debussy kehrt die populäre Musik des 20. Jahrhunderts zu struktureller Einfachheit zurück. Elton Johns Werk (1970er Jahre) positioniert sich im PCA-Raum zwischen Debussy und Mozart -- er behält impressionistische Klangfarben, vereinfacht aber die harmonische Struktur. Ob diese \enquote{Rückkehr zur Einfachheit} ein universelles Muster musikalischer Evolution nach Perioden maximaler Komplexität darstellt, ist eine offene Forschungsfrage.} Nach maximaler Komplexität bei Debussy kehrt Pop-Musik zu struktureller Einfachheit zurück -- moderne Produktionen nähern sich Mozart-ähnlichen Werten bei Dissonanzrate und harmonischer Dichte.
+Eine explorative Erweiterung auf populäre Musik offenbart: Die stilistische Evolution verläuft nicht linear, sondern zyklisch (\hyperref[fig:classicpop]{Abbildung~\ref*{fig:classicpop}}).\footnote{Die Befunde suggerieren eine \enquote{Pendelbewegung} der Musikgeschichte: Nach maximaler harmonischer Komplexität bei Debussy kehrt die populäre Musik des 20. Jahrhunderts zu struktureller Einfachheit zurück. Elton Johns Werk (1970er Jahre) positioniert sich im PCA-Raum zwischen Debussy und Mozart -- er behält impressionistische Klangfarben, vereinfacht aber die harmonische Struktur. Ob diese \enquote{Rückkehr zur Einfachheit} ein universelles Muster musikalischer Evolution nach Perioden maximaler Komplexität darstellt, ist eine offene Forschungsfrage.} Nach maximaler Komplexität bei Debussy kehrt Pop-Musik zu struktureller Einfachheit zurück -- moderne Produktionen nähern sich Mozart-ähnlichen Werten bei Dissonanzrate und harmonischer Dichte.
 
 \begin{figure}[htbp]
     \centering
@@ -535,9 +535,9 @@ Die spezialisierte \enquote{Subset Clouds}-Seite (\url{https://empirical-music.v
 \end{itemize}
 Diese Oberfläche ermöglicht der Jury und Nicht-Programmierern, beliebige stilistische Vergleiche durchzuführen und die in dieser Arbeit vorgestellten Ergebnisse mit selbst gewählten Stücken oder Komponisten zu testen -- ein Schritt zur Demokratisierung der Computational Musicology.
 
-Um die Erreichbarkeit und globale Analysefähigkeit sicherzustellen, wurde diese Anwendung auf einen Oracle Linux Virtual Private Server (VPS) migriert, wobei serverseitige Fallbacks für Caching-Operationen integriert wurden (Details zur Server-Architektur und den technischen Deployment-Herausforderungen der Next.js-Umgebung finden sich in Anhang~E).
+Um die Erreichbarkeit und globale Analysefähigkeit sicherzustellen, wurde diese Anwendung auf einen Oracle Linux Virtual Private Server (VPS) migriert, wobei serverseitige Fallbacks für Caching-Operationen integriert wurden (Details zur Server-Architektur und den technischen Deployment-Herausforderungen der Next.js-Umgebung finden sich in \hyperref[app:E]{Anhang~\ref*{app:E}}).
 
-Alle Skripte sind dokumentiert und ermöglichen reproduzierbare Folgeuntersuchungen (siehe Anhang~B).
+Alle Skripte sind dokumentiert und ermöglichen reproduzierbare Folgeuntersuchungen (siehe \hyperref[app:B]{Anhang~\ref*{app:B}}).
 
 \clearpage
 \hypersetup{pageanchor=false}
@@ -554,7 +554,7 @@ Die Konzeption des Projekts, die Literaturrecherche, die komplette Python-Progra
 \hypersetup{pageanchor=true}
 \setcounter{page}{1}
 \appendix
-\section{Anhang: Vollständige Merkmalsdokumentation}
+\section{Vollständige Merkmalsdokumentation}\label{app:A}
 
 Dieser Anhang dokumentiert alle 36 extrahierten Merkmale der drei Säulen. Jedes Merkmal wird durch seine musikologische Bedeutung, Berechnungsmethode und Interpretation erklärt.
 
@@ -691,13 +691,14 @@ Die 36 Merkmale erfassen komplementäre Dimensionen musikalischer Gestaltung:
 
 Diese vollständige Dokumentation ermöglicht die Replikation und Erweiterung der Analyse auf neue Komponisten oder Repertoires.
 
-\section{Anhang B: Reproduzierbarkeits-Leitfaden}
+\clearpage
+\section{Reproduzierbarkeits-Leitfaden}\label{app:B}
 
 Dieser Anhang dokumentiert die vollständige Software-Pipeline zur exakten Replikation aller Ergebnisse. Alle Befehle und Skripte sind im Projekt-Repository verfügbar.
 
 \subsection{Pipeline-Architektur}
 
-Abbildung~\ref{fig:pipeline} zeigt den vollständigen Datenfluss von den Rohdaten bis zur Visualisierung.
+\hyperref[fig:pipeline]{Abbildung~\ref*{fig:pipeline}} zeigt den vollständigen Datenfluss von den Rohdaten bis zur Visualisierung.
 
 \begin{figure}[H]
     \centering
@@ -978,7 +979,8 @@ Einheitliches Format für alle drei Feature-Typen:
     \item \texttt{reject}: Signifikanz (True/False)
 \end{itemize}
 
-\section{Anhang C: Online-Links und Indexseiten}
+\clearpage
+\section{Online-Links und Indexseiten}\label{app:C}
 
 \newcommand{\linkurl}[1]{\href{#1}{\textcolor{blue}{\underline{\small\nolinkurl{#1}}}}}
 
@@ -1015,11 +1017,12 @@ Alle Abbildungen im PDF sind klickbar und führen zu den interaktiven Online-Ver
 
 Dieser Leitfaden ermöglicht vollständige Reproduktion aller Ergebnisse sowie deren Erweiterung auf neue Fragestellungen. Bei Problemen: GitHub-Issues im Repository oder Kontakt über verfügbare Adresse.
 
-\section{Anhang D: Erweiterte Details zur Machine-Learning-Pipeline}
+\clearpage
+\section{Erweiterte Details zur Machine-Learning-Pipeline}\label{app:D}
 
 Um die Transparenz und Reproduzierbarkeit der durchgeführten Klassifikationsexperimente (Random Forest und Neuronales Netz) weiter zu erhöhen, werden in diesem Anhang tiefere Einblicke in die Hyperparameter-Optimierung, die Baumstrukturen und die lokalen SHAP-Erklärungen gegeben.
 
-\subsection{D.1 Hyperparameter-Optimierung und Pruning-Statistiken}
+\subsection{Hyperparameter-Optimierung und Pruning-Statistiken}
 Das Training des interpretierbaren Random Forests zielte auf eine maximale Reduktion der Komplexität ab, um "White-Box"-Eigenschaften zu bewahren, ohne die Genauigkeit drastisch zu opfern. Die Optimierung erfolgte mittels \texttt{RandomizedSearchCV} (5-Fold Cross-Validation) über folgendes Raster:
 \begin{itemize}
     \item \texttt{n\_estimators}: [100, 200, 300]
@@ -1035,7 +1038,7 @@ Um den konkreten Effekt des \textit{Cost-Complexity Prunings} (\texttt{ccp\_alph
 \end{itemize}
 Der Verzicht auf nur $\sim$3,5\,\% Genauigkeit führte zu einer massiven Reduzierung der Modellkomplexität um \textbf{35,8\,\% weniger Entscheidungsknoten}.
 
-\subsection{D.2 Beispielhafter Entscheidungsbaum}
+\subsection{Beispielhafter Entscheidungsbaum}
 Ein Random Forest trifft Vorhersagen durch einen Mehrheitsentscheid vieler individueller Bäume. Um die Nachvollziehbarkeit zu demonstrieren, wurde der mathematisch akkurateste Einzelbaum aus dem 100-Bäume-Ensemble (Baum \#71) extrahiert. Dieser Baum erreichte alleingestellt eine Genauigkeit von 72,4\,\% auf dem Testset. Zur Gewährleistung uneingeschränkter Transparenz (\enquote{White-Box}-Paradigma) exportiert die Pipeline zudem alle 100 Entscheidungsbäume vollständig als grafische und textuelle Regelwerke zur manuellen Auditierung.
 
 \begin{figure}[htbp]
@@ -1044,7 +1047,7 @@ Ein Random Forest trifft Vorhersagen durch einen Mehrheitsentscheid vieler indiv
     \caption{Der akkurateste Einzelbaum des Random-Forest-Ensembles. Jeder Knoten zeigt das Entscheidungskriterium (Merkmal), die Gini-Impurity (Grad der Mischung), die verbleibende Anzahl von Stücken (Samples) und deren Verteilung auf die vier chronologischen Klassen: [Bach, Mozart, Chopin, Debussy].}\label{fig:rf_tree}
 \end{figure}
 
-\subsection{D.3 Komponistenspezifische SHAP-Analysen}
+\subsection{Komponistenspezifische SHAP-Analysen}
 Während einzelne Entscheidungsbäume eine \textit{Mikro-Logik} zeigen, aggregieren SHAP-Werte (SHapley Additive exPlanations) die spieltheoretischen Einflüsse aller Merkmale über das \textit{gesamte} Ensemble. Da die Merkmale im Vorfeld mittels Spearman-Clustering von Kollinearität befreit wurden, zeigen diese Plots die isoliertesten und aussagekräftigsten Unterscheidungsmerkmale. Dass diese sich teilweise von den Top-Merkmalen der ANOVA/PCA unterscheiden, liegt methodisch in der Natur des Modells: Während die statistischen Tests lineare, isolierte Varianzen messen, erfasst der Random Forest \textit{nicht-lineare, konditionale Interaktionen} (z.\,B. \enquote{Wenn Merkmal X niedrig ist, trennt Merkmal Y perfekt}) und optimiert ausschließlich auf die Klassifikationsgrenze statt auf die globale Datenvarianz.
 
 \begin{figure}[htbp]
@@ -1062,19 +1065,19 @@ Während einzelne Entscheidungsbäume eine \textit{Mikro-Logik} zeigen, aggregie
 \end{figure}
 
 \clearpage
-\section{Anhang E: Deployment und Web-Infrastruktur}
+\section{Deployment und Web-Infrastruktur}\label{app:E}
 
 Die Überführung der lokalen Next.js-Datenvisualisierung in eine öffentliche Web-Anwendung erforderte die Überwindung spezifischer infrastruktureller und softwarearchitektonischer Hürden. Die Applikation (gehostet auf \href{https://empirical-music.victorgurbani.com}{empirical-music.victorgurbani.com}) läuft auf einem ressourcenlimitierten Oracle Linux Virtual Private Server (VPS) unter Apache 2.4 und PM2. Die Beschränkungen in Speicher und Arbeitsspeicher setzten signifikante Optimierungen des Build-Prozesses voraus.
 
-\subsection{E.1 Limitierungen der Standalone-Kompilierung}
+\subsection{Limitierungen der Standalone-Kompilierung}
 Typischerweise verarbeitet das Next.js-Build-System (\texttt{Turbopack}) serverseitige Abhängigkeiten, indem es die im Quellcode verknüpften Ordnerstrukturen analysiert und in die endgültige Build-Datei integriert. In diesem Projekt operiert das Dashboard jedoch eng verzahnt mit dem Python-Backend und seinen Datensätzen (über 40\,GB an MusicXML-Dateien, extrahierten Features und gepickelten Modellen). Da Turbopack Aufrufe wie \texttt{path.join(repoRoot, rawPath)} für die serverseitigen API-Routen erfasste, versuchte der Compiler, diese gesamten 40\,GB als potenziell erforderliche serverseitige Fallback-Assets in den lokalen Build-Ordner (\texttt{.next/standalone}) zu kopieren. Dies stürzte in Schleifen ab (ENOSPC: No space left on device) oder überlastete den Arbeitsspeicher massiv.
 
 Die Lösung war die Implementierung untrackbarer String-Interpolations-Polymorphismen in Next.js: Anstelle direkter standardisierter Bibliotheksaufrufe wertet das System die Suchpfade nun dynamisch über Laufzeit-Strings (\texttt{const joinPath = (base, ...parts) => [base, ...parts].join(path.sep)}) aus. Dadurch kompilierte Next.js in einen schmalen 50\,MB-Microserver, ohne die Datensatz-Binärdateien einzubetten. 
 
-\subsection{E.2 Abruf dynamischer Cloud-Jobs}
+\subsection{Abruf dynamischer Cloud-Jobs}
 Weitere Hürden betrafen die dynamische Darstellung frisch berechneter PCA-Wolken. Im \texttt{standalone}-Modus \enquote{friert} der interne Node.js-Server von Next.js seinen statischen Datei-Router (für Assets innerhalb von \texttt{/public}) zum Zeitpunkt der Kompilierung ein. Starten Besucher der Webseite jedoch im Hintergrund einen Python-Subprozess, um eine neue Datensatzwolke zu berechnen, wurden die frisch generierten Metadaten (\texttt{.json} und \texttt{.html}) unter \texttt{public/generated/clouds/} vom Standalone-Server als 404 (Not Found) blockiert. Um dies zu umgehen, wurde in der Apache-Konfiguration ein Reverse-Proxy-Bypass integriert. Apache fängt Anfragen, die sich an die Verzeichnisse \texttt{/img} oder \texttt{/generated} richten (\texttt{Alias /generated /var/www/jufo2026/web-interface/public/generated}), explizit ab und serviert die frisch verfassten Dokumente nativ aus dem VPS-Dateisystem, während alle React- und API-spezifischen Endpunkte an den PM2-gewrappten Next.js-Dienst auf Port 3011 weitergeleitet werden. 
 
-\subsection{E.3 Das Caching-Resolver-Dilemma}
+\subsection{Das Caching-Resolver-Dilemma}
 Schlussendlich trat das Problem der Interoperabilität von Dateipfaden zwischen macOS-Entwicklungssystemen und Oracle-Linux-Hosting auf. Das Backend speicherte Caches mit absoluten Unix-Dateipfaden der MusicXML-Dateien, um Dimensionsreduktions-Metadaten effizienter heranzuziehen. Da die korrespondierenden MusicXML-Dateien aus Speicher-Gründen nicht auf den Server mitkopiert wurden (\texttt{--forceCache}-Flag überschreibt den Verzeichnis-Check), litten die Identifizierungs-Signaturen im Skript \texttt{embedding\_cache.py} unter fehlschlagenden Zuordnungen. Durch den Umbau der Abgleichoperation mithilfe von \texttt{Path(mxl\_abs\_path).name.endswith(...)} wurde gewährleistet, dass das Dashboard auch dann voll funktionsfähig agiert und Einzelstücke fehlerfrei visualisiert rekonstruieren kann, wenn nur der Feature-Cache der Pipeline lokalisiert wird, selbst in Cross-OS-Szenarien ohne korrespondierenden Rohdatensatz.
 
 
