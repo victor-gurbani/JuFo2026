@@ -41,8 +41,10 @@ Browse the interactive visualizations hosted online at **[empirical-music.victor
     *   **Melodic:** 11 features (Contour, Interval size, Pitch entropy).
     *   **Rhythmic:** 9 features (Syncopation, Density, Polyrhythms).
 *   **Statistical Validation:** **36** omnibus ANOVA tests (29 significant @ p<0.05) and **174** post-hoc Tukey contrasts, with 62 statistically significant pairwise comparisons (Tukey HSD) spanning 29 distinct features.
+*   **Evolutionary Dynamics:** Quantified stylistic "acceleration" across three centuries using Difference-in-Differences (DDD), mapping the exact magnitude of historical shifts (e.g., a +25.14 semitone pitch range expansion during the Romantic era).
+*   **Machine Learning & Explainability:** Built a fully transparent, interpretable Random Forest classifier (using Cost-Complexity Pruning and SHAP values). It achieved 70.1% accuracy via 5-Fold CV, successfully outperforming a black-box Neural Network (MLP) baseline (68.7%).
 *   **Compute & Caching Architecture:** Multi-core parallelized data extraction capable of condensing the entire 254k-score parent dataset into an aggressively optimized $\sim$180MB vector cache. 
-*   **Real-time Interactivity:** Provides 0-latency, dynamically refitted 3D stylistic PCA clouds on the fly directly inside a custom Next.js 15 App Router GUI.
+*   **Interactive Web Dashboard:** A comprehensive Next.js 15 App Router GUI providing 0-latency, dynamically refitted 3D PCA clouds, and interactive data carousels.
 *   **Production Deployment:** Fully decoupled frontend using a `standalone` Node build natively streaming static image assets on an Oracle Linux server via Apache reverse proxy.
 
 ---
