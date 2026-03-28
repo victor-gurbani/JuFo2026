@@ -523,16 +523,17 @@ Das Projekt liefert somit mehr als eine statistische Analyse: Es erstellt eine \
 Die entwickelte Infrastruktur bietet Ansatzpunkte für Erweiterungen: Korpus-Expansion auf weitere Komponisten (Liszt, Ravel, Schönberg), andere Besetzungen und feinere zeitliche Auflösung; methodische Erweiterungen durch Machine Learning, temporale Modellierung und erweiterte Dissonanzklassifikation; langfristig die Brücke zur audiobasierten Analyse. Das Annotationswerkzeug könnte zudem musikpädagogisch eingesetzt werden.
 
 \subsubsection{Interaktive Weboberfläche}
-Für die explorative Analyse wurde eine lokale Next.js-Weboberfläche entwickelt (\texttt{web-interface/}). Diese fungiert als interaktives \enquote{Museum} für die gewonnenen Daten. Die Haupt-Dashboard-Seite bietet nahtlosen Zugriff auf dynamische Karussells, welche die Pipeline-Architektur, animierte \enquote{Stylistic Evolution}-GIFs, statistische Signifikanz-Heatmaps und alle Machine-Learning-Visualisierungen bündeln. 
+Für die explorative Analyse wurde eine interaktive Next.js-Weboberfläche entwickelt, die unter \url{https://empirical-music.victorgurbani.com} öffentlich zugänglich ist und Jury sowie interessierten Lesern ermöglicht, die Daten selbstständig zu erforschen. Die Haupt-Dashboard-Seite bietet nahtlosen Zugriff auf dynamische Karussells, welche die Pipeline-Architektur, animierte \enquote{Stylistic Evolution}-GIFs, statistische Signifikanz-Heatmaps und alle Machine-Learning-Visualisierungen bündeln. 
 
-Die spezialisierte \enquote{Subset Clouds}-Seite (\texttt{/clouds}) ermöglicht darüber hinaus:
+Die spezialisierte \enquote{Subset Clouds}-Seite (\url{https://empirical-music.victorgurbani.com/clouds}) ermöglicht darüber hinaus:
 \begin{itemize}
-    \item Auswahl beliebiger Komponisten-Kombinationen aus dem Feature-Cache
+    \item Auswahl beliebig vieler Komponisten-Kombinationen aus dem Feature-Cache, um eigene "Clouds" (PCA-Punktwolken) zu generieren und stilistische Nähe interaktiv in 3D zu überprüfen
     \item Echtzeit-Generierung neuer PCA-Wolken (canonical oder refit)
+    \item Interaktive Suche und Analyse spezifischer Einzelstücke über die Suchfunktion auf der Startseite, um deren genaue Position im stilistischen Raum zu visualisieren
     \item Konfigurierbare Filter nach Komponist, Titel und Regex-Mustern
     \item Voreingestellte Gruppensets (Jazz, Spanische Nationalisten, Anime/Film, Pop/Modern)
 \end{itemize}
-Diese Oberfläche ermöglicht Nicht-Programmierern, beliebige stilistische Vergleiche durchzuführen -- ein Schritt zur Demokratisierung der Computational Musicology.
+Diese Oberfläche ermöglicht der Jury und Nicht-Programmierern, beliebige stilistische Vergleiche durchzuführen und die in dieser Arbeit vorgestellten Ergebnisse mit selbst gewählten Stücken oder Komponisten zu testen -- ein Schritt zur Demokratisierung der Computational Musicology.
 
 Um die Erreichbarkeit und globale Analysefähigkeit sicherzustellen, wurde diese Anwendung auf einen Oracle Linux Virtual Private Server (VPS) migriert, wobei serverseitige Fallbacks für Caching-Operationen integriert wurden (Details zur Server-Architektur und den technischen Deployment-Herausforderungen der Next.js-Umgebung finden sich in Anhang~E).
 
