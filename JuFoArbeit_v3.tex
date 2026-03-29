@@ -220,7 +220,7 @@ Die computergestützte Stilanalyse hat seit den 1990er Jahren mehrere methodisch
 \begin{table}[H]
     \centering
     \caption{Evolution der Methodik im stilistischen Vergleich}\label{tab:evolution}
-    \begin{tabular}{p{2.2cm}p{2.5cm}p{2.5cm}p{2.5cm}p{4.5cm}}
+    \begin{tabular}{p{2.2cm}p{2.5cm}p{2.5cm}p{3.5cm}p{4.5cm}}
         \toprule
         \textbf{Aspekt} & \textbf{Humdrum} & \textbf{jSymbolic} & \textbf{Deep Learning} & \textbf{Diese Arbeit (2026)} \\
         \midrule
@@ -243,65 +243,34 @@ Für jede Partitur werden 36 Deskriptoren erzeugt. Die \textbf{Harmonik} (16 Mer
 
 \begin{table}[H]
     \centering
-    \caption{Ausgewählte interpretierbare Merkmale}\label{tab:features}
-    \makebox[\textwidth][c]{
-    \begin{tabular}{p{5.0cm}p{2.0cm}p{9.5cm}}
-                \toprule
-        \textbf{Merkmal} & \textbf{Säule} & \textbf{Beschreibung} \\
+    \caption{Zentrale Merkmale}\label{tab:features}
+    \begin{tabular}{p{5cm}p{9cm}}
+        \toprule
+        \textbf{Merkmal} & \textbf{Beschreibung} \\
         \midrule
-        \texttt{pitch\_range\_semitones} & Melodik & Tonumfang zwischen tiefster und höchster Note eines Stücks (Halbtonschritte). \\
-        \texttt{dissonance\_ratio} & Harmonik & Anteil dissonanter Akkord-Events im \texttt{chordify()}-Stream (\texttt{Chord.isConsonant()==False}). \\
-        \texttt{pitch\_class\_entropy} & Melodik & Shannon-Entropie der verwendeten Tonklassen, Indikator für Chromatik. \\
-        \texttt{rhythmic\_pattern\_entropy} & Rhythmik & Entropie eines Sliding-Window-Rhythmus-Profils, misst rhythmische Vielfalt. \\
-        \texttt{std\_note\_duration} & Rhythmik & Standardabweichung der Notenlängen; höher bedeutet Mischung aus sehr kurzen und sehr langen Noten (Proxy für rubatohafte Fluidität). \\
-        \texttt{syncopation\_ratio} & Rhythmik & Synkopationsanteil (Offbeat-Ereignisse relativ zu metrisch starken Positionen). \\
-        \texttt{downbeat\_emphasis\_ratio} & Rhythmik & Anteil der Ereignisse auf Downbeats, misst metrische Klarheit. \\
+        \texttt{pitch\_range\_semitones} & Tonumfang in Halbtönen. \\
+        \texttt{dissonance\_ratio} & Anteil dissonanter Akkord-Events. \\
+        \texttt{pitch\_class\_entropy} & Shannon-Entropie der Tonklassen (Indikator für Chromatik). \\
+        \texttt{rhythmic\_pattern\_entropy} & Vielfalt der rhythmischen Muster. \\
+        \texttt{std\_note\_duration} & Proxy für rhythmische Fluidität. \\
         \bottomrule
     \end{tabular}
-    }
 \end{table}
 
-\subsection{Statistische Analysemethode}
+\subsection{Statistische Analysemethode}\label{sec:stats}
 \begin{enumerate}
-    \item \textbf{ANOVA}: Einweg-ANOVA pro Merkmal testet globale Mittelwertunterschiede zwischen vier Gruppen. Die 36 Tests wurden auf Mindeststichproben (36 Werke/Komponist) geprüft.
-    \item \textbf{Tukey HSD}: Bei signifikanten ANOVA-Ergebnissen identifiziert Tukey HSD die betroffenen Komponistenpaare mit Konfidenzintervallen und adjustierten \textit{p}-Werten.
-    \item \textbf{Multiple-Testing-Korrektur}: Bonferroni ist bei 36 Tests streng (14 statt 29 Treffer bei \(\alpha=0{,}05\)). Benjamini--Hochberg FDR (\(q<0{,}05\)) bestätigt in der aktuellen Auswertung ebenfalls 29 Merkmale; im Export werden dennoch FDR-adjustierte \textit{p}-Werte berichtet.\autocite[Vgl.][]{Benjamini1995}
-    \item \textbf{PCA}: Für die PCA wurden aus den 36 Merkmalen reine Zähl- und Größenmerkmale entfernt (\texttt{note\_count}, \texttt{note\_event\_count}, \texttt{chord\_event\_count}, \texttt{chord\_quality\_total}, \texttt{roman\_chord\_count}, \texttt{dissonant\_note\_count}), sodass eine standardisierte 144×30-Matrix entsteht. Die PCA wurde mit Seed 42 durchgeführt; PC1--PC3 erklären 48{,}2\% der Varianz (22{,}3\%, 16{,}1\%, 9{,}8\%). Gaußsche Dichtewolken (Plotly-Isosurfaces) visualisieren Cluster.
+    \item \textbf{ANOVA}: Einweg-ANOVA testet pro Merkmal globale Mittelwertunterschiede der vier Epochen.
+    \item \textbf{Tukey HSD}: Identifiziert bei Signifikanz die genauen abhängigen Komponistenpaare (adjusted $p$).
+    \item \textbf{Multiple-Testing}: Zur Abfederung der 36 Tests korrigiert Benjamini--Hochberg FDR ($q<0{,}05$) die $p$-Werte deutlich moderater als Bonferroni.
+    \item \textbf{PCA}: Dimensionalitätsreduktion (PC1--PC3, Seed 42, 48{,}2\,\% Varianz) visualisiert stilistische Cluster als Gaußsche Dichtewolken aus einer standardisierten 144×30-Marmatrix (Zählmerkmale exkludiert).
 \end{enumerate}
 
-\subsection{Quantifizierung der stilistischen Evolution}
-Zur Untersuchung des diachronen Wandels musikalischer Merkmale über die Epochen Barock, Klassik, Romantik und Impressionismus (repräsentiert durch die Komponisten Bach $\rightarrow$ Mozart $\rightarrow$ Chopin $\rightarrow$ Debussy) wurde ein dreistufiges Differenzverfahren implementiert. 
-
-Zunächst werden \textbf{Evolutionskoeffizienten} ($v$, Entwicklungsgeschwindigkeit) berechnet, die die absolute Veränderung eines Merkmalsmittelwerts $\bar{x}$ zwischen zwei aufeinanderfolgenden Epochen definieren:
-\begin{equation}
-v_{\text{Epoche}_n} = \bar{x}_{\text{Komponist}_n} - \bar{x}_{\text{Komponist}_{n-1}}
-\end{equation}
-Positive Werte von $v$ indizieren eine Zunahme der Merkmalsausprägung, negative Werte eine Abnahme.
-
-Um die Dynamik dieser Entwicklung zu erfassen, wird die \textbf{stilistische Beschleunigung} ($a$) mittels einer Difference-in-Differences-Analyse (DD) bestimmt. Diese misst die Änderung der Entwicklungsgeschwindigkeit beim Übergang in eine neue Epoche:
-\begin{equation}
-a_{\text{Epoche}_n} = v_{\text{Epoche}_n} - v_{\text{Epoche}_{n-1}}
-\end{equation}
-Ein positiver Wert von $a$ signalisiert eine Beschleunigung des Trends der Vorperiode; ein negativer Wert deutet auf eine Verlangsamung oder eine Trendumkehr hin.
-
-Zuletzt wird eine \textbf{Triple-Difference-Analyse} (DDD) angewandt, um den Einfluss des Tongeschlechts (Modus) als potenzielle Konfundierungsvariable zu isolieren. Hierbei wird die Differenz der Beschleunigungswerte zwischen Moll- und Dur-Werken verglichen:
-\begin{equation}
-DDD = a_{\text{Moll}} - a_{\text{Dur}}
-\end{equation}
-Dieser Wert gibt Aufschluss darüber, ob die stilistische Evolution in Moll-Werken systematisch von der in Dur-Werken abweicht. Diese Methodik wurde detailliert für die Merkmale \texttt{pitch\_range\_semitones}, \texttt{dissonance\_ratio}, \texttt{harmonic\_density\_mean} und \texttt{rhythmic\_pattern\_entropy} angewendet.
-
-\subsection{Software-Architektur und Reproduzierbarkeit}
-Die gesamte Analysepipeline wurde als modulares CLI-System implementiert. Detaillierte Reproduzierbarkeitsanleitungen finden sich in \hyperref[app:B]{Anhang~\ref*{app:B}}. Ein vollständiger Durchlauf vom Rohdatensatz bis zu allen Abbildungen benötigt etwa 2--3 Stunden auf einem modernen Laptop.
+\subsection{Quantifizierung der stilistischen Evolution}\label{sec:evolution}
+Zur Untersuchung des diachronen Wandels wurde ein Differenzverfahren implementiert. Die \textbf{Evolutionsgeschwindigkeit} ($v$) misst die absolute Merkmalsänderung zwischen Epochen. Die \textbf{stilistische Beschleunigung} ($a$) wird mittels Difference-in-Differences (DD) bestimmt ($a_n = v_n - v_{n-1}$). Eine \textbf{Triple-Difference-Analyse} (DDD) isoliert zudem modale Effekte (Moll vs. Dur).
 
 \subsubsection{Multicore-Caching-Infrastruktur}
-Um Analysen auf das vollständige PDMX-Archiv (254\,077 Partituren) zu ermöglichen, wurde ein skalierbares Caching-System entwickelt (\texttt{src/embedding\_cache.py}). Dieses System unterstützt:
-\begin{itemize}
-    \item \textbf{Parallelisierte Feature-Extraktion}: Die Option \texttt{--workers N} verteilt die Berechnung auf $N$ CPU-Kerne. Bei 8 Kernen beschleunigt sich die Verarbeitung um den Faktor $\approx$6--7 (limitiert durch I/O).
-    \item \textbf{Unterbrechungsresistenz}: Der Fortschritt wird zeilenweise in die Cache-CSV geschrieben und in einer Sidecar-Datei (\texttt{*.done.txt}) protokolliert. Mit \texttt{--resume} kann eine unterbrochene Berechnung jederzeit fortgesetzt werden -- ideal für tagelange Läufe auf großen Korpora.
-    \item \textbf{Vollständiger Feature-Cache}: Neben den 3D-PCA-Koordinaten speichert das System optional alle 36 Feature-Werte pro Partitur (\texttt{--output-features-csv}). Dies ermöglicht \textit{instant subset-specific PCA}: Für beliebige Komponisten-Kombinationen kann die PCA ohne erneutes Parsen der MusicXML-Dateien sofort neu berechnet werden.
-\end{itemize}
+Um Analysen auf das vollständige PDMX-Archiv zu ermöglichen, wurde ein skalierbares Caching-System entwickelt. Technische Details zur Parallelisierung und Unterbrechungsresistenz finden sich in \hyperref[app:F]{Anhang~\ref*{app:F}}.
 
-\noindent Die Cache-Integrität wird durch SHA256-Hashes der Eingabe-Feature-CSVs und JSON-Metadaten gewährleistet. Ein vollständiger Cache des PDMX-Korpus (alle 254\,077 Partituren $\times$ 36 Features) belegt etwa 180\,MB und ermöglicht Echtzeit-Exploration beliebiger Komponisten-Subsets über die Weboberfläche (siehe Abschnitt~7.2).
 
 \section{Ergebnisse}
 \subsection{Signifikante Stil-Merkmale}
@@ -1051,5 +1020,15 @@ Weitere Hürden betrafen die dynamische Darstellung frisch berechneter PCA-Wolke
 \subsection{Das Caching-Resolver-Dilemma}
 Schlussendlich trat das Problem der Interoperabilität von Dateipfaden zwischen macOS-Entwicklungssystemen und Oracle-Linux-Hosting auf. Das Backend speicherte Caches mit absoluten Unix-Dateipfaden der MusicXML-Dateien, um Dimensionsreduktions-Metadaten effizienter heranzuziehen. Da die korrespondierenden MusicXML-Dateien aus Speicher-Gründen nicht auf den Server mitkopiert wurden (\texttt{--forceCache}-Flag überschreibt den Verzeichnis-Check), litten die Identifizierungs-Signaturen im Skript \texttt{embedding\_cache.py} unter fehlschlagenden Zuordnungen. Durch den Umbau der Abgleichoperation mithilfe von \texttt{Path(mxl\_abs\_path).name.endswith(...)} wurde gewährleistet, dass das Dashboard auch dann voll funktionsfähig agiert und Einzelstücke fehlerfrei visualisiert rekonstruieren kann, wenn nur der Feature-Cache der Pipeline lokalisiert wird, selbst in Cross-OS-Szenarien ohne korrespondierenden Rohdatensatz.
 
+
+\section{Multicore-Caching-Infrastruktur}\label{app:F}
+Um Analysen auf das vollständige PDMX-Archiv (254\,077 Partituren) zu ermöglichen, wurde ein skalierbares Caching-System entwickelt (\texttt{src/embedding\_cache.py}). Dieses System unterstützt:
+\begin{itemize}
+    \item \textbf{Parallelisierte Feature-Extraktion}: Die Option \texttt{--workers N} verteilt die Berechnung auf $N$ CPU-Kerne. Bei 8 Kernen beschleunigt sich die Verarbeitung um den Faktor $\approx$6--7 (limitiert durch I/O).
+    \item \textbf{Unterbrechungsresistenz}: Der Fortschritt wird zeilenweise in die Cache-CSV geschrieben und in einer Sidecar-Datei (\texttt{*.done.txt}) protokolliert. Mit \texttt{--resume} kann eine unterbrochene Berechnung jederzeit fortgesetzt werden -- ideal für tagelange Läufe auf großen Korpora.
+    \item \textbf{Vollständiger Feature-Cache}: Neben den 3D-PCA-Koordinaten speichert das System optional alle 36 Feature-Werte pro Partitur (\texttt{--output-features-csv}). Dies ermöglicht \textit{instant subset-specific PCA}: Für beliebige Komponisten-Kombinationen kann die PCA ohne erneutes Parsen der MusicXML-Dateien sofort neu berechnet werden.
+\end{itemize}
+
+\noindent Die Cache-Integrität wird durch SHA256-Hashes der Eingabe-Feature-CSVs und JSON-Metadaten gewährleistet. Ein vollständiger Cache des PDMX-Korpus (alle 254\,077 Partituren $\times$ 36 Features) belegt etwa 180\,MB und ermöglicht Echtzeit-Exploration beliebiger Komponisten-Subsets über die Weboberfläche (siehe \hyperref[sec:sources]{Abschnitt~\ref*{sec:sources}}.2).
 
 \end{document}
