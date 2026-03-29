@@ -233,24 +233,10 @@ Die computergestützte Stilanalyse hat seit den 1990er Jahren mehrere methodisch
 \end{table}
 
 \section{Vorgehensweise, Materialien und Methoden}
-Die Pipeline wurde vollständig in Python~3.10 entwickelt (\texttt{pandas}, \texttt{numpy}, \texttt{scipy}, \texttt{scikit-learn}, \texttt{plotly}, \texttt{music21}). Alle Skripte liegen im Verzeichnis \texttt{src/}; eine visuelle Übersicht der vierstufigen Architektur findet sich in \hyperref[fig:pipeline]{Abbildung~\ref*{fig:pipeline}} (\hyperref[app:B]{Anhang~\ref*{app:B}}).
+Die Pipeline wurde vollständig in Python~3.11 entwickelt (\texttt{pandas}, \texttt{numpy}, \texttt{scipy}, \texttt{scikit-learn}, \texttt{plotly}, \texttt{music21}). Alle Skripte liegen im Verzeichnis \texttt{src/}; eine visuelle Übersicht der vierstufigen Architektur findet sich in \hyperref[fig:pipeline]{Abbildung~\ref*{fig:pipeline}} (\hyperref[app:B]{Anhang~\ref*{app:B}}).
 
 \subsection{Materialien: Kuratierung des PDMX-Korpus}
-\begin{itemize}
-    \item \textbf{Rohmaterial}: PDMX-CSV (Metadaten), zugehörige MusicXML-Dateien, JSON-Metadaten (Instrumente, Instrumentationstexte).
-    \item \textbf{Problem}: heterogene Schreibweisen, Arrangements, Ensembles, Mehrfachfassungen.
-    \item \textbf{Lösung}: \texttt{src/corpus\_curation.py} filtert in mehreren Stufen:
-    \begin{enumerate}
-        \item Normalisierung der Komponistennamen mit \texttt{ComposerRule} (Token-Listen gegen Aliasformen, Ausschluss von Familienmitgliedern).
-        \item Lizenz- und Qualitätsfilter (\texttt{subset:rated\_deduplicated}, \texttt{subset:no\_license\_conflict}, \texttt{is\_best\_unique\_arrangement}).
-        \item Instrumentationskontrolle über JSON-Felder, Freitext und \texttt{music21}-Instrumente, um reine Solo-Klavierwerke zu sichern.
-        \item Balancierung: Clipping auf die kleinste Anzahl gültiger Werke pro Komponist (36) verhindert Verzerrungen.
-    
-    \end{enumerate}
-    \item \textbf{Ergebnis}: 144 Partituren, Ø 148{,}2 Takte, Ø 2,1 Stimmen, 71\,585 Viertelnoten (\textasciitilde13,3 Stunden bei 90 BPM).
-\end{itemize}
-
-Zwischendiagnostik (\texttt{--skip-}\,Flags, unterschiedliche Rating-Schwellen) wurde automatisiert protokolliert und zeigte, dass Lockerungen zwar die Stückzahl erhöhen, aber Lizenzrisiken und starke composer bias erzeugen.
+Das PDMX-MusikXML-Archiv\autocite{PDMX2024} bildete die Grundlage. Die Bereinigung (\texttt{src/corpus\_curation.py}) löste Probleme wie heterogene Schreibweisen und Mehrfachfassungen durch mehrstufige Filterung: Normalisierung der Namen via \texttt{ComposerRule}, strenge Lizenz-/Qualitätsfilter (z.\,B. \texttt{rated\_deduplicated}) und Instrumentationskontrolle für reine Solo-Klavierwerke. Durch systematisches Clipping wurde eine Balancierung erreicht, die Verzerrungen (composer bias) verhindert. Das Ergebnis ist ein robuster Korpus von 144 Werken (je 36 pro Komponist; gesamt 71\,585 Viertelnoten bzw. \textasciitilde 13,3 Stunden), was Ø 148,2 Takte und Ø 2,1 Stimmen pro Stück umfasst. Zwischendiagnostiken (\texttt{--skip-}\,Flags) wurden protokolliert, um sicherzustellen, dass keine Lizenzrisiken eingegangen wurden.
 
 \subsection{Methode: Die Drei-Säulen-Feature-Pipeline}
 Für jede Partitur werden harmonische, melodische und rhythmische Deskriptoren erzeugt:
