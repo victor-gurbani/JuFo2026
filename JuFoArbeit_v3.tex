@@ -383,8 +383,16 @@ Die SHAP-Analyse (siehe \hyperref[app:D]{Anhang~\ref*{app:D}}) identifiziert den
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.75\textwidth]{figures/random_forest/classification_scatter.png}
-    \caption{Precision-Recall-Scatterplot des Random Forests. Bach und Mozart weisen sowohl eine hohe Recall-Rate als auch Präzision auf und werden vom Modell am besten erkannt. Chopin hingegen fällt im Graphen deutlich ab, da das Modell Schwierigkeiten hat, seine stilistischen Muster eindeutig von den anderen Komponisten abzugrenzen.}\label{fig:rf_scatter}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/random_forest/confusion_matrix.png}
+        \caption{Verwechslungsmatrix des RF-Modells (5-Fold CV).}\label{fig:rf_cm}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/random_forest/classification_scatter.png}
+        \caption{Precision-Recall-Scatterplot des RF.}\label{fig:rf_scatter}
+    \end{minipage}
 \end{figure}
 
 \subsection{Externer Falltest: Prädiktive Validierung}\label{sec:validation}
