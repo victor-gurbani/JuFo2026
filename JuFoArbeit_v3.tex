@@ -375,24 +375,11 @@ Das Ziel des Random-Forest-Modells war nicht die maximale Genauigkeit, sondern d
     \item \textbf{Globale Logik-Dekodierung via SHAP:} Zur Analyse der Ensemble-Logik wurden SHAP-Werte (SHapley Additive exPlanations) berechnet. Diese erlauben es, den Einfluss jedes Merkmals auf die Klassifikationsentscheidung global zu gewichten und musikalisch zu interpretieren.
 \end{enumerate}
 
-\noindent In der 5-Fold Cross-Validation erreichte dieser interpretierbare RF eine Genauigkeit von $\approx 70\,\%$. Die Verwechslungsmatrix (\hyperref[fig:rf_cm]{Abbildung~\ref*{fig:rf_cm}}) zeigt, dass Fehlklassifikationen meist zwischen chronologisch benachbarten Epochen (z.\,B. Chopin und Debussy) auftreten, was die These der fließenden Stilübergänge stützt.
+\noindent In der 5-Fold Cross-Validation erreichte dieser interpretierbare RF eine Genauigkeit von $\approx 70{,}1\,\%$, was die Robustheit des gewählten Merkmalsraums unterstreicht. Parallel dazu wurde ein Multi-Layer Perceptron (MLP) trainiert, das den vollen Merkmalsraum ohne Beschränkungen nutzen durfte. Überraschenderweise schnitt das neuronale Netz in der Validierung mit $68{,}7\,\%$ leicht schlechter ab, da es auf dem relativ kleinen Datensatz (144 Werke) zu Overfitting neigte. Die Kombination aus Kollinearitätsfilterung und striktem Pruning des RF wirkte demnach als effektive Regularisierung, die das Modell zwang, sich auf die robustesten musikalischen Merkmale zu konzentrieren (\hyperref[app:D]{Vergleichsdetails und  Abbildung siehe Anhang~\ref*{app:D}}). Der Random Forest profitiert somit von der Ensemble-Struktur, die insbesondere bei kleineren Stichproben stabilere Generalisierungen erlaubt.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/random_forest/confusion_matrix.png}
-    \caption{Verwechslungsmatrix des Random-Forest-Modells (5-Fold Cross-Validation). Die Diagonale zeigt die korrekten Zuweisungen. Die Diagonale zeigt die korrekten Zuweisungen. Auffällig ist, dass Werke von Chopin relativ häufig fälschlicherweise Bach (8-mal) oder Debussy (7-mal) zugeordnet werden, während Bach und Mozart sehr zuverlässig klassifiziert werden..}\label{fig:rf_cm}
-\end{figure}
+Die Verwechslungsmatrix (\hyperref[fig:rf_cm]{Abbildung~\ref*{fig:rf_cm}}) liefert tiefe Einblicke in die stilistische Verwandtschaft: Während Bach ($91{,}7\,\%$ Precision) und Mozart ($86{,}1\,\%$ Precision) nahezu perfekt identifiziert werden, treten bei Chopin und Debussy signifikante Überschneidungen auf. Chopin wird in $16{,}7\,\%$ der Fälle fälschlicherweise als Debussy klassifiziert, was die musikwissenschaftliche Einordnung Chopins als Wegbereiter der impressionistischen Harmonik quantitativ stützt. Debussy wiederum zeigt Streuungen in Richtung Chopin ($11{,}1\,\%$), was auf die gemeinsame Nutzung erweiterter Terzschichtungen und chromatischer Texturen zurückzuführen ist.
 
-\subsubsection{Vergleich mit neuronalen Netzen (MLP)}
-Parallel zum Random Forest wurde ein \textit{Multi-Layer Perceptron} (MLP) trainiert. Dieses neuronale Netz durfte den vollen Merkmalsraum (30 Features) ohne Vorfilterung oder Komplexitätsbeschränkung nutzen. Es diente als Referenz für das theoretisch erreichbare Maximum an Genauigkeit auf dem 144-Stücke-Datensatz.
-
-Das Ergebnis war überraschend: Der interpretierbare RF schnitt mit $70{,}1\,\%$ Genauigkeit leicht besser ab als das unbeschränkte neuronale Netz ($68{,}7\,\%$; vgl. \hyperref[fig:nn_comparison]{Abbildung~\ref*{fig:nn_comparison}}). Wir interpretieren diesen Befund dahingehend, dass die Kombination aus Kollinearitätsfilterung und striktem Pruning als effektive Regularisierung wirkte. Während das neuronale Netz auf dem relativ kleinen Datensatz (144 Werke) zu leichtem Overfitting neigte, zwang die interpretierbare Architektur das Modell dazu, sich auf die robustesten musikalischen Merkmale -- wie den Tonumfang und die harmonische Dichte -- zu konzentrieren (\hyperref[fig:rf_scatter]{Abbildung~\ref*{fig:rf_scatter}}).
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.75\textwidth]{figures/random_forest/nn_vs_rf_comparison.png}
-    \caption{Vergleich der Klassifikationsleistung: Der interpretierbare Random Forest (RF) erzielt trotz seiner Komplexitätsbeschränkung eine leicht höhere Genauigkeit als das neuronale Netz (MLP). Die Filterung redundanter Merkmale fungiert hier als effiziente Regularisierung.}\label{fig:nn_comparison}
-\end{figure}
+Die SHAP-Analyse (siehe \hyperref[app:D]{Anhang~\ref*{app:D}}) identifiziert den Tonumfang (\texttt{pitch\_range\_semitones}) und die harmonische Dichte (\texttt{harmonic\_density\_mean}) als die global wichtigsten Prädiktoren. Für die Abgrenzung Bachs ist zudem die \texttt{deceptive\_cadence\_ratio} entscheidend: Der sparsame, aber strukturell prägnante Einsatz von Trugschlüssen im Barock wirkt als starkes Trennmerkmal gegenüber der permanenten harmonischen Spannung der Spätromantik.
 
 \begin{figure}[htbp]
     \centering
@@ -400,10 +387,10 @@ Das Ergebnis war überraschend: Der interpretierbare RF schnitt mit $70{,}1\,\%$
     \caption{Precision-Recall-Scatterplot des Random Forests. Bach und Mozart weisen sowohl eine hohe Recall-Rate als auch Präzision auf und werden vom Modell am besten erkannt. Chopin hingegen fällt im Graphen deutlich ab, da das Modell Schwierigkeiten hat, seine stilistischen Muster eindeutig von den anderen Komponisten abzugrenzen.}\label{fig:rf_scatter}
 \end{figure}
 
-\subsection{Externer Falltest: Prädiktive Validierung}
+\subsection{Externer Falltest: Prädiktive Validierung}\label{sec:validation}
 Die entscheidende Frage für jedes Modell ist: \emph{Generalisiert es auf unbekannte Daten?} Mit \texttt{src/highlight\_pca\_piece.py} können externe Stücke -- die nicht im Trainingskorpus enthalten waren -- in die PCA-Wolken projiziert werden. Diese Projektion ist ein rigider Test der Methodik: Wenn die 36 Merkmale tatsächlich musikologisch bedeutsame Stilaspekte erfassen, sollte ein Stück mit bekannten stilistischen Einflüssen \emph{vorhersagbar} zwischen den entsprechenden Clustern landen.
 
-\textbf{Fallstudie 1: Joe Hisaishi.} Die Filmmusik von Hayao Miyazakis Ghibli-Produktionen ist für ihre Synthese aus spätromantischer Harmonik und impressionistischen Klangfarben bekannt. Hisaishis \emph{One Summer's Day} (2001) wurde ohne Vorwissen in den PCA-Raum projiziert -- das Ergebnis (\hyperref[fig:hisaishi]{Abbildung~\ref*{fig:hisaishi}}) bestätigt die Hypothese: Das Stück positioniert sich präzise zwischen Chopin und Debussy, mit leichter Tendenz zu Chopin. Die Methode \emph{sagt korrekt voraus}, wo ein stilistisch hybrider Komponist landen sollte -- ein starker Beleg für die Validität des Merkmalsraums.
+\textbf{Fallstudie 1: Joe Hisaishi.} Die Filmmusik von Hayao Miyazakis Ghibli-Produktionen ist für ihre Synthese aus spätromantischer Harmonik und impressionistischen Klangfarben bekannt. Hisaishis \emph{One Summer's Day} (2001) wurde ohne Vorwissen in den PCA-Raum projiziert -- das Ergebnis (\hyperref[fig:hisaishi]{Abbildung~\ref*{fig:hisaishi}}) bestätigt die Hypothese: Das Stück positioniert sich präzise zwischen Chopin und Debussy, mit leichter Tendenz zu Chopin. Die SHAP-Analyse zeigt, dass hierbei insbesondere die erhöhte \texttt{pitch\_class\_entropy} bei gleichzeitiger Bewahrung klassischer \texttt{downbeat\_emphasis\_ratio}-Werte für die hybride Positionierung ausschlaggebend ist. Die Methode \emph{sagt korrekt voraus}, wo ein stilistisch hybrider Komponist landen sollte -- ein starker Beleg für die Validität des Merkmalsraums.
 
 \begin{figure}[htbp]
     \centering
@@ -413,7 +400,7 @@ Die entscheidende Frage für jedes Modell ist: \emph{Generalisiert es auf unbeka
     \caption{Prädiktive Validierung: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung wurde \emph{vor} der Projektion hypothetisiert -- die Methode generalisiert erfolgreich auf unbekannte Daten außerhalb des Trainingskorpus. \emph{Klickbar für interaktive Ansicht.}}\label{fig:hisaishi}
 \end{figure}
 
-\textbf{Fallstudie 2: Maurice Ravel.} Ravels \emph{Streichquartett in F-Dur} (1903) landet \emph{jenseits} des Debussy-Clusters -- ein zunächst überraschendes Ergebnis. Die Interpretation: Ravel übernahm Debussys impressionistische Palette, trieb jedoch bestimmte Parameter weiter. Seine extremeren Werte bei \texttt{dissonance\_ratio} und \texttt{rhythmic\_pattern\_entropy} reflektieren Ravels charakteristische Präzision und rhythmische Schärfe im Vergleich zu Debussys weicheren Konturen. Die PCA-Projektion unterscheidet somit nicht nur Epochen, sondern auch individuelle Stilprofile innerhalb derselben Schule (interaktiv verfügbar, siehe \hyperref[app:C]{Anhang~\ref*{app:C}}).
+\textbf{Fallstudie 2: Maurice Ravel.} Ravels \emph{Streichquartett in F-Dur} (1903) landet \emph{jenseits} des Debussy-Clusters -- ein zunächst überraschendes Ergebnis. Die Interpretation: Ravel übernahm Debussys impressionistische Palette, trieb jedoch bestimmte Parameter weiter. Seine extremeren Werte bei \texttt{dissonance\_ratio} und \texttt{rhythmic\_pattern\_entropy} reflektieren Ravels charakteristische Präzision und rhythmische Schärfe im Vergleich zu Debussys weicheren Konturen. Mathematisch äußert sich dies in einer stärkeren Auslenkung entlang der PC2- und PC3-Achsen, was die höhere strukturelle Komplexität seiner kompositorischen Faktur gegenüber dem frühen Debussy quantifiziert. Die PCA-Projektion unterscheidet somit nicht nur Epochen, sondern auch individuelle Stilprofile innerhalb derselben Schule (interaktiv verfügbar, siehe \hyperref[app:C]{Anhang~\ref*{app:C}}).
 
 \section{Ergebnisdiskussion}
 \subsection{Interpretation der Landkarte}
@@ -964,6 +951,17 @@ Dieser Leitfaden ermöglicht vollständige Reproduktion aller Ergebnisse sowie d
 \section{Erweiterte Details zur Machine-Learning-Pipeline}\label{app:D}
 
 Um die Transparenz und Reproduzierbarkeit der durchgeführten Klassifikationsexperimente (Random Forest und Neuronales Netz) weiter zu erhöhen, werden in diesem Anhang tiefere Einblicke in die Hyperparameter-Optimierung, die Baumstrukturen und die lokalen SHAP-Erklärungen gegeben.
+
+\subsection{Vergleich mit neuronalen Netzen (MLP)}
+Parallel zum Random Forest wurde ein \textit{Multi-Layer Perceptron} (MLP) trainiert. Dieses neuronale Netz durfte den vollen Merkmalsraum (30 Features) ohne Vorfilterung oder Komplexitätsbeschränkung nutzen. Es diente als Referenz für das theoretisch erreichbare Maximum an Genauigkeit auf dem 144-Stücke-Datensatz.
+
+Das Ergebnis war überraschend: Der interpretierbare RF schnitt mit $70{,}1\,\%$ Genauigkeit leicht besser ab als das unbeschränkte neuronale Netz ($68{,}7\,\%$; vgl. \hyperref[fig:nn_comparison]{Abbildung~\ref*{fig:nn_comparison}}). Wir interpretieren diesen Befund dahingehend, dass die Kombination aus Kollinearitätsfilterung und striktem Pruning als effektive Regularisierung wirkte. Während das neuronale Netz auf dem relativ kleinen Datensatz (144 Werke) zu leichtem Overfitting neigte, zwang die interpretierbare Architektur das Modell dazu, sich auf die robustesten musikalischen Merkmale -- wie den Tonumfang und die harmonische Dichte -- zu konzentrieren (\hyperref[fig:rf_scatter]{Abbildung~\ref*{fig:rf_scatter}}).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/random_forest/nn_vs_rf_comparison.png}
+    \caption{Vergleich der Klassifikationsleistung: Der interpretierbare Random Forest (RF) erzielt trotz seiner Komplexitätsbeschränkung eine leicht höhere Genauigkeit als das neuronale Netz (MLP). Die Filterung redundanter Merkmale fungiert hier als effiziente Regularisierung.}\label{fig:nn_comparison}
+\end{figure}
 
 \subsection{Hyperparameter-Optimierung und Pruning-Statistiken}
 Das Training des interpretierbaren Random Forests zielte auf eine maximale Reduktion der Komplexität ab, um \enquote{White-Box}-Eigenschaften zu bewahren, ohne die Genauigkeit drastisch zu opfern. Die Optimierung erfolgte mittels \texttt{RandomizedSearchCV} (5-Fold Cross-Validation) über folgendes Raster:
