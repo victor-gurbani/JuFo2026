@@ -92,13 +92,13 @@ export default function CorpusSearch({ csvUrl, onSelect }: CorpusSearchProps) {
     <div className="rounded-2xl border border-white/10 bg-white/70 p-4 backdrop-blur-xl dark:bg-white/5">
       <div className="flex flex-col gap-2">
         <label className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">Search corpus</label>
-        <div className="relative flex overflow-hidden rounded-xl bg-white/10 p-[1px] shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all focus-within:shadow-[0_0_25px_rgba(59,130,246,0.3)]">
-          <div className="absolute inset-[-50%] -z-10 bg-[conic-gradient(from_0deg,transparent_0_280deg,#60a5fa_360deg)] animate-[spin_3s_linear_infinite]"></div>
+        <div className="relative flex overflow-hidden rounded-xl bg-black/40 p-[1px] shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all focus-within:shadow-[0_0_25px_rgba(59,130,246,0.3)]">
+          <div className="pointer-events-none absolute -inset-[200%] z-0 animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0_300deg,#60a5fa_360deg)]"></div>
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search by composer or title"
-            className="h-10 w-full rounded-[11px] border-0 bg-black/90 px-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none"
+            className="relative z-10 h-10 w-full rounded-[10px] bg-[#050505] px-3 text-sm text-white placeholder:text-zinc-500 focus:bg-[#1a1a1a] focus:outline-none transition-colors"
           />
         </div>
       </div>
