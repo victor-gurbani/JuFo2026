@@ -432,6 +432,10 @@ export default function Home() {
             onSelect={(entry) => {
               setSelected(entry);
               setStatus(null);
+              // Wait for React to render the selected piece, then smooth scroll to the analyze button
+              setTimeout(() => {
+                document.getElementById("analyze-button")?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }, 150);
             }}
           />
 
@@ -441,6 +445,7 @@ export default function Home() {
             <div className="text-sm text-zinc-600 dark:text-zinc-400">{selectedComposer || ""}</div>
             <div className="mt-4 flex flex-col gap-2">
               <button
+                id="analyze-button"
                 onClick={runAnalysis}
                 className="h-10 rounded-xl bg-blue-500/90 text-sm font-semibold text-white transition hover:bg-blue-400"
               >

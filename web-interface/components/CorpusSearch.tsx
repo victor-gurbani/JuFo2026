@@ -92,12 +92,15 @@ export default function CorpusSearch({ csvUrl, onSelect }: CorpusSearchProps) {
     <div className="rounded-2xl border border-white/10 bg-white/70 p-4 backdrop-blur-xl dark:bg-white/5">
       <div className="flex flex-col gap-2">
         <label className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">Search corpus</label>
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search by composer or title"
-          className="h-10 rounded-xl border border-white/10 bg-black/40 px-3 text-sm text-white placeholder:text-zinc-500 focus:border-blue-400 focus:outline-none"
-        />
+        <div className="relative flex overflow-hidden rounded-xl bg-white/10 p-[1px] shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all focus-within:shadow-[0_0_25px_rgba(59,130,246,0.3)]">
+          <div className="absolute inset-[-50%] -z-10 bg-[conic-gradient(from_0deg,transparent_0_280deg,#60a5fa_360deg)] animate-[spin_3s_linear_infinite]"></div>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search by composer or title"
+            className="h-10 w-full rounded-[11px] border-0 bg-black/90 px-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none"
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -116,7 +119,7 @@ export default function CorpusSearch({ csvUrl, onSelect }: CorpusSearchProps) {
               <button
                 key={`${composer}-${title}-${index}`}
                 onClick={() => onSelect(entry)}
-                className="w-full rounded-xl border border-white/5 bg-black/30 px-3 py-2 text-left text-xs text-zinc-100 transition hover:border-white/20 hover:bg-black/40"
+                className="w-full rounded-xl border border-white/5 bg-black/30 px-3 py-2 text-left text-xs text-zinc-100 transition-all duration-200 hover:scale-[1.02] hover:border-white/20 hover:bg-black/40 active:scale-95 active:bg-blue-500/20"
               >
                 <div className="text-[11px] uppercase tracking-[0.2em] text-zinc-500">{composer}</div>
                 <div className="text-sm font-medium text-white">{title}</div>
