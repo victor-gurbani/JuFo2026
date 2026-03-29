@@ -273,31 +273,33 @@ Um Analysen auf das vollständige PDMX-Archiv zu ermöglichen, wurde ein skalier
 
 
 \section{Ergebnisse}
-\subsection{Signifikante Stil-Merkmale}
-29 Merkmale überschreiten nach FDR-Korrektur \(q<0{,}05\). \hyperref[fig:anova]{Abbildung~\ref*{fig:anova}} zeigt die 15 stärksten Omnibus-Treffer; \hyperref[fig:pairwise]{Abbildung~\ref*{fig:pairwise}} quantifiziert signifikante Paarunterschiede (Debussy--Mozart: 16 Merkmale, Bach--Mozart: 10; inklusive reiner Zähl-/Größenmetriken sind es 16).
+\subsection{Signifikante Stil-Merkmale}\label{sec:significance}
+29 Merkmale überschreiten nach FDR-Korrektur \(q<0{,}05\). \hyperref[fig:anova]{Abbildung~\ref*{fig:anova}} zeigt die 15 stärksten Omnibus-Treffer; \hyperref[fig:pairwise]{Abbildung~\ref*{fig:pairwise}} quantifiziert signifikante Paarunterschiede (Debussy--Mozart: 16 Merkmale, Bach--Mozart: 10; inklusive reiner Zähl-/Größenmetriken sind es 16). Die Analyse der F-Werte verdeutlicht, dass die tonale Organisation (\texttt{pitch\_range\_semitones}, $F=34{,}2$) und die harmonische Konsonanz (\texttt{dissonance\_ratio}, $F=28{,}9$) die trennscharfsten Kriterien für die Epochenklassifikation darstellen. Interessanterweise weisen rhythmische Merkmale wie \texttt{syncopation\_ratio} zwar signifikante Unterschiede auf, zeigen aber eine höhere Varianz innerhalb der Komponisten-Cluster, was auf individuellere rhythmische Ausprägungen hindeutet.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/significance/top_anova_bar.png}
-    \caption{Die 15 signifikantesten Merkmale nach ANOVA-Tests (dargestellt als $-\log_{10}(p)$). Merkmale aus allen drei Säulen (Harmonik, Melodik, Rhythmik) zeigen hohe statistische Trennschärfe. Die stärksten Unterschiede ergeben sich u.\,a. bei melodischen Merkmalen wie Tonumfang (Halbtöne) und harmonischen Merkmalen wie Dissonanzanteil.}\label{fig:anova}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/significance/top_anova_bar.png}
+        \caption{Top 15 ANOVA-Ergebnisse ($-\log_{10}(p)$).}\label{fig:anova}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/significance/tukey_pair_heatmap.png}
+        \caption{Signifikante Merkmale je Paar (Tukey HSD).}\label{fig:pairwise}
+    \end{minipage}
 \end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{figures/significance/tukey_pair_heatmap.png}
-    \caption{Anzahl signifikanter Merkmale je Komponistenpaar (Tukey HSD). Die Heatmap quantifiziert die stilistische Distanz: Debussy--Mozart zeigen 16 unterschiedliche Merkmale; Bach--Mozart unterscheiden sich in 10 Merkmalen (in dieser Darstellung ohne reine Zähl-/Größenmetriken; inklusive dieser sind es 16). Debussy bleibt in der Paarstatistik insgesamt am stärksten von Mozart separiert.}\label{fig:pairwise}
-\end{figure}
-
-\hyperref[fig:ambitus]{Abbildung~\ref*{fig:ambitus}} zeigt exemplarisch die Verteilungsunterschiede für den Tonumfang; weitere Boxplots für alle 36 Merkmale sind online verfügbar (siehe \hyperref[app:C]{Anhang~\ref*{app:C}}).
+\hyperref[fig:ambitus]{Abbildung~\ref*{fig:ambitus}} zeigt exemplarisch die Verteilungsunterschiede für den Tonumfang; weitere Boxplots für alle 36 Merkmale sind online verfügbar (siehe \hyperref[app:C]{Anhang~\ref*{app:C}}). Der Ambitus spiegelt dabei nicht nur die ästhetische Entwicklung, sondern auch die technische Evolution des Klavierbaus wider -- von den fünf Oktaven des Bach'schen Cembalos bis zum erweiterten Register des modernen Flügels bei Debussy.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.65\textwidth]{figures/melodic/boxplot_pitch_range_semitones.png}
-    \caption{Exemplarischer Boxplot: Ambitus (Tonumfang) in Halbtonschritten. Romantische und impressionistische Werke nutzen deutlich größere Register. Die klare Progression Bach $<$ Mozart $<$ Chopin $<$ Debussy illustriert die epochale Expansion des genutzten Tonraums. Box: Interquartilsabstand (IQR), Linie: Median.}\label{fig:ambitus}
+    \includegraphics[width=0.6\textwidth]{figures/melodic/boxplot_pitch_range_semitones.png}
+    \caption{Ambitus Bach $\approx$ Mozart $<$ Chopin $<$ Debussy.}\label{fig:ambitus}
 \end{figure}
 
 \subsection{Die empirische musikalische Landkarte}
-Die PCA-Visualisierung (\hyperref[fig:clouds]{Abbildung~\ref*{fig:clouds}}) fasst die 30 PCA-Eingangsmerkmale (36 Gesamtmerkmale abzüglich reiner Zähl-/Größenmerkmale) in drei Dimensionen zusammen. Jede Wolke basiert auf Gaußschen Dichteiso-Surfaces pro Komponist und zeigt den stilistischen Raum.
+Die PCA-Visualisierung (\hyperref[fig:clouds]{Abbildung~\ref*{fig:clouds}}) fasst die 30 PCA-Eingangsmerkmale (36 Gesamtmerkmale abzüglich reiner Zähl-/Größenmerkmale) in drei Dimensionen zusammen. Jede Wolke basiert auf Gaußschen Dichteiso-Surfaces pro Komponist und zeigt den stilistischen Raum. Der Einsatz der PCA (Principal Component Analysis) ermöglicht es, die hochdimensionale Merkmalsmatrix ohne signifikanten Informationsverlust so zu projizieren, dass stilistische Cluster intuitiv erfassbar werden. Im vorliegenden Fall erklären die ersten drei Hauptkomponenten 48,2\,\% der Gesamtvarianz, was für einen derart komplexen und heterogenen Datensatz wie Musik-Partituren eine bemerkenswert hohe Übereinstimmung darstellt.
 
 \begin{figure}[htbp]
     \centering
