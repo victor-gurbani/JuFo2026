@@ -327,8 +327,8 @@ Um mathematisch zu beweisen, dass die visuellen Gruppierungen nicht nur optische
     \end{tabular}
 \end{table}
 
-\subsection{Evolutionäre Dynamik der Stilentwicklung}
-Die Untersuchung der evolutionären Dynamik mittels der in Abschnitt~4.5 definierten Methodik erlaubt eine Quantifizierung des stilistischen Wandels über die Epochengrenzen hinweg. Während die ANOVA (Abschnitt~5.1) statische Unterschiede aufzeigt, verdeutlicht die Analyse der Evolutionsgeschwindigkeit ($v$) und -beschleunigung (DD), dass die Entwicklung von der Barockmusik über die Klassik zur Romantik kein linearer Prozess war, sondern durch radikale Richtungswechsel geprägt wurde.
+\subsection{Evolutionäre Dynamik der Stilentwicklung}\label{sec:dynamics}
+Die Untersuchung der evolutionären Dynamik mittels der in \hyperref[sec:evolution]{Abschnitt~\ref*{sec:evolution}} definierten Methodik erlaubt eine Quantifizierung des stilistischen Wandels über die Epochengrenzen hinweg. Während die ANOVA (\hyperref[sec:significance]{Abschnitt~\ref*{sec:significance}}) statische Unterschiede aufzeigt, verdeutlicht die Analyse der Evolutionsgeschwindigkeit ($v$) und -beschleunigung (DD), dass die Entwicklung von der Barockmusik über die Klassik zur Romantik kein linearer Prozess war, sondern durch radikale Richtungswechsel geprägt wurde.
 
 Ein besonders deutliches Signal zeigt sich beim Tonumfang (\texttt{pitch\_range\_semitones}). Während Mozart im Vergleich zu Bach eine Konsolidierung und Verengung des genutzten Tonraums vollzog ($v_{\text{Klassik}} = -5{,}14$), sprengte Chopin diesen Rahmen mit einer massiven Ausweitung ($v_{\text{Romantik}} = +20{,}0$). Dieser Wert resultiert in einer extremen Beschleunigung von $DD = +25{,}14$ Halbtönen. Die Romantik setzte hier nicht etwa einen klassischen Trend fort, sondern kehrte die ästhetische Tendenz der formalen Beschränkung aktiv um.
 
@@ -359,7 +359,7 @@ Die \textbf{DDD-Analyse} (Triple-Difference) der Tongeschlechter offenbart marka
 \texttt{src/annotate\_musicxml.py} färbt Durchgänge (orange), Appoggiaturen (violett), andere Dissonanzen (rot) und chromatische Harmonien (türkis) ein, ergänzt Akkordsymbole und exportiert optional PDF/PNG via MuseScore-CLI. Batchläufe (\texttt{generate\_selected\_annotations.py}) erstellen acht Referenzpartituren (2 pro Komponist). Dadurch lassen sich statistische Befunde unmittelbar an den Partituren überprüfen; alle annotierten Partituren sind unter den Links in \hyperref[app:C]{Anhang~\ref*{app:C}} interaktiv verfügbar.
 
 \subsection{Klassifikation: Interpretierbarer Random Forest vs. Neuronale Netze}
-Die statistische Trennbarkeit der Komponisten (Abschnitt~5.1) legt nahe, dass ein maschinelles Lernmodell die Stilzugehörigkeit unbekannter Werke mit hoher Sicherheit vorhersagen kann. In der Musikwissenschaft stehen solche Modelle jedoch oft in der Kritik, da sie als \enquote{Black Box} zwar Ergebnisse liefern, aber deren Entstehung nicht transparent machen. In dieser Arbeit verfolgen wir daher einen dualen Ansatz: Ein hochgradig interpretierbarer Random Forest (RF) wird gegen ein klassisches neuronales Netz (MLP) getestet, um den \enquote{Preis der Erklärbarkeit} zu quantifizieren (für erweiterte technische Details zu Hyperparameter-Optimierung, Pruning und modellspezifischen SHAP-Analysen, siehe \hyperref[app:D]{Anhang~\ref*{app:D}}).
+Die statistische Trennbarkeit der Komponisten (\hyperref[sec:significance]{Abschnitt~\ref*{sec:significance}}) legt nahe, dass ein maschinelles Lernmodell die Stilzugehörigkeit unbekannter Werke mit hoher Sicherheit vorhersagen kann. In der Musikwissenschaft stehen solche Modelle jedoch oft in der Kritik, da sie als \enquote{Black Box} zwar Ergebnisse liefern, aber deren Entstehung nicht transparent machen. In dieser Arbeit verfolgen wir daher einen dualen Ansatz: Ein hochgradig interpretierbarer Random Forest (RF) wird gegen ein klassisches neuronales Netz (MLP) getestet, um den \enquote{Preis der Erklärbarkeit} zu quantifizieren (für erweiterte technische Details zu Hyperparameter-Optimierung, Pruning und modellspezifischen SHAP-Analysen, siehe \hyperref[app:D]{Anhang~\ref*{app:D}}).
 
 \subsubsection{Der interpretierbare Random Forest}
 Das Ziel des Random-Forest-Modells war nicht die maximale Genauigkeit, sondern die Identifikation derjenigen Entscheidungsregeln, die den Stilwandel am stärksten prägen. Um dies zu erreichen, wurde die Pipeline unter drei strengen Bedingungen optimiert:
@@ -483,12 +483,12 @@ Alle Skripte sind dokumentiert und ermöglichen reproduzierbare Folgeuntersuchun
 \clearpage
 \hypersetup{pageanchor=false}
 \pagenumbering{gobble}
-\section{Quellen- und Literaturverzeichnis}
+\section{Quellen- und Literaturverzeichnis}\label{sec:sources}
 \textbf{Hinweis zum Zitierstil:} Dieses Dokument verwendet durchgehend den IEEE-Stil als Standard in Mathematik und Informatik; vgl. \cite{IEEEStyle}.
 \printbibliography[heading=none]
 
 \section*{Angaben zu Unterstützungsleistungen}
-Die Konzeption des Projekts, die Literaturrecherche, die komplette Python-Programmierung (Korpus-Kuratierung, Parsing, Merkmalsextraktion, Statistik, Visualisierung) sowie die Auswertung und Dokumentation wurden von mir, Victor Gurbani, eigenständig erbracht. Verwendet wurden ausschließlich die in Abschnitt~7 genannten Open-Source-Bibliotheken und öffentlichen Datensätze. 
+Die Konzeption des Projekts, die Literaturrecherche, die komplette Python-Programmierung (Korpus-Kuratierung, Parsing, Merkmalsextraktion, Statistik, Visualisierung) sowie die Auswertung und Dokumentation wurden von mir, Victor Gurbani, eigenständig erbracht. Verwendet wurden ausschließlich die in \hyperref[sec:sources]{Abschnitt~\ref*{sec:sources}} genannten Open-Source-Bibliotheken und öffentlichen Datensätze. 
 
 \newpage
 \pagenumbering{Roman}
@@ -1017,7 +1017,7 @@ Die Lösung war die Implementierung untrackbarer String-Interpolations-Polymorph
 \subsection{Abruf dynamischer Cloud-Jobs}
 Weitere Hürden betrafen die dynamische Darstellung frisch berechneter PCA-Wolken. Im \texttt{standalone}-Modus \enquote{friert} der interne Node.js-Server von Next.js seinen statischen Datei-Router (für Assets innerhalb von \texttt{/public}) zum Zeitpunkt der Kompilierung ein. Starten Besucher der Webseite jedoch im Hintergrund einen Python-Subprozess, um eine neue Datensatzwolke zu berechnen, wurden die frisch generierten Metadaten (\texttt{.json} und \texttt{.html}) unter \texttt{public/generated/clouds/} vom Standalone-Server als 404 (Not Found) blockiert. Um dies zu umgehen, wurde in der Apache-Konfiguration ein Reverse-Proxy-Bypass integriert. Apache fängt Anfragen, die sich an die Verzeichnisse \texttt{/img} oder \texttt{/generated} richten (\texttt{Alias /generated /var/www/jufo2026/web-interface/public/generated}), explizit ab und serviert die frisch verfassten Dokumente nativ aus dem VPS-Dateisystem, während alle React- und API-spezifischen Endpunkte an den PM2-gewrappten Next.js-Dienst auf Port 3011 weitergeleitet werden. 
 
-\subsection{Das Caching-Resolver-Dilemma}
+\subsection{Das Caching-Resolver-Dilemma}\label{sec:caching}
 Schlussendlich trat das Problem der Interoperabilität von Dateipfaden zwischen macOS-Entwicklungssystemen und Oracle-Linux-Hosting auf. Das Backend speicherte Caches mit absoluten Unix-Dateipfaden der MusicXML-Dateien, um Dimensionsreduktions-Metadaten effizienter heranzuziehen. Da die korrespondierenden MusicXML-Dateien aus Speicher-Gründen nicht auf den Server mitkopiert wurden (\texttt{--forceCache}-Flag überschreibt den Verzeichnis-Check), litten die Identifizierungs-Signaturen im Skript \texttt{embedding\_cache.py} unter fehlschlagenden Zuordnungen. Durch den Umbau der Abgleichoperation mithilfe von \texttt{Path(mxl\_abs\_path).name.endswith(...)} wurde gewährleistet, dass das Dashboard auch dann voll funktionsfähig agiert und Einzelstücke fehlerfrei visualisiert rekonstruieren kann, wenn nur der Feature-Cache der Pipeline lokalisiert wird, selbst in Cross-OS-Szenarien ohne korrespondierenden Rohdatensatz.
 
 
