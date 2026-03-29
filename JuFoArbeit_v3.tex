@@ -213,18 +213,9 @@ Die Auswahl der vier Komponisten deckt zentrale Epochen der westlichen Musikgesc
 \end{itemize}
 
 \subsection{Computational-Musicology-Kontext}
-Die computergestützte Stilanalyse hat seit den 1990er Jahren mehrere methodische Paradigmenwechsel erfahren. Jede Ära hinterließ spezifische Werkzeuge und Limitationen:
+Die computergestützte Stilanalyse hat seit den 1990er Jahren mehrere methodische Paradigmenwechsel erfahren. Frühe Arbeiten wie von Hippels Dissertation\autocite{VonHippel2000} nutzten statistische Melodieanalyse, während McKays jSymbolic\autocite{McKay2010} die Feature-basierte Klassifikation etablierte. Die music21-Bibliothek von Cuthbert\autocite{Cuthbert2010} und White\autocite{White2013} ermöglichte schließlich skalierbare Korpusanalysen. Moderne Deep-Learning-Modelle wie DeepBach\autocite{Hadjeres2018} erreichen zwar hohe Imitationsleistungen, bleiben jedoch oft schwer interpretierbar.
 
-\begin{description}
-    \item[Humdrum-Ära (1990er):] Von Hippels Dissertation\autocite{VonHippel2000} etablierte statistische Melodieanalyse, fokussierte jedoch auf kognitive Erwartungsmodelle statt stilistischer Differenzierung.
-    \item[MusicXML \& ML (2000er):] McKays jSymbolic-System\autocite{McKay2010} ermöglichte automatische Genre-Klassifikation mittels kNN/SVM, bot jedoch keine Interpretierbarkeit -- ein \enquote{Black-Box}-Ansatz.
-    \item[music21-Revolution (2010er):] Whites Korpusanalysen\autocite{White2013} nutzten deskriptive Statistiken über große Zeiträume, ohne paarweise Komponistenvergleiche oder FDR-Korrektur.
-    \item[Deep-Learning-Ära (2017--):] Hadjeres' DeepBach\autocite{Hadjeres2018} erreichte hohe Genauigkeit in Stil-Imitation, bleibt jedoch opak: \enquote{Warum klingt das wie Bach?} ist nicht beantwortbar.
-\end{description}
-
-\noindent Frühe Versuche wie Lin-Jengs Arbeit von 1987\autocite{LinJeng1987} litten unter kleinem Korpus, manuellem Encoding und begrenzten Werkzeugen. Aktuelle Übersichtsarbeiten kritisieren die Dominanz schwer interpretierbarer Modelle oder ungenügender Validierung.\autocite{Simonetta2025}
-
-\textbf{Positionierung dieser Arbeit:} Das vorliegende Projekt kombiniert die Stärken aller Phasen: Skalierbarkeit (PDMX-Archiv mit $>$250\,000 Partituren\autocite{PDMX2024}), Interpretierbarkeit (36 explizite Merkmale statt verborgener Gewichte), statistische Rigorosität (ANOVA, Tukey-HSD, FDR-Korrektur) und Zugänglichkeit (\texttt{music21}\autocite{Cuthbert2010}, interaktive Visualisierungen). \hyperref[tab:evolution]{Tabelle~\ref*{tab:evolution}} vergleicht den methodischen Fortschritt.
+\textbf{Positionierung dieser Arbeit:} Das Projekt kombiniert Skalierbarkeit (PDMX-Archiv mit $>$250\,000 Partituren\autocite{PDMX2024}) mit interpretierbaren musikalischen Deskriptoren. Im Vergleich zu rein deskriptiven Ansätzen oder opaken ML-Modellen bietet die hier verwendete 36-Merkmals-Pipeline eine statistisch abgesicherte und musikologisch fundierte Kartographie (vgl. \hyperref[tab:evolution]{Tab.~\ref*{tab:evolution}}).
 
 \begin{table}[H]
     \centering
