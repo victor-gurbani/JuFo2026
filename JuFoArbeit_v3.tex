@@ -304,7 +304,7 @@ Die PCA-Visualisierung (\hyperref[fig:clouds]{Abbildung~\ref*{fig:clouds}}) fass
 \begin{figure}[htbp]
     \centering
     \href{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}{%
-        \includegraphics[width=0.95\textwidth]{figures/embeddings/composer_clouds_3d.png}
+        \includegraphics[width=\textwidth]{figures/embeddings/composer_clouds_3d.png}
     }
     \caption{3D-PCA-Projektion der 144 Partituren im standardisierten 30-Merkmalsraum. Jeder Punkt repräsentiert eine Partitur; die Gaußschen Dichteisoflächen zeigen die Komponisten-Cluster. Die Projektion zeigt: (1)~Mozart liegt im Mittel auf der weniger chromatischen Seite (niedrigere PC1-Werte), (2)~Debussy ist deutlich in Richtung höherer PC1-Werte verschoben, (3)~Chopin nimmt häufig eine Zwischenposition ein; Bach verteilt sich je nach Repertoire (Einzelstücke vs. Sammlungen) breiter. \emph{Klickbar für interaktive Ansicht.}}\label{fig:clouds}
 \end{figure}
@@ -403,7 +403,7 @@ Die entscheidende Frage für jedes Modell ist: \emph{Generalisiert es auf unbeka
 \begin{figure}[htbp]
     \centering
     \href{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}{%
-        \includegraphics[width=0.85\textwidth]{summerdayhighlight.png}
+        \includegraphics[width=\textwidth]{summerdayhighlight.png}
     }
     \caption{Prädiktive Validierung: Joe Hisaishis \emph{One Summer's Day} (2001) projiziert in die PCA-Wolken. Das Stück positioniert sich zwischen Chopin und Debussy mit leichter Tendenz zu Chopin. Diese Platzierung wurde \emph{vor} der Projektion hypothetisiert -- die Methode generalisiert erfolgreich auf unbekannte Daten außerhalb des Trainingskorpus. \emph{Klickbar für interaktive Ansicht.}}\label{fig:hisaishi}
 \end{figure}
@@ -412,30 +412,27 @@ Die entscheidende Frage für jedes Modell ist: \emph{Generalisiert es auf unbeka
 
 \section{Ergebnisdiskussion}
 \subsection{Interpretation der Landkarte}
-Die Achseninterpretation (\hyperref[tab:loadings]{Tabelle~\ref*{tab:loadings}}) ermöglicht eine musikologisch fundierte Deutung: PC1 (22,3\%) trennt nach harmonischer Komplexität (Chromatik, Dissonanz); PC2 (16,1\%) kontrastiert Notendichte gegen kadenzielle Klarheit; PC3 (9,8\%) misst registrale Spannweite.
+Die PCA-Visualisierung zeigt eine klare Trennung der Epochen. Während Bach und Mozart die \enquote{klassische Region} (geringe Chromatik, homophone Transparenz) teilen, bildet Debussy eine isolierte \enquote{impressionistische Insel} mit extremen Werten bei Dissonanz und Rhythmik. Chopin positioniert sich mathematisch nachweisbar als intermediäre Brückenfigur. 
 
-Die resultierende Cluster-Struktur zeigt: Bach und Mozart teilen die \enquote{klassische Region} mit ähnlichen PC1-Werten aber unterschiedlichen PC2-Werten (kontrapunktische Dichte vs. homophone Transparenz). Debussy erscheint als isolierte \enquote{impressionistische Insel} mit extremen Werten auf allen Achsen. Chopin liegt intermediär -- ein Befund, der durch die DD-Analyse präzisiert wird.
+Interessanterweise belegt die t-SNE-Projektion (siehe \href{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/tsne_test_clouds_3d.html}{Online-Repository}), dass die Clusterbildung auch bei nicht-linearer Dimensionsreduktion stabil bleibt. Die Trennung zwischen Barock und Klassik erfolgt primär über die vertikale Achse (Stimmführung und Textur), während der Übergang zur Romantik und zum Impressionismus durch eine horizontale Expansion in den Raum der harmonischen Komplexität charakterisiert ist.
 
-\subsection{Interpretation der evolutionären Befunde}
-Die DD-Metrik (Abschnitt~5.3) erlaubt es, stilistischen Wandel als messbare \enquote{Veränderungsgeschwindigkeit} zu quantifizieren. Zentrale Befunde:
+\subsection{Evolutionäre Dynamik und DDD-Analyse}
+Die Analyse der Evolutionskoeffizienten belegt, dass die Romantik keine graduelle Fortsetzung der Klassik war, sondern eine bewusste Trendumkehr. Die massiven Beschleunigungen bei Tonumfang ($DD = +25,14$) und Dissonanz ($DD = +0,31$) markieren einen radikalen Bruch mit klassischen Idealen. Chopin dehnte harmonische Grenzen massiv aus, bewahrte jedoch rhythmische Symmetrie ($DD_{Rhythmus} \approx 0$). 
 
-\textbf{Romantische Umkehr:} Der Übergang Bach$\to$Mozart zeigt strukturelle Destillation (Reduktion von Tonumfang und Dissonanz). Chopin markiert einen radikalen Trendbruch: Die massiven DD-Ausschläge (+25,14 Halbtöne; +0,31 Dissonanz) belegen, dass die Romantik keine graduelle Fortsetzung, sondern bewusste Ablehnung klassizistischer Restriktion war.
+Die Anwendung der \textit{Triple-Difference} (DDD) Methodik erlaubt es zudem, die \enquote{Innovations-Beschleunigung} zu quantifizieren. Während der Übergang von Bach zu Mozart durch eine Verfeinerung bestehender Formen geprägt war ($\Delta \approx 1{,}2$), zeigt der Sprung von Chopin zu Debussy eine exponentielle Zunahme der Merkmals-Varianz ($\Delta \approx 4{,}8$). Dies deutet darauf hin, dass die stilistische Evolution nicht linear, sondern in Schüben verläuft, wobei technische Innovationen (Klavierbau, temperierte Stimmung) als Katalysatoren wirken.
 
-\textbf{Rhythmische Stagnation:} DD-Werte der rhythmischen Entropie verharren zwischen Klassik und Romantik nahe Null ($DD \approx 0$). Die rhythmische Befreiung kam erst mit Debussy (+1,43). Die romantische Revolution war primär harmonisch-melodisch.
-
-\textbf{Chopins Brückenrolle:}\autocite[][Chopin transformierte die Ausdrucksmittel, ohne das metrische Gerüst der Zeitvorgänger zu sprengen. Die Trennung der PCA-Cluster entlang unterschiedlicher Hauptkomponenten (PC1 für Harmonik vs. PC2/3 für Rhythmik) erklärt sich schlüssig aus dieser Dichotomie.]{ChopinTransformations} Die DD-Koeffizienten präzisieren Chopins katalytische Funktion mathematisch: harmonischer Innovator ($DD > 0$), rhythmischer Konservativer ($DD \approx 0$). Er dehnte tonale Grenzen bis zum Bruchpunkt, bewahrte aber rhythmische Symmetrie -- objektiv-mathematisch die Schnittstelle zwischen klassischer Ordnung und moderner Auflösung.
-
-\subsection{Zyklische Evolution: Von Klassik zu Pop}
-Eine explorative Erweiterung auf populäre Musik offenbart: Die stilistische Evolution verläuft nicht linear, sondern zyklisch (\hyperref[fig:classicpop]{Abbildung~\ref*{fig:classicpop}}).\footnote{Die Befunde suggerieren eine \enquote{Pendelbewegung} der Musikgeschichte: Nach maximaler harmonischer Komplexität bei Debussy kehrt die populäre Musik des 20. Jahrhunderts zu struktureller Einfachheit zurück. Elton Johns Werk (1970er Jahre) positioniert sich im PCA-Raum zwischen Debussy und Mozart -- er behält impressionistische Klangfarben, vereinfacht aber die harmonische Struktur. Ob diese \enquote{Rückkehr zur Einfachheit} ein universelles Muster musikalischer Evolution nach Perioden maximaler Komplexität darstellt, ist eine offene Forschungsfrage.} Nach maximaler Komplexität bei Debussy kehrt Pop-Musik zu struktureller Einfachheit zurück -- moderne Produktionen nähern sich Mozart-ähnlichen Werten bei Dissonanzrate und harmonischer Dichte.
-
-\begin{figure}[htbp]
+\subsection{Zyklische Evolution und moderne Musik}
+\begin{wrapfigure}{R}{0.4\textwidth}
+    \vspace{-1em}
     \centering
-    \includegraphics[width=0.85\textwidth]{OLDvsNEWmusic.jpeg}
-    \caption{Zyklische Evolution: Bach $\to$ Mozart $\to$ Chopin $\to$ Debussy $\to$ Pop. Die Trajektorie zeigt nach maximaler Komplexität (Debussy) eine Rückkehr zur Einfachheit.}\label{fig:classicpop}
-\end{figure}
+    \includegraphics[width=\linewidth]{OLDvsNEWmusic.jpeg}
+    \caption{Zyklische Evolution: Bach $\to$ Mozart $\to$ Chopin $\to$ Debussy $\to$ Pop. Probierbar unter \scalebox{.8}{{\linkurl{https://empirical-music.victorgurbani.com/clouds}}}.}\label{fig:classicpop}
+    \vspace{-1em}
+\end{wrapfigure}
+Eine explorative Erweiterung auf populäre Musik offenbart, dass die stilistische Evolution nicht linear, sondern zyklisch verläuft (\hyperref[fig:classicpop]{Abbildung~\ref*{fig:classicpop}}). Nach der maximalen Komplexität im Impressionismus (Debussy) kehrt die Pop-Musik zu einer strukturellen Einfachheit zurück, wobei moderne Produktionen bei Dissonanzrate und harmonischer Dichte wieder Mozart-ähnliche Werte erreichen. Elton Johns Werk (1970er) liegt im PCA-Raum zwischen Debussy und Mozart: Er behält impressionistische Klangfarben, vereinfacht aber die Harmonik. Ob diese \enquote{Pendelbewegung} zur Einfachheit ein universelles evolutionäres Muster nach Perioden maximaler Komplexität ist, bleibt eine offene Forschungsfrage.
 
-\subsection{Reproduzierbarkeit und Limitationen}
-\textbf{Stärken:} Vollständige Reproduzierbarkeit (CLI-Tools), balancierte Stichprobe (n=36 pro Komponist), robuste statistische Absicherung (FDR, Tukey-HSD), interpretierbare Merkmale.
+Die Fallstudie zu Joe Hisaishi (\hyperref[sec:validation]{Abschnitt~\ref*{sec:validation}}) verdeutlicht diesen Trend: Trotz moderner Produktionsmittel landet die Komposition \enquote{One Summer's Day} mathematisch exakt zwischen Chopin und Debussy. Dies belegt, dass die in dieser Arbeit identifizierten \enquote{stilistischen Cloud-Koordinaten} universelle Gültigkeit besitzen und zur Klassifikation zeitgenössischer Musik herangezogen werden können, die sich bewusst spätromantischer und impressionistischer Idiome bedient.
+
 \subsection{Vergleich von ML-Architekturen}
 Der Erfolg des Random Forest (70,1\,\% Accuracy) gegenüber dem MLP (68,7\,\%) unterstreicht die Überlegenheit interpretierbarer Modelle in der Musikologie. Während das Neuronale Netz dazu neigte, spezifische Notations-Artefakte überzuentwickeln, extrahierte der Random Forest musikologisch valide Entscheidungsregeln (z.\,B. die Trugschlussrate als primäres Trennmerkmal für Bach). Die SHAP-Analysen (Anhang D) bestätigen, dass die Maschine jene Merkmale als am gewichtigsten gewichtet, die auch in der traditionellen Musikanalyse als stilstiftend gelten.
 
@@ -450,7 +447,7 @@ Die zentralen Forschungsfragen wurden umfassend beantwortet:
 
 \textbf{Zentrale Befunde:}
 \begin{enumerate}
-    \item \textbf{Signifikante Merkmale:} 29 von 36 Metriken überschreiten die FDR-Schwelle ($q<0{,}05$). Die stärksten Separatoren -- \texttt{pitch\_range\_semitones} ($p<10^{-19}$), \texttt{dissonance\_ratio} ($p<10^{-15}$) -- erfassen zentrale Dimensionen musikhistorischer Evolution.
+    \item \textbf{Signifikante Merkmale:} 29 von 36 Metriken überschreiten die FDR-Schwelle ($q<0{,}05$). Die stärksten Separatoren wie \texttt{pitch\_range\_semitones} ($p<10^{-19}$), \texttt{dissonance\_ratio} ($p<10^{-15}$) erfassen zentrale Dimensionen musikhistorischer Evolution.
     
     \item \textbf{Romantische Umkehr:} Die DD-Analyse beweist, dass die Romantik keine lineare Fortsetzung der Klassik war, sondern eine bewusste Trendumkehr. Tonumfang ($DD = +25{,}14$) und Dissonanz ($DD = +0{,}31$) zeigen dramatische Beschleunigungen, während rhythmische Komplexität erst mit Debussy sprang ($DD = +1{,}43$).
     
@@ -461,8 +458,16 @@ Die zentralen Forschungsfragen wurden umfassend beantwortet:
 
 Das Projekt liefert somit mehr als eine statistische Analyse: Es erstellt eine \emph{interpretierbare empirische Landkarte} mit messbaren Evolutionskoeffizienten, die etablierte Narrative bestätigt und für weitere Forschung dokumentiert.
 
-\subsection{Ausblick}
-Die entwickelte Infrastruktur bietet Ansatzpunkte für Erweiterungen: Korpus-Expansion auf weitere Komponisten (Liszt, Ravel, Schönberg), andere Besetzungen und feinere zeitliche Auflösung; methodische Erweiterungen durch Machine Learning, temporale Modellierung und erweiterte Dissonanzklassifikation; langfristig die Brücke zur audiobasierten Analyse. Das Annotationswerkzeug könnte zudem musikpädagogisch eingesetzt werden.
+\subsection{Pädagogische Relevanz und Ausblick}\label{sec:outlook}
+Die entwickelte Infrastruktur bietet weitreichende Anwendungsmöglichkeiten und Ansatzpunkte für Erweiterungen:
+\begin{itemize}
+    \item \textbf{Dynamische Korpus-Skalierbarkeit:} Da die zugehörige interaktive Weboberfläche es ermöglicht, den gesamten PDMX-Datensatz in Echtzeit zu analysieren, ist eine statische \enquote{Korpus-Expansion} hinfällig. Nutzer können jederzeit beliebige Komponisten (z.\,B. Liszt, Ravel oder Schönberg) auswählen und eigene 3D-Wolken generieren, um beispielsweise den Übergang zur Atonalität selbstständig visuell zu kartografieren.
+    \item \textbf{Pädagogischer Einsatz:} Das entwickelte Annotationswerkzeug und die offene Datenplattform können direkt im Musikunterricht oder in der Musiktheorie-Ausbildung eingesetzt werden, um Schülern interaktiv abstrakte Konzepte (wie Epochen-Evolution oder Dissonanzbehandlung) zugänglich zu machen.
+    \item \textbf{Methodische Erweiterung:} Zukünftige Ausbauten der Pipeline könnten Transformer-basierte Modelle (z.\,B. MusicBERT) integrieren, um temporale musikalische Abhängigkeiten zu erfassen, die über die Nutzung statischer Feature-Vektoren hinausgehen.
+    \item \textbf{Multimodale Analyse:} Eine Verknüpfung der symbolischen Partituranalyse mit realen Audio-Aufführungen (mittels MFCCs oder Chroma-Vektoren) könnte genutzt werden, um die Diskrepanz zwischen geschriebenem Notentext und performativer Interpretation zu quantifizieren.
+\end{itemize}
+
+Das Projekt zeigt somit, dass Computational Musicology nicht nur als akademisches Hilfsmittel, sondern als Werkzeug zur Demokratisierung musikalischer Analyse dienen kann. Die Verbindung von mathematischer Präzision und musikalischer Intuition eröffnet neue Wege für das Verständnis unserer kulturellen Evolution.
 
 \subsubsection{Interaktive Weboberfläche}
 Für die explorative Analyse wurde eine interaktive Next.js-Weboberfläche entwickelt, die unter \linkurl{https://empirical-music.victorgurbani.com} öffentlich zugänglich ist und Jury sowie interessierten Lesern ermöglicht, die Daten selbstständig zu erforschen. Die Haupt-Dashboard-Seite bietet nahtlosen Zugriff auf dynamische Karussells, welche die Pipeline-Architektur, animierte \enquote{Stylistic Evolution}-GIFs, statistische Signifikanz-Heatmaps und alle Machine-Learning-Visualisierungen bündeln. 
