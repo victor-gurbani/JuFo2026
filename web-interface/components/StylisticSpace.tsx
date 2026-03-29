@@ -94,7 +94,7 @@ export default function StylisticSpace({
 
   const [composerYears, setComposerYears] = useState<ComposerYearMap | null>(null);
 
-  const [showAgeTrajectory, setShowAgeTrajectory] = useState(true);
+  const [showAgeTrajectory, setShowAgeTrajectory] = useState(false);
   const [useBezierTrajectory, setUseBezierTrajectory] = useState(false);
   const [hideCloudSurfaces, setHideCloudSurfaces] = useState(false);
 
