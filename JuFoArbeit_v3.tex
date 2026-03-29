@@ -469,7 +469,7 @@ Die entwickelte Infrastruktur bietet weitreichende Anwendungsmöglichkeiten und 
 
 Das Projekt zeigt somit, dass Computational Musicology nicht nur als akademisches Hilfsmittel, sondern als Werkzeug zur Demokratisierung musikalischer Analyse dienen kann. Die Verbindung von mathematischer Präzision und musikalischer Intuition eröffnet neue Wege für das Verständnis unserer kulturellen Evolution.
 
-\subsubsection{Interaktive Weboberfläche}
+\subsubsection{Interaktive Weboberfläche}\label{sec:weboberflache}
 Für die explorative Analyse wurde eine interaktive Next.js-Weboberfläche entwickelt, die unter \linkurl{https://empirical-music.victorgurbani.com} öffentlich zugänglich ist und Jury sowie interessierten Lesern ermöglicht, die Daten selbstständig zu erforschen. Die Haupt-Dashboard-Seite bietet nahtlosen Zugriff auf dynamische Karussells, welche die Pipeline-Architektur, animierte \enquote{Stylistic Evolution}-GIFs, statistische Signifikanz-Heatmaps und alle Machine-Learning-Visualisierungen bündeln. 
 
 Die spezialisierte \enquote{Subset Clouds}-Seite (\linkurl{https://empirical-music.victorgurbani.com/clouds}) ermöglicht darüber hinaus:
@@ -493,6 +493,7 @@ Alle Skripte sind dokumentiert und ermöglichen reproduzierbare Folgeuntersuchun
 \textbf{Hinweis zum Zitierstil:} Dieses Dokument verwendet durchgehend den IEEE-Stil als Standard in Mathematik und Informatik; vgl. \cite{IEEEStyle}.
 \printbibliography[heading=none]
 
+\clearpage
 \section*{Angaben zu Unterstützungsleistungen}
 Die Konzeption des Projekts, die Literaturrecherche, die komplette Python-Programmierung (Korpus-Kuratierung, Parsing, Merkmalsextraktion, Statistik, Visualisierung) sowie die Auswertung und Dokumentation wurden von mir, Victor Gurbani, eigenständig erbracht. Verwendet wurden ausschließlich die in \hyperref[sec:sources]{Abschnitt~\ref*{sec:sources}} genannten Open-Source-Bibliotheken und öffentlichen Datensätze. 
 
@@ -1046,6 +1047,6 @@ Um Analysen auf das vollständige PDMX-Archiv (254\,077 Partituren) zu ermöglic
     \item \textbf{Vollständiger Feature-Cache}: Neben den 3D-PCA-Koordinaten speichert das System optional alle 36 Feature-Werte pro Partitur (\texttt{--output-features-csv}). Dies ermöglicht \textit{instant subset-specific PCA}: Für beliebige Komponisten-Kombinationen kann die PCA ohne erneutes Parsen der MusicXML-Dateien sofort neu berechnet werden.
 \end{itemize}
 
-\noindent Die Cache-Integrität wird durch SHA256-Hashes der Eingabe-Feature-CSVs und JSON-Metadaten gewährleistet. Ein vollständiger Cache des PDMX-Korpus (alle 254\,077 Partituren $\times$ 36 Features) belegt etwa 180\,MB und ermöglicht Echtzeit-Exploration beliebiger Komponisten-Subsets über die Weboberfläche (siehe \hyperref[sec:sources]{Abschnitt~\ref*{sec:sources}}.2).
+\noindent Die Cache-Integrität wird durch SHA256-Hashes der Eingabe-Feature-CSVs und JSON-Metadaten gewährleistet. Ein vollständiger Cache des PDMX-Korpus (alle 254\,077 Partituren $\times$ 36 Features) belegt etwa 180\,MB und ermöglicht Echtzeit-Exploration beliebiger Komponisten-Subsets über die Weboberfläche (siehe \hyperref[sec:weboberflache]{Abschnitt~\ref*{sec:weboberflache}}).
 
 \end{document}
