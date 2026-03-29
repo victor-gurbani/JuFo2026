@@ -428,6 +428,8 @@ Eine explorative Erweiterung auf populäre Musik offenbart: Die stilistische Evo
 
 \subsection{Reproduzierbarkeit und Limitationen}
 \textbf{Stärken:} Vollständige Reproduzierbarkeit (CLI-Tools), balancierte Stichprobe (n=36 pro Komponist), robuste statistische Absicherung (FDR, Tukey-HSD), interpretierbare Merkmale.
+\subsection{Vergleich von ML-Architekturen}
+Der Erfolg des Random Forest (70,1\,\% Accuracy) gegenüber dem MLP (68,7\,\%) unterstreicht die Überlegenheit interpretierbarer Modelle in der Musikologie. Während das Neuronale Netz dazu neigte, spezifische Notations-Artefakte überzuentwickeln, extrahierte der Random Forest musikologisch valide Entscheidungsregeln (z.\,B. die Trugschlussrate als primäres Trennmerkmal für Bach). Die SHAP-Analysen (Anhang D) bestätigen, dass die Maschine jene Merkmale als am gewichtigsten gewichtet, die auch in der traditionellen Musikanalyse als stilstiftend gelten.
 
 \subsection{Limitationen}
 Die Analyse basiert auf symbolischen Notentexten (PDMX-Korpus), wodurch performative Aspekte (Rubato, Pedalisierung) unberücksichtigt bleiben. Zudem erklären die ersten drei Hauptkomponenten 48,2\,\% der Varianz; feinere Stilnuancen in höheren Dimensionen gehen in der 3D-Projektion verloren. Die Beschränkung auf Soloklavierwerke war notwendig für die Daten-Homogenität, schließt jedoch gattungsspezifische Entwicklungen (z.\,B. Orchestrierung bei Debussy) aus.
