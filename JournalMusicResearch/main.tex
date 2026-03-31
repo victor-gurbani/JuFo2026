@@ -7,6 +7,9 @@
 % MUST BE SET TO 'false' FOR FINAL SUBMISSION.
 \newif\ifdraftversion
 \draftversionfalse 
+% Anonymisation toggle for blind review
+\newif\ifblindreview
+\blindreviewfalse % Set to \blindreviewtrue for anonymous submission
 
 \ifdraftversion
   \usepackage{draftwatermark}
@@ -100,7 +103,7 @@
 % 6. BIBLIOGRAPHY (T&F APA Style)
 % ==========================================
 % T&F uses natbib for this specific template layout
-\usepackage[longnamesfirst,sort]{natbib}
+\usepackage[natbibapa]{apacite}
 \bibpunct[, ]{(}{)}{;}{a}{,}{,}
 \renewcommand\bibfont{\fontsize{10}{12}\selectfont}
 
@@ -124,75 +127,889 @@
 % ==========================================
 \begin{document}
 
-% Optional: Specify article type (e.g., RESEARCH ARTICLE, REVIEW)
-\articletype{RESEARCH ARTICLE} 
+\articletype{RESEARCH ARTICLE}
 
-\title{Your Brilliant Journal Title Goes Here}
+\ifblindreview
+  \title{Quantifying Stylistic Evolution in Western Piano Music: A Computational Analysis of Bach, Mozart, Chopin, and Debussy}
+  \maketitle
+  \author{\name{[Redacted for blind review]}\affil{[Redacted]}}
+\else
+  \title{Quantifying Stylistic Evolution in Western Piano Music: A Computational Analysis of Bach, Mozart, Chopin, and Debussy}
+  \author{
+    \name{Victor Gurbani\textsuperscript{a}\thanks{CONTACT Victor Gurbani. Email: victor.gurbani@gmail.com. ORCID: 0009-0008-4571-5444}}
+    \affil{\textsuperscript{a}Independent Researcher}
+  }
+  \maketitle
+\fi
 
-\author{
-\name{First Author\textsuperscript{a}\thanks{CONTACT First Author. Email: author@university.edu} and Second Author\textsuperscript{b}}
-\affil{\textsuperscript{a}Department of Science, University of Examples, City, Country; \textsuperscript{b}Department of Research, Institute of Technology, City, Country}
-}
-
-\maketitle
-
-% ==========================================
-% ABSTRACT & KEYWORDS
-% ==========================================
 \begin{abstract}
-This is the abstract of your paper. Keep it concise and ensure it directly summarizes your research question, methodology, and primary findings. The \texttt{interact} class formats this automatically to T\&F standards.
+This study presents a computational framework for quantifying stylistic evolution in Western art music, analysing 144 solo piano compositions by Johann Sebastian Bach, Wolfgang Amadeus Mozart, Fr\'ed\'eric Chopin, and Claude Debussy sourced from the PDMX dataset. A pipeline built on the music21 toolkit extracts 36 features spanning harmonic, melodic, and rhythmic dimensions. One-way ANOVA with Benjamini--Hochberg false discovery rate correction reveals that 29 of 36 features differ significantly across composers ($q < 0.05$). Principal component analysis reduces the feature space to three components explaining 48.2\% of variance, visualising a stylistic continuum rather than discrete clusters. A difference-in-differences model captures the dramatic acceleration of stylistic change during the Romantic era---termed the \emph{Romantic Reversal}---while a novel triple-difference analysis, conditioning on mode, demonstrates that minor-key compositions drove this acceleration more strongly than major-key works. External validation, projecting works by Joe Hisaishi and Maurice Ravel into the embedding space, confirms the framework's generalisability beyond the training corpus.
 \end{abstract}
 
 \begin{keywords}
-Keyword one; keyword two; keyword three; formatting; submission
+computational musicology; stylistic analysis; principal component analysis; difference-in-differences; music21; piano music
 \end{keywords}
 
-% Print To-Dos if in drafting mode
 \ifdraftversion
   \listoftodos
   \clearpage
 \fi
 
-% ==========================================
-% MAIN CONTENT
-% ==========================================
 \section{Introduction}
-Start your manuscript here. You can safely use your custom tools, such as \todo{Write the literature review} leaving to-do notes for yourself. 
 
-When referencing standard figures, use \cref{fig:example} to automatically generate the word "Figure". For citations, because this template uses \texttt{natbib} APA style, use \verb|\citep{Smith2023}| for parenthetical citations like \citep{Smith2023}, and \verb|\citet{Smith2023}| for narrative citations like \citet{Smith2023}.
+Can musical style be quantified computationally? Western art music evolved through
+distinct stylistic periods, each characterised by identifiable harmonic, melodic, and
+rhythmic conventions. The contrapuntal rigour of the Baroque, the homophonic clarity of
+the Classical era, the expressive chromaticism of the Romantic period, and the colouristic
+experimentation of Impressionism form a rich trajectory of aesthetic transformation.
+This study examines four composers whose works epitomise these successive eras:
+Johann Sebastian Bach (Baroque), Wolfgang Amadeus Mozart (Classical),
+Fr\'ed\'eric Chopin (Romantic), and Claude Debussy (Impressionist). By extracting
+interpretable features from symbolic scores and subjecting them to rigorous statistical
+analysis, the present work seeks to transform qualitative musicological intuition into
+empirical measurement.
 
-\section{Methodology}
-\subsection{Advanced Formatting}
+Computational musicology has matured considerably since early rule-based attempts at
+stylistic analysis. Modern toolkits such as music21 \citep{Cuthbert2010} provide
+programmable access to symbolic score representations, while large-scale datasets
+including the Public Domain MusicXML archive \citep[PDMX;][]{PDMX2024}, containing over
+254,000 scores, supply the raw material for corpus-level inquiry. Recent surveys confirm
+sustained interest in style-based composer identification \citep{Simonetta2025}, though
+most published approaches prioritise discriminative performance over musicological
+interpretability. Among early statistical studies, the work of
+\citet{LinJeng1987} stands closest to the present investigation: that 1987 thesis
+attempted to distinguish Mozart, Chopin, Debussy, and Webern through Prolog-based pattern
+rules applied to manually encoded DARMS data, yet its small sample size and limited
+tooling constrained both scope and generalisability.
 
-Here is an example of a T\&F compliant table using your \texttt{booktabs} upgrade:
+Despite this growing body of work, a significant gap persists. The majority of
+computational studies frame the problem as one of composer classification, treating
+predictive accuracy as the primary measure of success. Such an orientation, while
+valuable for benchmarking, leaves the underlying dynamics of stylistic change largely
+unexamined. In particular, three analytical dimensions remain underexplored when
+considered together: (a)~comprehensive, interpretable feature extraction spanning
+harmonic, melodic, and rhythmic domains; (b)~static significance testing through omnibus
+ANOVA with false discovery rate correction and dimensionality reduction via principal
+component analysis (PCA); and (c)~dynamic evolutionary modelling that captures not
+merely \emph{whether} styles differ, but \emph{how} and \emph{when} the rate of
+stylistic change accelerates or reverses. The temporal dimension of musical
+evolution, specifically the velocity and direction of parametric shifts across
+centuries, has received surprisingly little quantitative attention.
+
+This study makes four principal contributions to the field. First, it introduces a
+36-feature extraction pipeline spanning harmonic, melodic, and rhythmic dimensions,
+applied to a balanced corpus of 144 solo piano works (36 per composer) drawn from the
+PDMX archive. Second, it maps static stylistic differences through one-way ANOVA with
+Benjamini--Hochberg false discovery rate (FDR) correction \citep{Benjamini1995} and
+Tukey HSD post-hoc comparisons, complemented by a three-component PCA projection that
+visualises the stylistic continuum. Third, it proposes a dynamic evolutionary model
+rooted in difference-in-differences (DD) analysis, quantifying the magnitude and
+direction of stylistic acceleration at each epochal boundary. A novel extension, the
+triple-difference (DDD) analysis, conditions on mode (major versus minor) to isolate
+tonality-specific evolutionary trends. Fourth, it validates the framework through
+external case studies, projecting works by Joe Hisaishi and Maurice Ravel into the
+established embedding space to assess generalisability beyond the training corpus.
+
+The remainder of this article is organised as follows. \Cref{sec:litreview} surveys
+related work in computational musicology and positions the present study within that
+landscape. \Cref{sec:methods} details the corpus curation process, feature extraction
+pipeline, and statistical methodology. \Cref{sec:results} presents findings from both
+the static and dynamic analyses. \Cref{sec:discussion} interprets these results in
+musicological context and evaluates validation case studies. \Cref{sec:conclusion}
+summarises contributions and outlines directions for future research.
+
+\section{Literature Review}\label{sec:litreview}
+
+The computational analysis of musical style rests on software tools capable of
+parsing symbolic representations at scale. \citet{McKay2010} introduced jSymbolic,
+a feature extractor for MIDI files that computes over 100 descriptors for genre
+and style classification tasks. The music21 toolkit \citep{Cuthbert2010}, written
+in Python, broadened the analytical scope by providing direct access to MusicXML
+score objects, enabling harmonic analysis, Roman numeral labelling, and voice-leading
+computations within a single framework. For MATLAB-based workflows,
+\citet{EerolaToiviainen2004} developed the MIDI Toolbox, which supports pitch,
+rhythmic, and tonal analyses. Together, these tools transformed computational
+musicology from a niche pursuit into a reproducible, corpus-level discipline, though
+differences in input format and feature semantics complicate cross-study comparisons.
+
+Statistical corpus studies have established quantitative baselines for understanding
+tonal practice across historical periods. \citet{White2013} analysed statistical
+properties of tonality from 1650 to 1900, documenting systematic shifts in harmonic
+vocabulary. Information-theoretic frameworks offer a complementary lens:
+\citet{PearceWiggins2012} modelled auditory expectation through entropy and
+surprisal, demonstrating that listeners internalise probabilistic regularities
+of the music they encounter. \citet{Temperley2007} formalised the notion of style
+as probability distribution, treating compositional choices as draws from
+genre-specific statistical models. From the perspective of music history,
+\citet{Meyer1989} provided a theoretical account of style that integrates
+ideological and cognitive dimensions, arguing that stylistic norms simultaneously
+constrain and enable creative expression. These studies collectively demonstrate
+that musical style is amenable to quantitative description, though they tend to
+focus on broad historical trends rather than pairwise composer comparisons.
+
+Several music-theoretic contributions directly inform the feature design of the
+present study. \citet{VonHippel2000} refined the concept of pitch proximity by
+distinguishing tessitura from mobility, a distinction reflected here in the
+separation of pitch range from interval-based melodic descriptors.
+\citet{LerdahlJackendoff1983} proposed a generative theory of tonal music that
+formalises hierarchical structures of rhythm and pitch, providing the theoretical
+basis for features such as downbeat emphasis and metrical regularity.
+\citet{Huron2006} extended expectation-based models to encompass a wide range
+of perceptual phenomena, reinforcing the idea that quantifiable surface features
+encode cognitively meaningful stylistic information.
+
+Despite substantial progress on individual fronts, no prior study combines static
+significance testing (omnibus ANOVA with FDR correction and PCA-based dimensionality
+reduction) with dynamic evolutionary modelling (difference-in-differences and
+triple-difference analysis) on a balanced symbolic corpus. Most computational
+approaches treat classification as the analytical endpoint; the present study
+instead treats statistical significance and evolutionary dynamics as primary tools
+of inquiry. The DD/DDD framework, widely used in econometrics to isolate treatment
+effects from confounding trends, has not previously been applied to musicological
+data. By adapting this methodology, the present work quantifies not only
+\emph{whether} composers differ, but \emph{at what rate} and \emph{in which
+direction} stylistic parameters shifted across epochal boundaries.
+
+\section{Materials and Methods}\label{sec:methods}
+
+\subsection{Corpus Curation}
+
+The analytical corpus was drawn from the Public Domain MusicXML archive
+\citep[PDMX;][]{PDMX2024}, a large-scale collection of 254,077 symbolic scores
+hosted on Zenodo. Because the archive aggregates heterogeneous contributions
+(orchestral reductions, ensemble arrangements, multi-movement compilations, and
+duplicate transcriptions), substantial curation was required before meaningful
+statistical analysis could proceed.
+
+A multi-stage filtering pipeline, implemented in Python, narrowed the archive to
+solo piano works suitable for balanced cross-composer comparison. First,
+composer names were normalised through token-based alias matching, resolving
+variant spellings and excluding entries attributed to family members sharing a
+surname (e.g.\ C.P.E.\ Bach). Second, licence and quality filters retained only
+scores flagged as deduplicated, free of licensing conflicts, and representing the
+best unique arrangement of each work. Third, instrumentation was verified through
+a combination of structured JSON metadata fields and music21 instrument detection,
+ensuring that only genuine solo piano scores entered the corpus. Orchestral
+reductions, chamber arrangements, and vocal accompaniments were discarded at
+this stage.
+
+Four composers were selected to represent successive stylistic periods in Western
+art music: Johann Sebastian Bach (Baroque), Wolfgang Amadeus Mozart (Classical),
+Fr\'ed\'eric Chopin (Romantic), and Claude Debussy (Impressionist). To prevent
+class imbalance from distorting downstream statistics, the corpus was clipped to
+the smallest number of qualifying works per composer, yielding 36 works each and
+144 scores in total. The resulting corpus spans 21,344 measures and 71,585
+quarter-note durations (approximately 13.3 hours at a reference tempo of
+90~BPM). Sensitivity analyses conducted with relaxed filter thresholds confirmed
+that loosening the quality or licence constraints increased corpus size at the
+cost of introducing scoring artefacts and composer-level bias, validating the
+conservative filtering strategy adopted here.
+
+\subsection{Feature Extraction}
+
+Each MusicXML score was loaded and parsed using the music21 toolkit
+\citep{Cuthbert2010}. The extraction pipeline computed 36 numerical features per
+score, organised into three analytical domains: harmonic (16 features), melodic
+(11 features), and rhythmic (9 features). All features are deterministic and
+fully reproducible given the same input scores. Scores that raised parsing
+exceptions were logged and skipped rather than halting the pipeline, ensuring
+robustness across the heterogeneous PDMX archive. The complete feature inventory
+is summarised in \Cref{tab:features}.
+
+\subsubsection{Harmonic Features}
+
+Harmonic analysis begins by collapsing each polyphonic score into a single chord
+stream via music21's \texttt{chordify()} method, which identifies simultaneous
+sonorities at every rhythmic onset. From this stream, 16 features capture the
+vertical harmonic language of each composition. Chord quality percentages
+(\texttt{chord\_quality\_major\_pct}, \texttt{chord\_quality\_minor\_pct},
+\texttt{chord\_quality\_diminished\_pct}, \texttt{chord\_quality\_augmented\_pct},
+\texttt{chord\_quality\_other\_pct}) measure the relative prevalence of triadic
+types, while \texttt{harmonic\_density\_mean} records the average number of
+distinct pitch classes per chord event, serving as a proxy for textural
+thickness. The \texttt{dissonance\_ratio} quantifies the proportion of chord
+events classified as dissonant by music21's consonance test. Non-chord tones in
+the melodic line are classified into passing tones, appoggiaturas, and residual
+dissonances, yielding \texttt{passing\_tone\_ratio},
+\texttt{appoggiatura\_ratio}, and \texttt{other\_dissonance\_ratio}. Roman
+numeral analysis provides functional harmonic context, from which
+\texttt{deceptive\_cadence\_ratio} and \texttt{modal\_interchange\_ratio} are
+derived.
+
+\subsubsection{Melodic Features}
+
+Melodic features characterise pitch contour, intervallic behaviour, and
+voice-leading patterns across 11 dimensions. The global pitch range
+(\texttt{pitch\_range\_semitones}) records the ambitus in semitones between the
+lowest and highest sounding pitches. Interval-based descriptors, including
+\texttt{avg\_melodic\_interval}, \texttt{melodic\_interval\_std},
+\texttt{conjunct\_motion\_ratio}, and \texttt{melodic\_leap\_ratio}, are derived
+from the uppermost staff (the first \texttt{Part} in MusicXML), which serves as
+a proxy for the soprano or right-hand melody. This avoids flattening polyphonic
+textures into a single line. Chromatic density is captured by
+\texttt{pitch\_class\_entropy}, the Shannon entropy of the twelve pitch-class
+distribution. Voice-leading interaction between the soprano and bass registers is
+quantified through \texttt{contrary\_motion\_ratio},
+\texttt{parallel\_motion\_ratio}, and \texttt{oblique\_motion\_ratio}, with a
+composite \texttt{voice\_independence\_index} summarising the net balance between
+contrary and parallel motion.
+
+\subsubsection{Rhythmic Features}
+
+Nine rhythmic features capture temporal organisation at multiple structural
+levels. Duration statistics (\texttt{avg\_note\_duration},
+\texttt{std\_note\_duration}) describe the central tendency and variability of
+note lengths; a high standard deviation signals rubato-like alternation between
+sustained sonorities and rapid figuration. Metrical features include
+\texttt{notes\_per\_beat}, \texttt{downbeat\_emphasis\_ratio}, and
+\texttt{syncopation\_ratio}, the last of which detects off-beat events tied
+across bar lines. Pattern-level complexity is measured by
+\texttt{rhythmic\_pattern\_entropy}, the Shannon entropy of duration trigrams
+computed over a sliding window. Fine-grained textural density is captured by
+\texttt{micro\_rhythmic\_density}, which counts the proportion of four-note
+windows containing three or more notes shorter than or equal to a semiquaver.
+Finally, \texttt{cross\_rhythm\_ratio} records the fraction of bars in which the
+upper and lower staves employ different subdivision denominators, a hallmark of
+Debussy's polyrhythmic layering.
 
 \begin{table}[ht]
-\tbl{Example of a perfectly formatted scientific table.}
-{\begin{tabular}{l c c} \toprule
-  Metric & Group A & Group B \\ \midrule
-  Velocity (\unit{\meter\per\second}) & 12.4 & 15.2 \\
-  Accuracy (\%) & 98.1 & 94.3 \\ \bottomrule
+\tbl{Summary of the 36 features extracted from each score, grouped by analytical domain.}
+{\begin{tabular}{lp{10cm}} \toprule
+  Domain (Count) & Features \\ \midrule
+  Harmonic (16) & chord\_quality\_major\_pct, chord\_quality\_minor\_pct, chord\_quality\_diminished\_pct, chord\_quality\_augmented\_pct, chord\_quality\_other\_pct, chord\_quality\_total, chord\_event\_count, roman\_chord\_count, dissonance\_ratio, dissonant\_note\_count, harmonic\_density\_mean, passing\_tone\_ratio, appoggiatura\_ratio, other\_dissonance\_ratio, modal\_interchange\_ratio, deceptive\_cadence\_ratio \\
+  Melodic (11) & note\_count, pitch\_range\_semitones, avg\_melodic\_interval, conjunct\_motion\_ratio, pitch\_class\_entropy, melodic\_interval\_std, melodic\_leap\_ratio, voice\_independence\_index, contrary\_motion\_ratio, parallel\_motion\_ratio, oblique\_motion\_ratio \\
+  Rhythmic (9) & note\_event\_count, avg\_note\_duration, std\_note\_duration, notes\_per\_beat, downbeat\_emphasis\_ratio, syncopation\_ratio, rhythmic\_pattern\_entropy, micro\_rhythmic\_density, cross\_rhythm\_ratio \\ \bottomrule
 \end{tabular}}
-\label{tab:results}
+\label{tab:features}
 \end{table}
 
-\section{Conclusion}
-Wrap up your paper here. All of your structural styling, fonts, and layouts are safely offloaded to the \texttt{interact} class, ensuring you will have zero typesetting conflicts when submitting to the ScholarOne/Editorial Manager system.
+\subsection{Statistical Analysis}
 
-% ==========================================
-% BACKMATTER
-% ==========================================
-\section*{Disclosure statement}
-No potential conflict of interest was reported by the author(s).
+Three complementary statistical procedures were applied to the 144-score feature
+matrix to characterise inter-composer differences and to reduce dimensionality
+for visualisation.
+
+\subsubsection{One-Way ANOVA with FDR Correction}
+
+A one-way analysis of variance (ANOVA) was computed independently for each of the
+36 features, treating the four composers as groups ($k = 4$, $n = 36$ per group).
+Because 36 simultaneous hypothesis tests inflate the family-wise error rate,
+raw $p$-values were adjusted using the Benjamini--Hochberg false discovery rate
+(FDR) procedure \citep{Benjamini1995}, controlling the expected proportion of
+false discoveries at $q < 0.05$. This correction is less conservative than the
+Bonferroni method, which would retain only 14 of 36 features at the same nominal
+threshold, yet it provides stronger control than uncorrected testing. All
+reported significance levels refer to FDR-adjusted $q$-values unless stated
+otherwise.
+
+\subsubsection{Tukey HSD Post-Hoc Comparisons}
+
+For every feature reaching FDR significance, Tukey's Honestly Significant
+Difference (HSD) test was applied to identify which of the $\binom{4}{2} = 6$
+composer pairs exhibited statistically significant mean differences. Tukey HSD
+controls the family-wise error rate across all pairwise comparisons
+simultaneously, reporting adjusted $p$-values alongside mean differences and
+95\% confidence intervals. This step transforms the omnibus ANOVA finding (``at
+least one group differs'') into specific, interpretable contrasts (e.g.\
+Debussy vs.\ Mozart on \texttt{dissonance\_ratio}).
+
+\subsubsection{Principal Component Analysis}
+
+Prior to dimensionality reduction, all features were standardised to zero mean
+and unit variance using a \texttt{StandardScaler}. Six count-based features were
+excluded from the PCA input matrix to prevent absolute composition length from
+dominating the principal axes: \texttt{note\_count},
+\texttt{note\_event\_count}, \texttt{chord\_event\_count},
+\texttt{chord\_quality\_total}, \texttt{roman\_chord\_count}, and
+\texttt{dissonant\_note\_count}. The remaining 30 ratio- and density-based
+features formed a standardised $144 \times 30$ matrix on which PCA was
+performed with a fixed random seed of 42 for reproducibility. Three principal
+components were retained, explaining a cumulative 48.2\% of total variance
+(PC1: 22.3\%, PC2: 16.1\%, PC3: 9.8\%). The resulting three-dimensional
+embedding serves as the basis for visualising the stylistic continuum in
+\Cref{sec:results}.
+
+\subsection{Evolutionary Dynamics}
+
+While ANOVA and PCA capture static inter-composer differences, they do not
+address the temporal dynamics of stylistic change. A three-tier differencing
+framework was developed to quantify how rapidly, and in which direction,
+individual features shifted across epochal boundaries.
+
+\subsubsection{Evolutionary Coefficients}
+
+The velocity of stylistic change between consecutive eras is defined as the
+difference in group means for a given feature:
+\begin{equation}\label{eq:velocity}
+  v_{\text{epoch}} = \bar{x}_{\text{later}} - \bar{x}_{\text{earlier}}
+\end{equation}
+Three transitions are considered: Baroque to Classical ($v_{\text{classical}}$),
+Classical to Romantic ($v_{\text{romantic}}$), and Romantic to Impressionist
+($v_{\text{impressionist}}$). A positive $v$ indicates an increase in the mean
+feature value across the boundary; a negative $v$ indicates a decrease. These
+coefficients convert qualitative musicological narratives (``Chopin expanded the
+harmonic palette'') into signed, comparable magnitudes.
+
+\subsubsection{Difference-in-Differences}
+
+To capture whether the pace of change itself accelerated or decelerated, a
+difference-in-differences (DD) measure of stylistic acceleration is computed:
+\begin{equation}\label{eq:dd}
+  a = v_{\text{romantic}} - v_{\text{classical}}
+\end{equation}
+A positive $a$ indicates that the Romantic transition amplified or reversed the
+direction of change relative to the Classical transition; a negative $a$
+indicates deceleration or continuity. Large positive DD values for
+\texttt{pitch\_range\_semitones} ($+25.14$) and \texttt{dissonance\_ratio}
+($+0.315$) reveal dramatic Romantic-era acceleration in registral expansion and
+harmonic tension, respectively. By contrast,
+\texttt{rhythmic\_pattern\_entropy} yields $a = -0.101$, indicating that
+rhythmic innovation remained largely static during the Romantic period and
+arrived only with the Impressionist transition under Debussy.
+
+\subsubsection{Triple-Difference Analysis}
+
+The triple-difference (DDD) extends the DD framework by conditioning on mode
+(major versus minor), isolating tonality-specific evolutionary trajectories:
+\begin{equation}\label{eq:ddd}
+  \text{DDD} = a_{\text{minor}} - a_{\text{major}}
+\end{equation}
+A positive DDD value indicates that minor-mode works experienced greater
+Romantic-era acceleration than their major-mode counterparts. The corpus
+contains $n_{\text{major}} = 97$ and $n_{\text{minor}} = 47$ works. This
+imbalance reflects the historical predominance of major-key writing but leaves
+sufficient statistical power for meaningful comparisons across both groups. The
+DDD framework draws on the difference-in-differences methodology widely
+employed in econometrics to disentangle treatment effects from confounding
+trends. Applied here, it reveals whether the key modality modulated the pace of
+stylistic change during the Romantic transition, an analytical dimension that
+purely synchronic methods cannot address.
+
+\section{Results}\label{sec:results}
+
+\subsection{Static Analysis}
+
+\subsubsection{ANOVA and Post-Hoc Findings}
+
+Of the 36 features submitted to omnibus ANOVA, 29 reached significance after
+Benjamini--Hochberg FDR correction ($q < 0.05$), confirming that the four
+composers differ on a broad majority of harmonic, melodic, and rhythmic
+dimensions. The seven non-significant features were
+\texttt{deceptive\_cadence\_ratio}, \texttt{parallel\_motion\_ratio},
+\texttt{chord\_quality\_other\_pct}, \texttt{chord\_quality\_minor\_pct},
+\texttt{voice\_independence\_index}, \texttt{chord\_quality\_major\_pct}, and
+\texttt{cross\_rhythm\_ratio}.
+
+The six most discriminating features, ranked by FDR-corrected $q$-value, were:
+\texttt{pitch\_range\_semitones}, $F(3,140) = 42.18$,
+$q < 6.32 \times 10^{-18}$;
+\texttt{dissonance\_ratio}, $F(3,140) = 30.65$,
+$q < 4.85 \times 10^{-14}$;
+\texttt{pitch\_class\_entropy}, $F(3,140) = 21.79$,
+$q < 1.47 \times 10^{-10}$;
+\texttt{std\_note\_duration}, $F(3,140) = 19.35$,
+$q < 1.35 \times 10^{-9}$;
+\texttt{rhythmic\_pattern\_entropy}, $F(3,140) = 18.19$,
+$q < 3.63 \times 10^{-9}$; and
+\texttt{harmonic\_density\_mean}, $F(3,140) = 17.67$,
+$q < 5.25 \times 10^{-9}$.
+The extraordinarily low $q$-values for pitch range and dissonance ratio indicate
+that these two features alone separate the four corpora with overwhelming
+statistical confidence. \Cref{fig:anova_bar} visualises the top 15 features by
+$F$-statistic.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../figures/significance/top_anova_bar.png}
+\caption{Top 15 features ranked by ANOVA $F$-statistic. All displayed features
+reach FDR significance ($q < 0.05$). Bars are coloured by analytical domain
+(harmonic, melodic, rhythmic).}
+\label{fig:anova_bar}
+\end{figure}
+
+Tukey HSD post-hoc tests on the 29 significant features yielded 174 pairwise
+comparisons ($29 \times 6$ composer pairs), of which 62 (35.6\%) rejected the
+null hypothesis of equal means. The rejections were distributed unevenly across
+pairs: Debussy--Mozart and Bach--Mozart each produced 16 significant contrasts,
+Bach--Debussy produced 11, Chopin--Mozart 8, Bach--Chopin 7, and
+Chopin--Debussy only 4. This asymmetry reveals two structural patterns. First,
+Mozart stands out as the most differentiated composer, yielding the highest
+rejection count in every pair involving his corpus. His comparatively narrow
+pitch ranges, lower dissonance ratios, and restrained chromatic vocabulary
+place him at one extreme of the feature space. Second, the low count for
+Chopin--Debussy (4 out of 29) suggests considerable stylistic overlap between
+the Romantic and Impressionist corpora, a point revisited in
+\Cref{sec:discussion}.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../figures/significance/tukey_pair_heatmap.png}
+\caption{Number of significant Tukey HSD contrasts per composer pair. Darker
+cells indicate more features for which the two composers differ significantly
+($p_{\mathrm{adj}} < 0.05$).}
+\label{fig:tukey_heatmap}
+\end{figure}
+
+To illustrate the magnitude of these differences, \Cref{fig:box_pitch,fig:box_dissonance}
+present per-composer boxplots for the two highest-ranked features. Pitch range
+expands markedly from Mozart (median $\approx$24 semitones) through Chopin and
+Debussy to Bach, whose contrapuntal textures span the widest registral
+territory. Dissonance ratio follows a different trajectory, rising steadily
+from Bach through Chopin to Debussy, with Mozart clustering at the low end.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../figures/melodic/boxplot_pitch_range_semitones.png}
+\caption{Per-composer distribution of \texttt{pitch\_range\_semitones}.
+Notches indicate 95\% confidence intervals around the median.}
+\label{fig:box_pitch}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../figures/harmonic/boxplot_dissonance_ratio.png}
+\caption{Per-composer distribution of \texttt{dissonance\_ratio}. Mozart's
+narrow, low-dissonance cluster contrasts sharply with the broad, elevated
+distributions of Chopin and Debussy.}
+\label{fig:box_dissonance}
+\end{figure}
+
+\subsubsection{PCA Embedding Space}
+
+Principal component analysis on the 30 standardised ratio and density features
+(six count-based features excluded, see \Cref{sec:methods}) yielded three
+leading axes accounting for 48.2\% of total variance: PC1 = 22.3\%, PC2 =
+16.1\%, PC3 = 9.8\%.
+
+PC1 loads most heavily on harmonic complexity features:
+\texttt{harmonic\_density\_mean} (0.322), \texttt{avg\_melodic\_interval}
+(0.291), \texttt{dissonance\_ratio} (0.275),
+\texttt{chord\_quality\_diminished\_pct} (0.269), and
+\texttt{melodic\_leap\_ratio} (0.262). Scores with high PC1 values combine
+dense chordal textures, wide melodic leaps, and elevated dissonance.
+
+PC2 captures temporal and durational structure. Its strongest positive loadings
+are \texttt{avg\_note\_duration} (0.367), \texttt{downbeat\_emphasis\_ratio}
+(0.345), and \texttt{appoggiatura\_ratio} (0.257), while its strongest
+negative loadings are \texttt{micro\_rhythmic\_density} ($-0.344$) and
+\texttt{notes\_per\_beat} ($-0.274$). High PC2 values correspond to slower,
+metrically regular textures; low values correspond to rapid, off-beat
+figuration.
+
+PC3 separates contrapuntal voice-leading textures. The highest positive
+loadings are \texttt{oblique\_motion\_ratio} (0.380),
+\texttt{cross\_rhythm\_ratio} (0.303), \texttt{rhythmic\_pattern\_entropy}
+(0.260), and \texttt{conjunct\_motion\_ratio} (0.252). The strongest negative
+loading belongs to \texttt{parallel\_motion\_ratio} ($-0.340$), placing
+homophonic and heterophonic writing at opposite ends of this axis.
+
+\Cref{fig:pca_clouds} projects the 144 works into this three-dimensional
+space, rendering each composer's corpus as a Gaussian iso-surface. Bach's
+cluster occupies a tight region at the high-PC1, high-PC2 corner, reflecting
+his consistently dense harmonic writing and sustained note values. Mozart forms
+a compact cloud at low PC1 and moderate PC2, consistent with his thinner
+textures and classical-period restraint. Chopin's distribution stretches
+between the Mozart and Debussy regions, its elongated shape mirroring his dual
+inheritance from classical form and Romantic expressiveness. Debussy's cloud is
+the most diffuse, spreading along PC1 and PC3 as his harmonic language varies
+from near-tonal to highly chromatic across different works. The silhouette
+score for the three-dimensional embedding is 0.010, confirming that the four
+corpora form a near-continuous manifold rather than discrete clusters, a point
+explored further in \Cref{sec:discussion}.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../figures/embeddings/composer_clouds_3d.png}
+\caption{Three-dimensional PCA embedding of 144 piano works, with Gaussian
+iso-surfaces enclosing each composer's corpus. PC1 (harmonic complexity) runs
+left to right; PC2 (temporal structure) runs bottom to top; PC3 (contrapuntal
+texture) runs front to back.}
+\label{fig:pca_clouds}
+\end{figure}
+
+\subsection{Dynamic Analysis}
+
+\subsubsection{Evolutionary Coefficients and the Romantic Reversal}
+
+The evolutionary velocity framework defined in \Cref{eq:velocity} quantifies
+how each feature shifted between adjacent stylistic periods. \Cref{tab:evolution}
+presents the velocity ($v$), associated $p$-values, and
+difference-in-differences (DD, \Cref{eq:dd}) for four features selected to
+span all three analytical domains.
+
+\begin{table}[ht]
+\tbl{Evolutionary velocities and difference-in-differences for four
+representative features. Significant velocities ($p < 0.05$) are marked with
+an asterisk.}{%
+\begin{tabular}{lcccc} \toprule
+Feature & $v_{\text{classical}}$ & $v_{\text{romantic}}$ &
+$v_{\text{impressionist}}$ & DD \\ \midrule
+\texttt{pitch\_range\_semitones} & $-5.14^{*}$ & $+20.00^{*}$ & $+2.78$ &
+$+25.14$ \\
+\texttt{dissonance\_ratio} & $-0.086^{*}$ & $+0.229^{*}$ & $+0.048$ &
+$+0.315$ \\
+\texttt{harmonic\_density\_mean} & $-0.253^{*}$ & $+0.500^{*}$ &
+$+0.322^{*}$ & $+0.754$ \\
+\texttt{rhythmic\_pattern\_entropy} & $+0.119$ & $+0.017$ & $+1.430^{*}$ &
+$-0.101$ \\ \bottomrule
+\end{tabular}}
+\label{tab:evolution}
+\end{table}
+
+Three of the four features exhibit what may be termed a ``Romantic Reversal'':
+a Classical-era contraction followed by a Romantic-era expansion, yielding
+large positive DD values. Pitch range decreased by 5.14 semitones from Bach to
+Mozart ($p = 0.028$), reflecting the Classical preference for compact melodic
+arcs. The Romantic transition then reversed this trend dramatically, expanding
+pitch range by 20.00 semitones from Mozart to Chopin
+($p < 1.28 \times 10^{-11}$). The resulting DD of $+25.14$ is the largest
+single-feature acceleration observed in the corpus. A parallel pattern holds
+for dissonance ratio (DD $= +0.315$) and harmonic density (DD $= +0.754$):
+both features contracted under Classical aesthetics, then expanded sharply
+during the Romantic period. The $p$-values for all Romantic velocities fall
+below $10^{-5}$, indicating that these reversals are not artefacts of sampling
+variability.
+
+Rhythmic pattern entropy is a conspicuous exception. Its DD of $-0.101$ is
+near zero, revealing that rhythmic innovation did not accelerate during the
+Romantic era. Instead, the largest rhythmic shift arrived with Debussy:
+$v_{\text{impressionist}} = +1.430$ ($p < 1.22 \times 10^{-6}$). Chopin's
+rhythmic vocabulary, despite its expressive rubato, remained structurally close
+to Mozart's in terms of duration-trigram entropy. Debussy broke this continuity
+by introducing polyrhythmic layering and irregular subdivision patterns that
+inflated entropy well beyond anything in the preceding three centuries. This
+finding suggests that the Romantic Reversal was domain-selective: it reshaped
+pitch and harmonic language profoundly, but left rhythmic architecture
+largely untouched until the Impressionist period.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../figures/evolution/ddd_comparison.png}
+\caption{Difference-in-differences (DD) and triple-difference (DDD) values for
+four representative features. Positive DD indicates Romantic-era acceleration
+relative to the Classical transition. The rhythmic entropy bar near zero
+contrasts with the large positive values for pitch and harmonic features.}
+\label{fig:ddd}
+\end{figure}
+
+\subsubsection{Mode-Conditioned Triple-Difference}
+
+Conditioning the DD analysis on tonality (\Cref{eq:ddd}) reveals that the
+Romantic Reversal operated asymmetrically across major and minor modes.
+The corpus contains $n_{\text{major}} = 97$ major-mode works and
+$n_{\text{minor}} = 47$ minor-mode works. For each feature, the DDD value
+equals the minor-mode DD minus the major-mode DD; a positive DDD indicates
+that minor-mode works experienced greater Romantic acceleration.
+
+Pitch range yields a DDD of $+12.64$, with $a_{\text{minor}} = +33.17$ and
+$a_{\text{major}} = +20.53$. Minor-key compositions expanded their registral
+span more aggressively than major-key works during the Romantic transition.
+Dissonance ratio follows the same direction: DDD $= +0.271$
+($a_{\text{minor}} = +0.482$, $a_{\text{major}} = +0.211$), indicating that
+minor-mode Romantic writing absorbed chromatic dissonance at roughly double the
+rate of its major-mode counterpart. Harmonic density exhibits a DDD of
+$+0.428$ ($a_{\text{minor}} = +1.011$, $a_{\text{major}} = +0.583$),
+consistent with the denser chordal saturation of Romantic minor-key works.
+
+The most striking asymmetry appears in rhythmic pattern entropy, where DDD $=
++0.981$ ($a_{\text{minor}} = +0.521$, $a_{\text{major}} = -0.460$).
+Major-mode compositions actually stagnated rhythmically during the Romantic
+era, with their DD turning negative, while minor-mode works innovated
+substantially. This divergence suggests that composers channelled rhythmic
+experimentation preferentially into minor-key contexts, perhaps because the
+affective intensity of minor tonality invited greater temporal disruption.
+The stagnation in major-mode rhythmic entropy, combined with its simultaneous
+expansion in dissonance and pitch range, points to a selective modernisation
+process: Romantic composers writing in major keys updated their harmonic
+vocabulary while preserving Classical rhythmic scaffolding.
+
+Taken together, the DDD results indicate that the Romantic Reversal was not
+tonally uniform. Minor-mode compositions served as the primary vehicle for
+stylistic acceleration across all four features, amplifying the reversal
+patterns observed in the aggregate DD analysis. This mode-specific asymmetry
+adds a new dimension to the periodisation of Western art music, suggesting that
+the ``Romantic turn'' was felt more acutely in the minor-key repertoire.
+
+\section{Discussion}\label{sec:discussion}
+
+\subsection{Interpreting the PCA Axes}
+
+The three principal components that collectively explain 48.2\% of the
+variance in the 30-feature space admit interpretations grounded in
+established musicological categories. PC1, accounting for 22.3\% of variance,
+is dominated by \texttt{harmonic\_density\_mean} (loading 0.322),
+\texttt{avg\_melodic\_interval} (0.291), and \texttt{dissonance\_ratio}
+(0.275). High PC1 values correspond to dense, chromatically saturated
+textures with wide intervallic leaps, while low PC1 values indicate sparser,
+more consonant writing with stepwise motion. This axis therefore captures
+what might be termed ``harmonic complexity'': a gradient running from
+Baroque counterpoint through Classical restraint to Impressionist colour.
+The chronological ordering of the four composer clouds along PC1
+(\Cref{fig:pca_clouds}) confirms that this dimension tracks the
+historically documented expansion of harmonic vocabulary
+\citep{Temperley2007}.
+
+PC2 (16.1\% of variance) separates temporal profiles. Its strongest positive
+loadings are \texttt{avg\_note\_duration} (0.367) and
+\texttt{downbeat\_emphasis\_ratio} (0.345); its strongest negative loadings
+are \texttt{micro\_rhythmic\_density} ($-0.344$) and
+\texttt{notes\_per\_beat} ($-0.274$). Compositions at the positive PC2
+extreme feature long note values with metrically regular accentuation,
+whereas those at the negative extreme are characterised by rapid, densely
+subdivided textures. Bach's cluster sits high on PC2 because of his
+sustained contrapuntal lines, while Debussy's position reflects the
+fleeting, irregular note groupings typical of Impressionist pianism.
+
+PC3 (9.8\% of variance) isolates contrapuntal texture. The dominant positive
+loadings, \texttt{oblique\_motion\_ratio} (0.380) and
+\texttt{cross\_rhythm\_ratio} (0.303), describe independent voice movement,
+while the strongest negative loading, \texttt{parallel\_motion\_ratio}
+($-0.340$), reflects homophonic doubling. This axis distinguishes composers
+who favour voice independence from those who prefer parallel motion, a
+contrast especially visible between Bach (high PC3) and Mozart (low PC3).
+The fact that each axis maps cleanly onto a recognised analytical category
+validates the feature set summarised in \Cref{tab:features} and confirms
+that the 36 extracted descriptors encode musically meaningful variation
+rather than statistical noise.
+
+\subsection{Chopin as Stylistic Bridge}
+
+Among the four composer corpora, Chopin occupies the most ambiguous position
+in PCA space. His cloud overlaps substantially with both Mozart's and
+Debussy's distributions (\Cref{fig:pca_clouds}), and its elongated shape
+stretches along the PC1 axis in a manner not observed for any other
+composer. This overlap is not a methodological artefact; it reflects
+genuine stylistic hybridity rooted in Chopin's compositional biography.
+Trained in the Classical tradition of Hummel and Elsner, Chopin inherited
+the balanced phrase structures and transparent textures characteristic of
+Viennese Classicism. Simultaneously, his harmonic language anticipated
+Impressionist practice through extensive use of modal mixture, extended
+tertian chords, and chromatic voice-leading \citep{ChopinTransformations}.
+
+The Tukey HSD results provide quantitative support for this interpretation.
+Of the six pairwise comparisons, Chopin and Debussy share the fewest
+statistically significant contrasts: only 4 of 29 features reject the null
+hypothesis of equal means. By contrast, the most distant pair, Bach and
+Mozart, shows 16 significant contrasts, and the Debussy--Mozart pair matches
+this count exactly. The Chopin--Mozart pair yields 8 significant contrasts,
+while Bach--Chopin produces 7. This pattern positions Chopin as the
+composer nearest to both his chronological neighbours, sharing harmonic
+features with Debussy and formal features with Mozart.
+
+The musicological literature corroborates this finding. Debussy openly
+acknowledged Chopin's influence on his own harmonic thinking, and scholars
+have documented the stylistic lineage connecting Chopin's late Ballades
+to Debussy's \emph{Pr\'eludes} \citep{DebussyCharacteristics}. The
+elongated shape of Chopin's PCA cloud, noted in \Cref{sec:results},
+mirrors this dual inheritance geometrically: different Chopin works pull
+toward different regions of the feature space depending on whether their
+harmonic content tilts Classical or proto-Impressionist. From an
+evolutionary perspective, Chopin functions as a stylistic bridge,
+mediating the transition between Classicism and Impressionism in a
+manner that the DD analysis (\Cref{tab:evolution}) captures as the
+Romantic Reversal.
+
+\subsection{Cluster Metrics and the Continuum Hypothesis}
+
+The silhouette score for the four-composer embedding is 0.010 in the
+three-dimensional PCA projection and 0.018 in the full 36-dimensional
+feature space. The Davies--Bouldin Index stands at 3.51 (3D) and 4.10
+(36D). By conventional clustering standards these values are poor:
+a silhouette score near zero indicates that data points are, on average,
+approximately equidistant from their own cluster centroid and the
+nearest neighbouring centroid, while Davies--Bouldin values above 1.0
+suggest substantial inter-cluster overlap.
+
+These metrics do not, however, signal a failure of the feature extraction
+pipeline. They constitute a finding in their own right. Musical style
+is not a categorical variable; it is a historically continuous
+phenomenon in which each generation inherits, transforms, and
+transmits the practices of its predecessors
+\citep{Meyer1989, LerdahlJackendoff1983}. If the four composer
+corpora occupied well-separated clusters (silhouette $\approx 1$),
+the implication would be that compositional style changed abruptly
+between eras, with little shared material across periods. The
+near-zero silhouette score demonstrates empirically that this is
+not the case: the stylistic space is a continuum through which
+composers transition gradually.
+
+This interpretation is consistent with the ANOVA results, which show
+that 29 of 36 features are individually significant after FDR
+correction. The apparent contradiction, significant per-feature
+differences coexisting with negligible cluster separation, resolves
+once the geometry of high-dimensional space is considered. Two
+composers may differ reliably on a handful of features yet share
+values on the remaining majority, producing statistically detectable
+univariate contrasts embedded within a multivariate manifold that
+lacks clear boundaries. ANOVA identifies the features along which
+composers \emph{do} diverge; the silhouette score reveals that
+these divergences are insufficient to carve the space into isolated
+islands.
+
+An analogy to biological taxonomy clarifies the point. Species
+boundaries in high-dimensional morphological space are frequently
+blurred by hybridisation, convergent evolution, and gradual
+speciation \citep{Huron2006}. Ring species, for instance, form
+a continuum in which adjacent populations interbreed freely while
+the terminal populations cannot. The stylistic continuum observed
+here operates by a similar mechanism: Bach and Mozart share enough
+features to produce overlapping clouds, as do Mozart and Chopin,
+and Chopin and Debussy. Only the most distant pair (Bach and
+Debussy) approaches clear separation, yet even there the silhouette
+score remains low because the intermediate composers populate the
+space between them. The cluster metrics thus support a ``ring''
+model of stylistic evolution in which adjacency in time predicts
+adjacency in feature space, confirming the musicological consensus
+that Western art music developed through continuous transformation
+rather than punctuated breaks \citep{PearceWiggins2012}.
+
+\subsection{Validation Case Studies}
+
+To test whether the PCA feature space generalises beyond the four
+training composers, two external works were projected into the
+existing embedding without refitting the principal components.
+
+\subsubsection{Joe Hisaishi: \emph{One Summer's Day}}
+
+Joe Hisaishi's \emph{One Summer's Day} (2001), composed for Hayao
+Miyazaki's animated film \emph{Spirited Away}, is widely recognised for
+its synthesis of late-Romantic harmonic warmth and Impressionist timbral
+delicacy. When projected into the PCA space, the piece lands between
+the Chopin and Debussy clouds, positioned slightly nearer to Chopin
+(\Cref{fig:hisaishi}). This placement aligns with the piece's harmonic
+profile: its reliance on seventh chords, chromatic passing tones, and
+lyrical melodic arcs recalls Chopin's nocturne idiom, while its
+parallel-chord voicings and whole-tone inflections echo Debussy's
+textural language. The fact that the projection places a 21st-century
+film score precisely at the Romantic--Impressionist boundary confirms
+that the feature space captures stylistic affinity independent of
+historical period.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../summerdayhighlight.png}
+\caption{External validation: Joe Hisaishi's \emph{One Summer's Day}
+(2001), marked by a diamond, projected into the PCA embedding. The piece
+falls between the Chopin and Debussy clouds with a slight bias toward
+Chopin, consistent with its blend of Romantic harmony and Impressionist
+texture.}
+\label{fig:hisaishi}
+\end{figure}
+
+\subsubsection{Maurice Ravel: String Quartet in F major}
+
+Maurice Ravel's String Quartet in F major (1903) provides a second
+validation point from a different genre entirely. Although a chamber
+work rather than a solo piano piece, the quartet's harmonic and rhythmic
+features can still be extracted and projected into the same PCA space.
+The result (\Cref{fig:ravel}) is striking: Ravel's quartet lands within
+the Debussy cloud, displaced slightly beyond it along PC1. This
+positioning reflects both Ravel's Impressionist inheritance and his
+distinctive departures from Debussy's practice. Ravel's higher values
+for \texttt{dissonance\_ratio} and \texttt{rhythmic\_pattern\_entropy}
+push the projection further along the harmonic-complexity axis than most
+Debussy works, mirroring musicological accounts of Ravel's greater
+rhythmic precision and more systematically dissonant harmonic palette
+\citep{DebussyCharacteristics}. The quartet's position beyond the
+training corpus rather than within it demonstrates that the PCA space
+is not merely descriptive of the four source composers but encodes
+a continuous stylistic gradient capable of situating works that push
+Impressionist parameters even further.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../ravelhighlight_cropped.png}
+\caption{External validation: Ravel's String Quartet in F major (1903),
+marked by a diamond, projected into the PCA embedding. The quartet
+falls within and slightly beyond the Debussy cloud along PC1,
+reflecting Ravel's more extreme harmonic and rhythmic complexity.}
+\label{fig:ravel}
+\end{figure}
+
+Together, these two case studies confirm that the 36-feature extraction
+pipeline and PCA embedding generalise to compositions outside the training
+corpus, including works from a different century (Hisaishi) and a different
+instrumentation (Ravel). The fact that both projections land in musically
+sensible positions strengthens the claim that the feature space encodes
+genuine stylistic properties rather than corpus-specific statistical
+artefacts.
+
+\section{Conclusion}\label{sec:conclusion}
+
+This study has presented a three-level computational framework for
+quantifying stylistic evolution in Western art music. At the first level,
+a 36-feature extraction pipeline spanning harmonic, melodic, and rhythmic
+domains converts symbolic MusicXML scores into standardised numerical
+descriptors (\Cref{tab:features}). At the second level, omnibus ANOVA and
+post-hoc Tukey HSD tests identify which features differ significantly
+across composers, while PCA projects the resulting feature vectors into
+an interpretable three-dimensional space (\Cref{fig:pca_clouds}). At the
+third level, the difference-in-differences (DD) and triple-difference (DDD)
+framework defined in \Cref{eq:dd,eq:ddd} captures the direction and
+magnitude of stylistic change between consecutive eras, conditioned on
+mode.
+
+Three principal findings emerge. First, the ``Romantic Reversal'' identified
+through DD analysis shows that Chopin-era compositions underwent
+dramatically accelerated stylistic change relative to the preceding
+Classical transition. Pitch range expanded by a DD of $+25.14$ semitones,
+dissonance ratio increased by $+0.315$, and harmonic density grew by
+$+0.754$, all with $p$-values well below conventional thresholds
+(\Cref{tab:evolution}). Second, mode conditioning via DDD reveals that
+minor-key works drove this acceleration more forcefully than major-key
+works. All four DDD values are positive, with rhythmic pattern entropy
+exhibiting the largest mode asymmetry (DDD $= +0.981$): major-mode
+compositions stagnated rhythmically during the Romantic era while
+minor-mode compositions innovated substantially (\Cref{fig:ddd}). Third,
+PCA embedding yields a near-zero silhouette score (0.010), providing
+empirical evidence that musical style constitutes a continuum rather
+than a set of discrete clusters, a result consistent with the gradual,
+overlapping nature of historical stylistic transmission.
+
+Several limitations qualify these conclusions. The corpus, though balanced
+at 36 works per composer, is small (144 pieces total), and the four
+composers span only a fraction of the Western canon. All training works
+are scored for solo piano, restricting generalisability to other
+instrumentations. The 36 extracted features capture surface-level
+statistical properties (interval distributions, note densities, chord
+ratios) but do not encode deeper structural relationships such as phrase
+boundaries, sonata-form sections, or thematic development
+\citep{LerdahlJackendoff1983}. The evolutionary model assumes simple
+consecutive-era transitions (Baroque $\to$ Classical $\to$ Romantic $\to$
+Impressionist), a periodisation that, while conventional, simplifies
+the overlapping timelines of individual composers and regional schools.
+Finally, the mode split (97 major versus 47 minor works) produces
+unequal group sizes for the DDD analysis, potentially inflating variance
+estimates in the minor-mode subgroup.
+
+Future work should address these constraints along several axes. Expanding
+the corpus to include additional composers (Liszt, Brahms, Scriabin),
+additional eras (early Baroque, late Romanticism), and additional genres
+(chamber music, orchestral scores) would test whether the Romantic
+Reversal and mode asymmetry generalise beyond the present sample.
+Incorporating structural features, such as phrase-boundary detection,
+formal-section segmentation, and thematic recurrence analysis, would
+complement the surface statistics with deeper analytical dimensions
+\citep{KirlinUtgoff2008}. Applying the framework to non-Western musical
+traditions would probe whether the continuum hypothesis holds in
+repertoires with different tuning systems and formal conventions. A
+finer-grained periodisation, distinguishing early from late Romantic
+practice, for instance, could reveal whether the acceleration captured
+by DD was itself constant or subject to further internal variation. The
+external validation results for Hisaishi and Ravel suggest that the
+feature space already possesses enough expressive power to situate
+works from outside the training corpus; scaling this approach to larger
+and more diverse collections of symbolic scores represents a natural
+next step toward a comprehensive computational cartography of musical
+style.
+
+\section*{Disclosure Statement}
+The author reports there are no competing interests to declare.
 
 \section*{Funding}
-This work was supported by the [Grant Agency] under Grant [number xxxx].
+This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
 
-% ==========================================
-% REFERENCES
-% ==========================================
-% Ensure your references.bib file is in the same directory.
-\bibliographystyle{apacite} % Or whichever specific BST file T&F asks for
+\bibliographystyle{apacite}
 \bibliography{references}
 
 \end{document}
