@@ -1,0 +1,198 @@
+\documentclass[]{interact}
+
+% ==========================================
+% 1. DRAFTING TOOLS (WATERMARKS & TODOS)
+% ==========================================
+% Toggle this to 'true' while writing to see todos and watermarks.
+% MUST BE SET TO 'false' FOR FINAL SUBMISSION.
+\newif\ifdraftversion
+\draftversionfalse 
+
+\ifdraftversion
+  \usepackage{draftwatermark}
+  \SetWatermarkText{DRAFT}
+  \SetWatermarkScale{0.8}
+  \SetWatermarkColor[gray]{0.95}
+  \usepackage[colorinlistoftodos, textsize=tiny]{todonotes}
+\else
+  \usepackage[disable]{todonotes}
+\fi
+
+% ==========================================
+% 2. ENCODING & TYPOGRAPHY
+% ==========================================
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel} 
+\usepackage{csquotes}
+\usepackage{microtype} % Still safe to use; prevents overfull hboxes
+
+% ==========================================
+% 3. ADVANCED TABLES & FIGURES
+% ==========================================
+% interact.cls natively loads: graphicx, booktabs, rotating. Do not reload them.
+
+% T&F specific subfigure package (Do NOT use subcaption here)
+\usepackage[caption=false]{subfig} 
+
+% Smart table tools
+\usepackage{multirow} 
+\usepackage{makecell} 
+\usepackage{siunitx}  
+\sisetup{detect-all, group-separator={,}} 
+
+% TikZ & PGFPlots (For vector diagrams)
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ==========================================
+% 4. COLORS & CODE LISTINGS
+% ==========================================
+\usepackage{xcolor}
+\definecolor{codebg}{RGB}{245, 245, 245}
+\definecolor{codecomment}{RGB}{92, 99, 112}
+\definecolor{codekeyword}{RGB}{30, 64, 175}
+\definecolor{codestring}{RGB}{14, 116, 144}
+
+\usepackage{listings}
+\lstdefinestyle{customcode}{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codekeyword}\bfseries,
+    commentstyle=\color{codecomment}\itshape,
+    stringstyle=\color{codestring},
+    backgroundcolor=\color{codebg},
+    showstringspaces=false,
+    inputencoding=utf8,
+    breaklines=true,
+    frame=single,
+    framerule=0.4pt,
+    rulecolor=\color{black!20},
+    xleftmargin=0.4em,
+    xrightmargin=0.4em,
+    aboveskip=0.8em,
+    belowskip=0.8em,
+    numbers=left,
+    numberstyle=\tiny\color{codecomment}
+}
+\lstset{style=customcode}
+
+% ==========================================
+% 5. MATHEMATICS & THEOREMS
+% ==========================================
+% interact.cls natively loads amsmath, amssymb, amsthm.
+% These are the exact theorem setups required by T&F:
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\newtheorem{notation}{Notation}
+
+% ==========================================
+% 6. BIBLIOGRAPHY (T&F APA Style)
+% ==========================================
+% T&F uses natbib for this specific template layout
+\usepackage[longnamesfirst,sort]{natbib}
+\bibpunct[, ]{(}{)}{;}{a}{,}{,}
+\renewcommand\bibfont{\fontsize{10}{12}\selectfont}
+
+% ==========================================
+% 7. HYPERLINKS & CROSS-REFERENCES
+% ==========================================
+% Note: Always load hyperref near the end, and cleveref last.
+\usepackage[
+  colorlinks=true, 
+  linkcolor=blue!40!black, 
+  urlcolor=blue!40!black, 
+  citecolor=blue!40!black
+]{hyperref}
+
+\usepackage[nameinlink,noabbrev]{cleveref} 
+
+\newcommand{\linkurl}[1]{\href{#1}{\textcolor{blue}{\underline{\small\nolinkurl{#1}}}}}
+
+% ==========================================
+% DOCUMENT START
+% ==========================================
+\begin{document}
+
+% Optional: Specify article type (e.g., RESEARCH ARTICLE, REVIEW)
+\articletype{RESEARCH ARTICLE} 
+
+\title{Your Brilliant Journal Title Goes Here}
+
+\author{
+\name{First Author\textsuperscript{a}\thanks{CONTACT First Author. Email: author@university.edu} and Second Author\textsuperscript{b}}
+\affil{\textsuperscript{a}Department of Science, University of Examples, City, Country; \textsuperscript{b}Department of Research, Institute of Technology, City, Country}
+}
+
+\maketitle
+
+% ==========================================
+% ABSTRACT & KEYWORDS
+% ==========================================
+\begin{abstract}
+This is the abstract of your paper. Keep it concise and ensure it directly summarizes your research question, methodology, and primary findings. The \texttt{interact} class formats this automatically to T\&F standards.
+\end{abstract}
+
+\begin{keywords}
+Keyword one; keyword two; keyword three; formatting; submission
+\end{keywords}
+
+% Print To-Dos if in drafting mode
+\ifdraftversion
+  \listoftodos
+  \clearpage
+\fi
+
+% ==========================================
+% MAIN CONTENT
+% ==========================================
+\section{Introduction}
+Start your manuscript here. You can safely use your custom tools, such as \todo{Write the literature review} leaving to-do notes for yourself. 
+
+When referencing standard figures, use \cref{fig:example} to automatically generate the word "Figure". For citations, because this template uses \texttt{natbib} APA style, use \verb|\citep{Smith2023}| for parenthetical citations like \citep{Smith2023}, and \verb|\citet{Smith2023}| for narrative citations like \citet{Smith2023}.
+
+\section{Methodology}
+\subsection{Advanced Formatting}
+
+Here is an example of a T\&F compliant table using your \texttt{booktabs} upgrade:
+
+\begin{table}[ht]
+\tbl{Example of a perfectly formatted scientific table.}
+{\begin{tabular}{l c c} \toprule
+  Metric & Group A & Group B \\ \midrule
+  Velocity (\unit{\meter\per\second}) & 12.4 & 15.2 \\
+  Accuracy (\%) & 98.1 & 94.3 \\ \bottomrule
+\end{tabular}}
+\label{tab:results}
+\end{table}
+
+\section{Conclusion}
+Wrap up your paper here. All of your structural styling, fonts, and layouts are safely offloaded to the \texttt{interact} class, ensuring you will have zero typesetting conflicts when submitting to the ScholarOne/Editorial Manager system.
+
+% ==========================================
+% BACKMATTER
+% ==========================================
+\section*{Disclosure statement}
+No potential conflict of interest was reported by the author(s).
+
+\section*{Funding}
+This work was supported by the [Grant Agency] under Grant [number xxxx].
+
+% ==========================================
+% REFERENCES
+% ==========================================
+% Ensure your references.bib file is in the same directory.
+\bibliographystyle{apacite} % Or whichever specific BST file T&F asks for
+\bibliography{references}
+
+\end{document}
