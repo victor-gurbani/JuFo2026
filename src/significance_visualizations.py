@@ -1,4 +1,5 @@
 """Generate visual summaries for Phase 2 significance testing outputs."""
+
 from __future__ import annotations
 
 import argparse
@@ -27,7 +28,7 @@ DEFAULT_EXCLUDE = [
 BANDS = ["Bach", "Mozart", "Chopin", "Debussy"]
 
 
-_FEATURE_LABELS: Dict[str, str] = {
+_FEATURE_LABELS_DE: Dict[str, str] = {
     "pitch_range_semitones": "Tonumfang (Halbtöne)",
     "dissonance_ratio": "Dissonanzanteil",
     "chromaticism_ratio": "Chromatikanteil",
@@ -41,26 +42,76 @@ _FEATURE_LABELS: Dict[str, str] = {
     "syncopation_ratio": "Synkopationsanteil",
 }
 
+_FEATURE_LABELS_EN: Dict[str, str] = {
+    "pitch_range_semitones": "Pitch Range (semitones)",
+    "dissonance_ratio": "Dissonance Ratio",
+    "chromaticism_ratio": "Chromaticism Ratio",
+    "non_chord_tone_ratio": "Non-Chord Tone Ratio",
+    "harmonic_density_mean": "Harmonic Density (mean)",
+    "notes_per_beat": "Notes per Beat",
+    "mean_melodic_interval": "Mean Melodic Interval",
+    "melodic_leap_ratio": "Melodic Leap Ratio",
+    "pitch_class_entropy": "Pitch Class Entropy",
+    "rhythmic_pattern_entropy": "Rhythmic Pattern Entropy",
+    "syncopation_ratio": "Syncopation Ratio",
+}
 
-def _humanize_feature_name(name: str) -> str:
+_SOURCE_LABELS_DE: Dict[str, str] = {
+    "harmonic": "Harmonik",
+    "melodic": "Melodik",
+    "rhythmic": "Rhythmik",
+    "significance": "Signifikanz",
+}
+
+_SOURCE_LABELS_EN: Dict[str, str] = {
+    "harmonic": "Harmonic",
+    "melodic": "Melodic",
+    "rhythmic": "Rhythmic",
+    "significance": "Significance",
+}
+
+_PLOT_STRINGS: Dict[str, Dict[str, str]] = {
+    "de": {
+        "anova_xlabel": r"Signifikanz $(-\log_{10}(p))$",
+        "anova_ylabel": "Merkmal",
+        "anova_title": "Top-ANOVA-Merkmale nach Signifikanz",
+    },
+    "en": {
+        "anova_xlabel": r"Significance $(-\log_{10}(p))$",
+        "anova_ylabel": "Feature",
+        "anova_title": "Top ANOVA Features by Significance",
+    },
+}
+
+
+def _get_feature_labels(lang: str) -> Dict[str, str]:
+    return _FEATURE_LABELS_EN if lang == "en" else _FEATURE_LABELS_DE
+
+
+def _get_source_labels(lang: str) -> Dict[str, str]:
+    return _SOURCE_LABELS_EN if lang == "en" else _SOURCE_LABELS_DE
+
+
+def _humanize_feature_name(name: str, lang: str = "de") -> str:
     name = str(name)
-    if name in _FEATURE_LABELS:
-        return _FEATURE_LABELS[name]
+    labels = _get_feature_labels(lang)
+    if name in labels:
+        return labels[name]
 
     # Reasonable fallback for long-tail features:
     # snake_case -> Title Case (keep common abbreviations readable)
     tokens = [token for token in name.replace("_", " ").split() if token]
-    tokens = [token.upper() if token.lower() in {"pc", "pca", "fdr"} else token for token in tokens]
-    return " ".join(token.capitalize() if not token.isupper() else token for token in tokens)
+    tokens = [
+        token.upper() if token.lower() in {"pc", "pca", "fdr"} else token
+        for token in tokens
+    ]
+    return " ".join(
+        token.capitalize() if not token.isupper() else token for token in tokens
+    )
 
 
-def _humanize_source(name: str) -> str:
-    lookup = {
-        "harmonic": "Harmonik",
-        "melodic": "Melodik",
-        "rhythmic": "Rhythmik",
-        "significance": "Signifikanz",
-    }
+def _humanize_source(name: str, lang: str = "de") -> str:
+    lookup = _get_source_labels(lang)
     return lookup.get(str(name).lower(), str(name))
 
 
@@ -105,24 +156,40 @@ def _ordered_pair_labels() -> List[str]:
     return labels
 
 
-def plot_top_anova(anova: pd.DataFrame, figure_dir: Path, top_n: int) -> Path:
+def plot_top_anova(
+    anova: pd.DataFrame, figure_dir: Path, top_n: int, lang: str = "de"
+) -> Path:
     _ensure_columns(anova, ["feature", "source", "p_value"])
     filtered = anova.dropna(subset=["p_value"]).copy()
-    filtered["neg_log_p"] = -np.log10(filtered["p_value"].clip(lower=float(np.finfo(float).tiny)))
+    filtered["neg_log_p"] = -np.log10(
+        filtered["p_value"].clip(lower=float(np.finfo(float).tiny))
+    )
     top = filtered.sort_values("p_value").head(top_n)
     if top.empty:
         raise ValueError("No ANOVA rows available to plot.")
 
     top = top.copy()
-    top["feature_label"] = top["feature"].map(_humanize_feature_name)
-    top["source_label"] = top["source"].map(_humanize_source)
+    top["feature_label"] = top["feature"].map(
+        lambda name: _humanize_feature_name(name, lang=lang)
+    )
+    top["source_label"] = top["source"].map(
+        lambda name: _humanize_source(name, lang=lang)
+    )
 
+    strings = _PLOT_STRINGS.get(lang, _PLOT_STRINGS["de"])
     plt.figure(figsize=(8, max(4, top_n * 0.35)))
     order = top.sort_values("p_value", ascending=True)["feature_label"].tolist()
-    sns.barplot(data=top, y="feature_label", x="neg_log_p", hue="source_label", dodge=False, order=order)
-    plt.xlabel(r"Signifikanz $(-\log_{10}(p))$")
-    plt.ylabel("Merkmal")
-    plt.title("Top-ANOVA-Merkmale nach Signifikanz")
+    sns.barplot(
+        data=top,
+        y="feature_label",
+        x="neg_log_p",
+        hue="source_label",
+        dodge=False,
+        order=order,
+    )
+    plt.xlabel(strings["anova_xlabel"])
+    plt.ylabel(strings["anova_ylabel"])
+    plt.title(strings["anova_title"])
     plt.tight_layout()
     figure_dir.mkdir(parents=True, exist_ok=True)
     output_path = figure_dir / "top_anova_bar.png"
@@ -135,13 +202,17 @@ def aggregate_pair_significance(tukey: pd.DataFrame) -> pd.DataFrame:
     required = ["feature", "group_1", "group_2", "p_adj", "reject", "meandiff"]
     _ensure_columns(tukey, required)
     tukey = tukey.copy()
-    tukey["pair"] = tukey.apply(lambda row: _canonical_pair(str(row["group_1"]), str(row["group_2"])), axis=1)
+    tukey["pair"] = tukey.apply(
+        lambda row: _canonical_pair(str(row["group_1"]), str(row["group_2"])), axis=1
+    )
     tukey["reject"] = tukey["reject"].astype(bool)
 
     subset = tukey[tukey["reject"]]
     if subset.empty:
         return pd.DataFrame()
-    features = subset.groupby(["feature", "pair"])["meandiff"].mean().unstack(fill_value=0)
+    features = (
+        subset.groupby(["feature", "pair"])["meandiff"].mean().unstack(fill_value=0)
+    )
     return features
 
 
@@ -173,7 +244,9 @@ def plot_pair_heatmap(counts: pd.Series, figure_dir: Path) -> Path:
     return output_path
 
 
-def plot_pair_effect_heatmap(effect: pd.Series, figure_dir: Path, name: str, cmap: str, slug: str) -> Path:
+def plot_pair_effect_heatmap(
+    effect: pd.Series, figure_dir: Path, name: str, cmap: str, slug: str
+) -> Path:
     matrix = _pair_matrix(effect)
     plt.figure(figsize=(6, 5))
     sns.heatmap(
@@ -192,7 +265,9 @@ def plot_pair_effect_heatmap(effect: pd.Series, figure_dir: Path, name: str, cma
     return output_path
 
 
-def _apply_exclusions(feature_means: pd.DataFrame, patterns: Sequence[str]) -> pd.DataFrame:
+def _apply_exclusions(
+    feature_means: pd.DataFrame, patterns: Sequence[str]
+) -> pd.DataFrame:
     if not patterns:
         return feature_means
     include_mask = pd.Series(True, index=feature_means.index)
@@ -209,10 +284,14 @@ def plot_feature_pair_matrix(
     symlog: bool = False,
 ) -> Path:
     if feature_means.empty:
-        raise ValueError("No significant Tukey comparisons available for feature heatmap.")
+        raise ValueError(
+            "No significant Tukey comparisons available for feature heatmap."
+        )
     ordered = feature_means.copy()
     available_pairs = ordered.columns.tolist()
-    pair_labels = [label for label in _ordered_pair_labels() if label in available_pairs]
+    pair_labels = [
+        label for label in _ordered_pair_labels() if label in available_pairs
+    ]
     ordered = ordered[pair_labels]
 
     # Select top features based on max absolute mean difference
@@ -275,16 +354,38 @@ def plot_normalized_heatmap(
 
 
 def parse_arguments(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate significance testing visualizations.")
-    parser.add_argument("--anova", type=Path, default=DEFAULT_ANOVA, help="Path to ANOVA summary CSV.")
-    parser.add_argument("--tukey", type=Path, default=DEFAULT_TUKEY, help="Path to Tukey HSD CSV.")
-    parser.add_argument("--figure-dir", type=Path, default=DEFAULT_FIGURE_DIR, help="Directory for output figures.")
-    parser.add_argument("--top-n", type=int, default=DEFAULT_TOP_N, help="Number of top features to visualize (default 15).")
+    parser = argparse.ArgumentParser(
+        description="Generate significance testing visualizations."
+    )
+    parser.add_argument(
+        "--anova", type=Path, default=DEFAULT_ANOVA, help="Path to ANOVA summary CSV."
+    )
+    parser.add_argument(
+        "--tukey", type=Path, default=DEFAULT_TUKEY, help="Path to Tukey HSD CSV."
+    )
+    parser.add_argument(
+        "--figure-dir",
+        type=Path,
+        default=DEFAULT_FIGURE_DIR,
+        help="Directory for output figures.",
+    )
+    parser.add_argument(
+        "--top-n",
+        type=int,
+        default=DEFAULT_TOP_N,
+        help="Number of top features to visualize (default 15).",
+    )
     parser.add_argument(
         "--exclude-pattern",
         action="append",
         default=list(DEFAULT_EXCLUDE),
         help="Substring to exclude from feature names in pair heatmaps (can repeat).",
+    )
+    parser.add_argument(
+        "--lang",
+        choices=["de", "en"],
+        default="de",
+        help="Language for plot labels (default: de).",
     )
     parser.add_argument(
         "--no-symlog",
@@ -311,7 +412,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     figure_dir = args.figure_dir
     outputs: Dict[str, Path] = {}
 
-    outputs["top_anova"] = plot_top_anova(anova_df, figure_dir, args.top_n)
+    outputs["top_anova"] = plot_top_anova(
+        anova_df, figure_dir, args.top_n, lang=args.lang
+    )
 
     feature_means = aggregate_pair_significance(tukey_df)
     filtered = _apply_exclusions(feature_means, args.exclude_pattern or [])
@@ -322,8 +425,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         counts_series = counts_series.reindex(_ordered_pair_labels(), fill_value=0)
         outputs["pair_heatmap"] = plot_pair_heatmap(counts_series, figure_dir)
 
-        mean_diff = filtered.mean(axis=0).reindex(_ordered_pair_labels(), fill_value=0.0)
-        mean_abs = filtered.abs().mean(axis=0).reindex(_ordered_pair_labels(), fill_value=0.0)
+        mean_diff = filtered.mean(axis=0).reindex(
+            _ordered_pair_labels(), fill_value=0.0
+        )
+        mean_abs = (
+            filtered.abs().mean(axis=0).reindex(_ordered_pair_labels(), fill_value=0.0)
+        )
         outputs["pair_heatmap_effect"] = plot_pair_effect_heatmap(
             mean_diff, figure_dir, "Mean Difference", "PuOr", "mean_difference"
         )
