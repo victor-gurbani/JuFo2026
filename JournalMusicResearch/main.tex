@@ -552,7 +552,9 @@ Chopin--Debussy only 4. However, six of the 29 features are raw counts
 (\texttt{note\_count}, \texttt{note\_event\_count}, \texttt{chord\_event\_count},
 \texttt{chord\_quality\_total}, \texttt{roman\_chord\_count},
 \texttt{dissonant\_note\_count}) that reflect piece length rather than stylistic
-properties. Excluding these count-based features reveals that the Bach--Mozart
+properties. Excluding these count-based features (these six features were excluded
+from PCA a priori, as described in \Cref{sec:methods}; the same
+exclusion is applied here for consistency) reveals that the Bach--Mozart
 tie with Debussy--Mozart is an artefact of corpus-scale differences: Bach--Mozart
 retains only 10 of its 16 rejections on density and ratio features, while
 Debussy--Mozart keeps all 16 (\Cref{fig:tukey_heatmap}). The remaining pairs are
@@ -633,6 +635,24 @@ loadings are \texttt{oblique\_motion\_ratio} (0.380),
 (0.260), and \texttt{conjunct\_motion\_ratio} (0.252). The strongest negative
 loading belongs to \texttt{parallel\_motion\_ratio} ($-0.340$), placing
 homophonic and heterophonic writing at opposite ends of this axis.
+
+The fourth and fifth components contribute 8.2\% and 6.6\% of
+variance, respectively, bringing the five-component cumulative total to
+63.0\%. PC4 loads most strongly on \texttt{parallel\_motion\_ratio}
+(0.352), \texttt{voice\_independence\_index} ($-0.291$), and
+\texttt{passing\_tone\_ratio} (0.287), mixing contrapuntal texture with
+ornamental dissonance treatment in a pattern that resists a single
+musicological label. PC5 is dominated by
+\texttt{voice\_independence\_index} (0.561) and
+\texttt{contrary\_motion\_ratio} (0.467), both voice-leading descriptors,
+yet its remaining loadings are diffuse. The diminishing marginal variance
+of these components, the scree-plot ``elbow'' falling between PC3 and
+PC4, and the practical advantage of three-dimensional visualisation
+jointly motivate the retention of three components. The retained 48.2\%
+captures the primary stylistic dimensions (harmonic complexity, temporal
+structure, contrapuntal texture), while the additional components
+contribute incremental refinement without introducing interpretable new
+axes.
 
 \Cref{fig:pca_clouds} projects the 144 works into this three-dimensional
 space, rendering each composer's corpus as a Gaussian iso-surface. Mozart
@@ -764,6 +784,33 @@ stylistic acceleration across all four features, amplifying the reversal
 patterns observed in the aggregate DD analysis. This mode-specific asymmetry
 adds a new dimension to the periodisation of Western art music, suggesting that
 the ``Romantic turn'' was felt more acutely in the minor-key repertoire.
+
+\subsection{Robustness Checks}\label{sec:robustness}
+
+To assess the statistical significance of the DD values reported in
+\Cref{tab:evolution}, a permutation test was conducted. In each of
+10{,}000 iterations, the 144 composer labels were randomly reassigned to
+scores, group means recomputed, and the DD statistic recalculated. The
+proportion of permutations yielding a DD magnitude at least as large as
+the observed value provides an empirical $p$-value under the null
+hypothesis of no era-specific stylistic effect.
+
+The permutation test yields highly significant results for three of the
+four features. Pitch range produces $p < 0.001$ (zero permutations out
+of 10{,}000 exceeded the observed DD of $+25.14$), and dissonance ratio
+likewise yields $p < 0.001$ (zero exceedances). Harmonic density returns
+$p = 0.002$ (16 exceedances out of 10{,}000), confirming that its DD of
+$+0.754$ is unlikely under random label assignment. The permutation test
+thus confirms that the Romantic Reversal in pitch range, dissonance
+ratio, and harmonic density is statistically significant and unlikely to
+arise from arbitrary label assignment. The near-zero DD for rhythmic
+pattern entropy yields a non-significant $p$-value ($p = 0.835$, with
+8{,}345 exceedances), consistent with the observation that rhythmic
+innovation did not accelerate during the Romantic era. This null result
+serves as an internal placebo: a feature whose DD is substantively
+negligible ($-0.101$) correctly fails to reach significance under
+permutation, lending credibility to the significant results for the
+remaining features.
 
 \section{Discussion}\label{sec:discussion}
 
