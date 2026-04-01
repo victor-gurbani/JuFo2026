@@ -221,7 +221,7 @@ summarises contributions and outlines directions for future research.
 \section{Literature Review}\label{sec:litreview}
 
 The computational analysis of musical style rests on software tools capable of
-parsing symbolic representations at scale. \citet{McKay2010} introduced jSymbolic,
+parsing symbolic representations at scale. \citet{McKay2006} introduced jSymbolic,
 a feature extractor for MIDI files that computes over 100 descriptors for genre
 and style classification tasks. The music21 toolkit \citep{Cuthbert2010}, written
 in Python, broadened the analytical scope by providing direct access to MusicXML
@@ -766,7 +766,7 @@ Baroque counterpoint through Classical restraint to Impressionist colour.
 The chronological ordering of the four composer clouds along PC1
 (\Cref{fig:pca_clouds}) confirms that this dimension tracks the
 historically documented expansion of harmonic vocabulary
-\citep{Temperley2007}.
+\citep{White2013}.
 
 PC2 (16.1\% of variance) separates temporal profiles. Its strongest positive
 loadings are \texttt{avg\_note\_duration} (0.367) and
@@ -794,6 +794,23 @@ The fact that each axis maps cleanly onto a recognised analytical category
 validates the feature set summarised in \Cref{tab:features} and confirms
 that the 36 extracted descriptors encode musically meaningful variation
 rather than statistical noise.
+
+\subsection{Comparison with Prior Work}
+
+The present results can be situated against \citeauthor{LinJeng1987}'s
+\citeyearpar{LinJeng1987} early computational study, which analysed a
+partially overlapping composer set (Mozart, Chopin, Debussy, and Webern,
+whereas the present study substitutes Bach for Webern) using a smaller
+feature vocabulary. Lin-Jeng reported that composers could be partially
+discriminated by pitch and interval patterns, but her hand-crafted feature
+set lacked the harmonic and rhythmic dimensions that the present 36-feature
+pipeline provides. The finding that 29 of 36 features reach omnibus
+significance extends Lin-Jeng's observation considerably, demonstrating
+that stylistic separability is not confined to melodic properties but
+pervades harmonic and rhythmic dimensions as well. Furthermore, the
+continuum structure visible in the PCA embedding provides a geometric
+counterpart to her observation that certain composer pairs (especially
+Chopin--Debussy) overlapped in the feature distributions she examined.
 
 \subsection{Chopin as Stylistic Bridge}
 
@@ -823,8 +840,8 @@ features with Debussy and formal features with Mozart.
 
 The musicological literature corroborates this finding. Debussy openly
 acknowledged Chopin's influence on his own harmonic thinking, and scholars
-have documented the stylistic lineage connecting Chopin's late Ballades
-to Debussy's \emph{Pr\'eludes} \citep{DebussyCharacteristics}. The
+have documented the stylistic lineage connecting Chopin's \emph{Pr\'eludes}
+to Debussy's \emph{Pr\'eludes} \citep{Samson1992,DeVoto2003}. The
 elongated shape of Chopin's PCA cloud, noted in \Cref{sec:results},
 mirrors this dual inheritance geometrically: different Chopin works pull
 toward different regions of the feature space depending on whether their
@@ -850,7 +867,7 @@ pipeline. They constitute a finding in their own right. Musical style
 is not a categorical variable; it is a historically continuous
 phenomenon in which each generation inherits, transforms, and
 transmits the practices of its predecessors
-\citep{Meyer1989, LerdahlJackendoff1983}. If the four composer
+\citep{Meyer1989}. If the four composer
 corpora occupied well-separated clusters (silhouette $\approx 1$),
 the implication would be that compositional style changed abruptly
 between eras, with little shared material across periods. The
@@ -874,9 +891,9 @@ islands.
 An analogy to biological taxonomy clarifies the point. Species
 boundaries in high-dimensional morphological space are frequently
 blurred by hybridisation, convergent evolution, and gradual
-speciation \citep{Huron2006}. Ring species, for instance, form
-a continuum in which adjacent populations interbreed freely while
-the terminal populations cannot. The stylistic continuum observed
+speciation. Ring species, for instance, form a continuum in which
+adjacent populations interbreed freely while the terminal populations
+cannot \citep{Irwin2001}. The stylistic continuum observed
 here operates by a similar mechanism: Bach and Mozart share enough
 features to produce overlapping clouds, as do Mozart and Chopin,
 and Chopin and Debussy. Only the most distant pair (Bach and
@@ -886,7 +903,7 @@ space between them. The cluster metrics thus support a ``ring''
 model of stylistic evolution in which adjacency in time predicts
 adjacency in feature space, confirming the musicological consensus
 that Western art music developed through continuous transformation
-rather than punctuated breaks \citep{PearceWiggins2012}.
+rather than punctuated breaks \citep{Meyer1989}.
 
 \subsection{Validation Case Studies}
 
@@ -936,7 +953,7 @@ for \texttt{dissonance\_ratio} and \texttt{rhythmic\_pattern\_entropy}
 push the projection further along the harmonic-complexity axis than most
 Debussy works, mirroring musicological accounts of Ravel's greater
 rhythmic precision and more systematically dissonant harmonic palette
-\citep{DebussyCharacteristics}. The quartet's position beyond the
+\citep{Orenstein1975}. The quartet's position beyond the
 training corpus rather than within it demonstrates that the PCA space
 is not merely descriptive of the four source composers but encodes
 a continuous stylistic gradient capable of situating works that push
@@ -1000,9 +1017,10 @@ composers span only a fraction of the Western canon. All training works
 are scored for solo piano, restricting generalisability to other
 instrumentations. The 36 extracted features capture surface-level
 statistical properties (interval distributions, note densities, chord
-ratios) but do not encode deeper structural relationships such as phrase
-boundaries, sonata-form sections, or thematic development
-\citep{LerdahlJackendoff1983}. The evolutionary model assumes simple
+ratios) but do not encode deeper structural relationships such as
+hierarchical grouping and prolongational structure
+\citep{LerdahlJackendoff1983}, phrase-level formal organisation, or
+thematic development. The evolutionary model assumes simple
 consecutive-era transitions (Baroque $\to$ Classical $\to$ Romantic $\to$
 Impressionist), a periodisation that, while conventional, simplifies
 the overlapping timelines of individual composers and regional schools.
@@ -1026,10 +1044,10 @@ the corpus to include additional composers (Liszt, Brahms, Scriabin),
 additional eras (early Baroque, late Romanticism), and additional genres
 (chamber music, orchestral scores) would test whether the Romantic
 Reversal and mode asymmetry generalise beyond the present sample.
-Incorporating structural features, such as phrase-boundary detection,
+Incorporating structural features, such as hierarchical
+prolongational analysis \citep{KirlinUtgoff2008}, phrase-boundary detection,
 formal-section segmentation, and thematic recurrence analysis, would
-complement the surface statistics with deeper analytical dimensions
-\citep{KirlinUtgoff2008}. Applying the framework to non-Western musical
+complement the surface statistics with deeper analytical dimensions. Applying the framework to non-Western musical
 traditions would probe whether the continuum hypothesis holds in
 repertoires with different tuning systems and formal conventions. A
 finer-grained periodisation, distinguishing early from late Romantic
@@ -1042,7 +1060,7 @@ and more diverse collections of symbolic scores represents a natural
 next step toward a comprehensive computational cartography of musical
 style.
 
-\section*{Disclosure Statement}
+\section*{Disclosure statement}
 The author reports there are no competing interests to declare.
 
 \section*{Funding}
