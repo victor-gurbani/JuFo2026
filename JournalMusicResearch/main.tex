@@ -143,7 +143,7 @@
 \fi
 
 \begin{abstract}
-This study presents a computational framework for quantifying stylistic evolution in Western art music, analysing 144 solo piano compositions by Johann Sebastian Bach, Wolfgang Amadeus Mozart, Fr\'ed\'eric Chopin, and Claude Debussy sourced from the PDMX dataset. A pipeline built on the music21 toolkit extracts 36 features spanning harmonic, melodic, and rhythmic dimensions. One-way ANOVA with Benjamini--Hochberg false discovery rate correction reveals that 29 of 36 features differ significantly across composers ($q < 0.05$). Principal component analysis reduces the feature space to three components explaining 48.2\% of variance, visualising a stylistic continuum rather than discrete clusters. A difference-in-differences model captures the dramatic acceleration of stylistic change during the Romantic era---termed the \emph{Romantic Reversal}---while a novel triple-difference analysis, conditioning on mode, demonstrates that minor-key compositions drove this acceleration more strongly than major-key works. External validation, projecting works by Joe Hisaishi and Maurice Ravel into the embedding space, confirms the framework's generalisability beyond the training corpus.
+This study presents a computational framework for quantifying stylistic evolution in Western art music, analysing 144 solo piano compositions by Johann Sebastian Bach, Wolfgang Amadeus Mozart, Fr\'ed\'eric Chopin, and Claude Debussy sourced from the PDMX dataset. A pipeline built on the music21 toolkit extracts 36 features spanning harmonic, melodic, and rhythmic dimensions. One-way ANOVA with Benjamini--Hochberg false discovery rate correction reveals that 29 of 36 features differ significantly across composers ($q < 0.05$). Principal component analysis reduces the feature space to three components explaining 48.2\% of variance, visualising a stylistic continuum rather than discrete clusters. A difference-in-differences model captures the dramatic acceleration of stylistic change during the Romantic era (termed the \emph{Romantic Reversal}), while a novel triple-difference analysis, conditioning on mode, demonstrates that minor-key compositions drove this acceleration more strongly than major-key works. External validation, projecting works by Joe Hisaishi and Maurice Ravel into the embedding space, confirms the framework's generalisability beyond the training corpus.
 \end{abstract}
 
 \begin{keywords}
@@ -532,11 +532,22 @@ comparisons ($29 \times 6$ composer pairs), of which 62 (35.6\%) rejected the
 null hypothesis of equal means. The rejections were distributed unevenly across
 pairs: Debussy--Mozart and Bach--Mozart each produced 16 significant contrasts,
 Bach--Debussy produced 11, Chopin--Mozart 8, Bach--Chopin 7, and
-Chopin--Debussy only 4. This asymmetry reveals two structural patterns. First,
-Mozart stands out as the most differentiated composer, yielding the highest
-rejection count in every pair involving his corpus. His comparatively narrow
-pitch ranges, lower dissonance ratios, and restrained chromatic vocabulary
-place him at one extreme of the feature space. Second, the low count for
+Chopin--Debussy only 4. However, six of the 29 features are raw counts
+(\texttt{note\_count}, \texttt{note\_event\_count}, \texttt{chord\_event\_count},
+\texttt{chord\_quality\_total}, \texttt{roman\_chord\_count},
+\texttt{dissonant\_note\_count}) that reflect piece length rather than stylistic
+properties. Excluding these count-based features reveals that the Bach--Mozart
+tie with Debussy--Mozart is an artefact of corpus-scale differences: Bach--Mozart
+retains only 10 of its 16 rejections on density and ratio features, while
+Debussy--Mozart keeps all 16 (\Cref{fig:tukey_heatmap}). The remaining pairs are
+less affected (Bach--Debussy drops from 11 to 9, Bach--Chopin from 7 to 6;
+Chopin--Mozart and Chopin--Debussy are unchanged at 8 and 4, respectively).
+
+After this filtering, two structural patterns emerge. First,
+Debussy--Mozart is the most differentiated pair on stylistic grounds,
+driven by Mozart's comparatively narrow pitch ranges, lower dissonance ratios,
+and restrained chromatic vocabulary, which place him at one extreme of the
+feature space. Second, the low count for
 Chopin--Debussy (4 out of 29) suggests considerable stylistic overlap between
 the Romantic and Impressionist corpora, a point revisited in
 \Cref{sec:discussion}.
@@ -544,7 +555,8 @@ the Romantic and Impressionist corpora, a point revisited in
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{../figures/significance/tukey_pair_heatmap.png}
-\caption{Number of significant Tukey HSD contrasts per composer pair. Darker
+\caption{Number of significant Tukey HSD contrasts per composer pair after
+excluding six raw-count features (see text). Darker
 cells indicate more features for which the two composers differ significantly
 ($p_{\mathrm{adj}} < 0.05$).}
 \label{fig:tukey_heatmap}
@@ -552,10 +564,13 @@ cells indicate more features for which the two composers differ significantly
 
 To illustrate the magnitude of these differences, \Cref{fig:box_pitch,fig:box_dissonance}
 present per-composer boxplots for the two highest-ranked features. Pitch range
-expands markedly from Mozart (median $\approx$24 semitones) through Chopin and
-Debussy to Bach, whose contrapuntal textures span the widest registral
-territory. Dissonance ratio follows a different trajectory, rising steadily
-from Bach through Chopin to Debussy, with Mozart clustering at the low end.
+expands chronologically from Mozart (median $\approx$46 semitones) and Bach
+(median $\approx$48 semitones) through the Romantic and Impressionist eras:
+Chopin and Debussy share the widest registral territory (both median
+$\approx$67 semitones), consistent with the increasingly virtuosic demands of
+nineteenth-century piano writing. Dissonance ratio follows a similar
+chronological trajectory, rising steadily from Mozart through Bach and Chopin
+to Debussy, whose Impressionist palette yields the highest dissonance values.
 
 \begin{figure}[ht]
 \centering
@@ -604,15 +619,17 @@ loading belongs to \texttt{parallel\_motion\_ratio} ($-0.340$), placing
 homophonic and heterophonic writing at opposite ends of this axis.
 
 \Cref{fig:pca_clouds} projects the 144 works into this three-dimensional
-space, rendering each composer's corpus as a Gaussian iso-surface. Bach's
-cluster occupies a tight region at the high-PC1, high-PC2 corner, reflecting
-his consistently dense harmonic writing and sustained note values. Mozart forms
-a compact cloud at low PC1 and moderate PC2, consistent with his thinner
-textures and classical-period restraint. Chopin's distribution stretches
-between the Mozart and Debussy regions, its elongated shape mirroring his dual
-inheritance from classical form and Romantic expressiveness. Debussy's cloud is
-the most diffuse, spreading along PC1 and PC3 as his harmonic language varies
-from near-tonal to highly chromatic across different works. The silhouette
+space, rendering each composer's corpus as a Gaussian iso-surface. Mozart
+forms a compact cloud at the lowest PC1 values and the highest PC2 values,
+consistent with his sparser harmonic textures and metrically regular, longer
+note values. Bach's cluster sits at moderate-to-low PC1 and the lowest PC2
+values, reflecting his moderately complex harmonic writing combined with the
+rapid, densely subdivided figuration characteristic of Baroque counterpoint.
+Chopin's distribution stretches between the Bach and Debussy regions, its
+elongated shape mirroring his dual inheritance from Classical form and
+Romantic expressiveness. Debussy's cloud occupies the highest PC1 values,
+spreading along PC1 and PC3 as his harmonic language varies from near-tonal
+to highly chromatic across different works. The silhouette
 score for the three-dimensional embedding is 0.010, confirming that the four
 corpora form a near-continuous manifold rather than discrete clusters, a point
 explored further in \Cref{sec:discussion}.
@@ -623,7 +640,9 @@ explored further in \Cref{sec:discussion}.
 \caption{Three-dimensional PCA embedding of 144 piano works, with Gaussian
 iso-surfaces enclosing each composer's corpus. PC1 (harmonic complexity) runs
 left to right; PC2 (temporal structure) runs bottom to top; PC3 (contrapuntal
-texture) runs front to back.}
+texture) runs front to back. An interactive version of this figure is
+available online at
+\url{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}.}
 \label{fig:pca_clouds}
 \end{figure}
 
@@ -756,9 +775,10 @@ are \texttt{micro\_rhythmic\_density} ($-0.344$) and
 \texttt{notes\_per\_beat} ($-0.274$). Compositions at the positive PC2
 extreme feature long note values with metrically regular accentuation,
 whereas those at the negative extreme are characterised by rapid, densely
-subdivided textures. Bach's cluster sits high on PC2 because of his
-sustained contrapuntal lines, while Debussy's position reflects the
-fleeting, irregular note groupings typical of Impressionist pianism.
+subdivided textures. Mozart's cluster sits highest on PC2, reflecting the
+sustained note values and strong downbeat articulation of Classical-period
+writing, while Bach's position at the lowest PC2 values captures the rapid
+contrapuntal figuration typical of his keyboard works.
 
 PC3 (9.8\% of variance) isolates contrapuntal texture. The dominant positive
 loadings, \texttt{oblique\_motion\_ratio} (0.380) and
@@ -766,7 +786,10 @@ loadings, \texttt{oblique\_motion\_ratio} (0.380) and
 while the strongest negative loading, \texttt{parallel\_motion\_ratio}
 ($-0.340$), reflects homophonic doubling. This axis distinguishes composers
 who favour voice independence from those who prefer parallel motion, a
-contrast especially visible between Bach (high PC3) and Mozart (low PC3).
+contrast especially visible between Debussy and Chopin (high PC3, reflecting
+their independent voice movement and cross-rhythmic textures) and Bach and
+Mozart (low PC3, where contrapuntal voices more frequently move in parallel
+or similar motion).
 The fact that each axis maps cleanly onto a recognised analytical category
 validates the feature set summarised in \Cref{tab:features} and confirms
 that the 36 extracted descriptors encode musically meaningful variation
@@ -789,10 +812,12 @@ tertian chords, and chromatic voice-leading \citep{ChopinTransformations}.
 The Tukey HSD results provide quantitative support for this interpretation.
 Of the six pairwise comparisons, Chopin and Debussy share the fewest
 statistically significant contrasts: only 4 of 29 features reject the null
-hypothesis of equal means. By contrast, the most distant pair, Bach and
-Mozart, shows 16 significant contrasts, and the Debussy--Mozart pair matches
-this count exactly. The Chopin--Mozart pair yields 8 significant contrasts,
-while Bach--Chopin produces 7. This pattern positions Chopin as the
+hypothesis of equal means. When the analysis is restricted to density and
+ratio features (excluding the six raw-count metrics that inflate
+Bach-involving pairs; see \Cref{sec:results}), Debussy--Mozart leads
+with 16 significant contrasts, followed by Bach--Mozart with 10, Bach--Debussy
+with 9, Chopin--Mozart with 8, Bach--Chopin with 6, and Chopin--Debussy
+with only 4. This pattern positions Chopin as the
 composer nearest to both his chronological neighbours, sharing harmonic
 features with Debussy and formal features with Mozart.
 
@@ -892,7 +917,8 @@ historical period.
 (2001), marked by a diamond, projected into the PCA embedding. The piece
 falls between the Chopin and Debussy clouds with a slight bias toward
 Chopin, consistent with its blend of Romantic harmony and Impressionist
-texture.}
+texture. An interactive version is available at
+\url{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}.}
 \label{fig:hisaishi}
 \end{figure}
 
@@ -922,7 +948,9 @@ Impressionist parameters even further.
 \caption{External validation: Ravel's String Quartet in F major (1903),
 marked by a diamond, projected into the PCA embedding. The quartet
 falls within and slightly beyond the Debussy cloud along PC1,
-reflecting Ravel's more extreme harmonic and rhythmic complexity.}
+reflecting Ravel's more extreme harmonic and rhythmic complexity.
+An interactive version is available at
+\url{https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html}.}
 \label{fig:ravel}
 \end{figure}
 
@@ -978,9 +1006,20 @@ boundaries, sonata-form sections, or thematic development
 consecutive-era transitions (Baroque $\to$ Classical $\to$ Romantic $\to$
 Impressionist), a periodisation that, while conventional, simplifies
 the overlapping timelines of individual composers and regional schools.
+The DD and DDD framework, adapted from econometrics, further assumes a
+parallel-trends condition: that, absent stylistic change, the feature
+trajectories of successive eras would have been parallel. This assumption
+cannot be tested directly for historical musical periods and may be
+violated if, for example, changes in instrument construction or
+performance practice affected different eras asymmetrically.
 Finally, the mode split (97 major versus 47 minor works) produces
 unequal group sizes for the DDD analysis, potentially inflating variance
-estimates in the minor-mode subgroup.
+estimates in the minor-mode subgroup. Moreover, the three retained PCA
+components explain only 48.2\% of total variance, meaning that more than
+half of the feature-space structure is projected away in the
+three-dimensional visualisation; additional components or alternative
+dimensionality-reduction techniques (e.g., t-SNE, UMAP) might reveal
+finer-grained stylistic distinctions not captured here.
 
 Future work should address these constraints along several axes. Expanding
 the corpus to include additional composers (Liszt, Brahms, Scriabin),
