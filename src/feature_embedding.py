@@ -1,4 +1,5 @@
 """Generate interactive embeddings of feature tables using dimensionality reduction."""
+
 from __future__ import annotations
 
 import argparse
@@ -118,7 +119,9 @@ def _cache_is_compatible_for_pca(
     return True, "ok"
 
 
-def _load_coords_from_cache(combined: pd.DataFrame, cache_csv: Path) -> Optional[np.ndarray]:
+def _load_coords_from_cache(
+    combined: pd.DataFrame, cache_csv: Path
+) -> Optional[np.ndarray]:
     if combined.empty:
         return None
     if "mxl_path" not in combined.columns:
@@ -155,7 +158,9 @@ def _axis_titles(method: str) -> tuple[str, str, str]:
     return ("dim1", "dim2", "dim3")
 
 
-def _write_plotly_figure(fig: go.Figure, output_path: Path, write_html_also: bool = True) -> None:
+def _write_plotly_figure(
+    fig: go.Figure, output_path: Path, write_html_also: bool = True
+) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     suffix = output_path.suffix.lower()
     fig.update_layout(margin=dict(l=0, r=0, t=26, b=0))
@@ -192,7 +197,9 @@ def _load_features(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def _merge_feature_tables(harm: pd.DataFrame, mel: pd.DataFrame, rhy: pd.DataFrame) -> pd.DataFrame:
+def _merge_feature_tables(
+    harm: pd.DataFrame, mel: pd.DataFrame, rhy: pd.DataFrame
+) -> pd.DataFrame:
     key_cols = ["composer_label", "title", "mxl_path"]
     for df in (harm, mel, rhy):
         if not set(key_cols).issubset(df.columns):
@@ -207,7 +214,9 @@ def _merge_feature_tables(harm: pd.DataFrame, mel: pd.DataFrame, rhy: pd.DataFra
     return combined
 
 
-def _prepare_feature_matrix(df: pd.DataFrame) -> tuple[np.ndarray, List[str], StandardScaler]:
+def _prepare_feature_matrix(
+    df: pd.DataFrame,
+) -> tuple[np.ndarray, List[str], StandardScaler]:
     numeric_cols = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
     numeric_cols = [col for col in numeric_cols if col not in {"mxl_path"}]
     numeric_cols = [col for col in numeric_cols if col not in EXCLUDED_FEATURES]
@@ -278,7 +287,11 @@ def _plot_embedding(
     fig.update_traces(marker=dict(size=6, opacity=0.8))
     fig.update_layout(
         title=title,
-        scene=dict(xaxis_title=axis_titles[0], yaxis_title=axis_titles[1], zaxis_title=axis_titles[2]),
+        scene=dict(
+            xaxis_title=axis_titles[0],
+            yaxis_title=axis_titles[1],
+            zaxis_title=axis_titles[2],
+        ),
     )
     _write_plotly_figure(fig, output_path, write_html_also=write_html_also)
 
@@ -292,7 +305,9 @@ def _plot_embedding_2d(
     write_html_also: bool,
 ) -> None:
     if coords.shape[1] < 2:
-        raise ValueError("Projection returned fewer than two dimensions; cannot create 2D scatter.")
+        raise ValueError(
+            "Projection returned fewer than two dimensions; cannot create 2D scatter."
+        )
     plot_df = df.copy()
     plot_df[["dim1", "dim2"]] = coords[:, :2]
 
@@ -311,7 +326,9 @@ def _plot_embedding_2d(
         title="Feature Embedding (2D)",
     )
     fig.update_traces(marker=dict(size=8, opacity=0.8))
-    fig.update_layout(title=title, xaxis_title=axis_titles[0], yaxis_title=axis_titles[1])
+    fig.update_layout(
+        title=title, xaxis_title=axis_titles[0], yaxis_title=axis_titles[1]
+    )
     _write_plotly_figure(fig, output_path, write_html_also=write_html_also)
 
 
@@ -346,8 +363,7 @@ def _plot_composer_clouds(
     upper = maxs + padding
 
     grid_axes = [
-        np.linspace(lower[idx], upper[idx], CLOUD_GRID_SIZE)
-        for idx in range(3)
+        np.linspace(lower[idx], upper[idx], CLOUD_GRID_SIZE) for idx in range(3)
     ]
     X, Y, Z = np.meshgrid(*grid_axes, indexing="ij")
     grid_points = np.stack([X.ravel(), Y.ravel(), Z.ravel()], axis=1)
@@ -401,7 +417,9 @@ def _plot_composer_clouds(
                 opacity=0.35,
                 caps=dict(x_show=False, y_show=False, z_show=False),
                 showscale=False,
-                lighting=dict(ambient=0.45, diffuse=0.6, specular=0.25, roughness=0.4, fresnel=0.1),
+                lighting=dict(
+                    ambient=0.45, diffuse=0.6, specular=0.25, roughness=0.4, fresnel=0.1
+                ),
                 lightposition=dict(x=80, y=100, z=60),
                 name=str(composer),
                 hovertemplate=f"Composer: {composer}<extra></extra>",
@@ -410,7 +428,11 @@ def _plot_composer_clouds(
 
     fig.update_layout(
         title=title,
-        scene=dict(xaxis_title=axis_titles[0], yaxis_title=axis_titles[1], zaxis_title=axis_titles[2]),
+        scene=dict(
+            xaxis_title=axis_titles[0],
+            yaxis_title=axis_titles[1],
+            zaxis_title=axis_titles[2],
+        ),
         legend=dict(itemsizing="constant"),
     )
     _write_plotly_figure(fig, output_path, write_html_also=write_html_also)
@@ -425,7 +447,9 @@ def _plot_composer_clouds_2d(
     write_html_also: bool,
 ) -> None:
     if coords.shape[1] < 2:
-        raise ValueError("Projection returned fewer than two dimensions; cannot create 2D clouds.")
+        raise ValueError(
+            "Projection returned fewer than two dimensions; cannot create 2D clouds."
+        )
     coords_2d = coords[:, :2]
     mins = coords_2d.min(axis=0)
     maxs = coords_2d.max(axis=0)
@@ -434,8 +458,7 @@ def _plot_composer_clouds_2d(
     upper = maxs + padding
 
     grid_axes = [
-        np.linspace(lower[idx], upper[idx], CLOUD_GRID_SIZE)
-        for idx in range(2)
+        np.linspace(lower[idx], upper[idx], CLOUD_GRID_SIZE) for idx in range(2)
     ]
     X, Y = np.meshgrid(*grid_axes, indexing="xy")
     grid_points = np.stack([X.ravel(), Y.ravel()], axis=1)
@@ -485,10 +508,27 @@ def _plot_composer_clouds_2d(
 
 
 def parse_arguments() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Create interactive embeddings of composer features.")
-    parser.add_argument("--harmonic", type=Path, default=DEFAULT_HARMONIC, help="Path to harmonic features CSV.")
-    parser.add_argument("--melodic", type=Path, default=DEFAULT_MELODIC, help="Path to melodic features CSV.")
-    parser.add_argument("--rhythmic", type=Path, default=DEFAULT_RHYTHMIC, help="Path to rhythmic features CSV.")
+    parser = argparse.ArgumentParser(
+        description="Create interactive embeddings of composer features."
+    )
+    parser.add_argument(
+        "--harmonic",
+        type=Path,
+        default=DEFAULT_HARMONIC,
+        help="Path to harmonic features CSV.",
+    )
+    parser.add_argument(
+        "--melodic",
+        type=Path,
+        default=DEFAULT_MELODIC,
+        help="Path to melodic features CSV.",
+    )
+    parser.add_argument(
+        "--rhythmic",
+        type=Path,
+        default=DEFAULT_RHYTHMIC,
+        help="Path to rhythmic features CSV.",
+    )
     parser.add_argument(
         "--method",
         choices=["pca", "tsne"],
@@ -543,7 +583,9 @@ def parse_arguments() -> argparse.Namespace:
             "Values >0 encourage pieces from the same composer to cluster together."
         ),
     )
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for projection algorithms.")
+    parser.add_argument(
+        "--seed", type=int, default=42, help="Random seed for projection algorithms."
+    )
     parser.add_argument(
         "--output",
         type=Path,
@@ -616,12 +658,16 @@ def main() -> int:
                 try:
                     cached_meta = _load_cache_meta(args.embedding_cache)
                 except Exception as e:
-        print(f"Failed to write json: {e}")
+                    print(f"Failed to write json: {e}")
                     cached_meta = None
             else:
-                print(f"[info] Cache is compatible but did not contain all rows; refitting PCA.")
+                print(
+                    f"[info] Cache is compatible but did not contain all rows; refitting PCA."
+                )
         else:
-            print(f"[info] Embedding cache not used ({reason}); computing from scratch.")
+            print(
+                f"[info] Embedding cache not used ({reason}); computing from scratch."
+            )
 
     if not used_cache:
         matrix, feature_cols, scaler = _prepare_feature_matrix(combined)
@@ -678,20 +724,29 @@ def main() -> int:
     cache_note = " (used embedding cache)" if used_cache else ""
     feature_count_note = "?"
     try:
-        numeric_cols = [col for col in combined.columns if pd.api.types.is_numeric_dtype(combined[col])]
+        numeric_cols = [
+            col
+            for col in combined.columns
+            if pd.api.types.is_numeric_dtype(combined[col])
+        ]
         numeric_cols = [col for col in numeric_cols if col not in {"mxl_path"}]
         numeric_cols = [col for col in numeric_cols if col not in EXCLUDED_FEATURES]
         feature_count_note = str(len(numeric_cols))
     except Exception as e:
         print(f"Failed to write json: {e}")
         pass
-    print(f"Embedding generated for {len(combined)} pieces using {feature_count_note} features -> {args.output}{cache_note}")
+    print(
+        f"Embedding generated for {len(combined)} pieces using {feature_count_note} features -> {args.output}{cache_note}"
+    )
 
     if args.method == "pca":
         if used_cache and cached_meta is not None:
             try:
                 pca = cached_meta.get("pca")
-                explained = np.array(pca.get("explained_variance_ratio", []), dtype=float) * 100.0  # type: ignore[union-attr]
+                explained = (
+                    np.array(pca.get("explained_variance_ratio", []), dtype=float)
+                    * 100.0
+                )  # type: ignore[union-attr]
                 if explained.size >= 3:
                     print(
                         "Explained variance (components 1-3): "
@@ -700,7 +755,9 @@ def main() -> int:
                 if args.loadings_csv is not None:
                     feature_cols = list(pca.get("feature_columns") or [])  # type: ignore[union-attr]
                     components = np.array(pca.get("pca_components", []), dtype=float)  # type: ignore[union-attr]
-                    if components.shape[0] == 3 and components.shape[1] == len(feature_cols):
+                    if components.shape[0] == 3 and components.shape[1] == len(
+                        feature_cols
+                    ):
                         loadings = pd.DataFrame(
                             components.T,
                             index=feature_cols,
@@ -711,7 +768,7 @@ def main() -> int:
                         loadings.to_csv(loadings_path)
                         print(f"Saved PCA loadings to {loadings_path}")
             except Exception as e:
-        print(f"Failed to write json: {e}")
+                print(f"Failed to write json: {e}")
                 pass
         elif pca_model is not None:
             explained = pca_model.explained_variance_ratio_ * 100.0
@@ -731,7 +788,9 @@ def main() -> int:
                 loadings.to_csv(loadings_path)
                 print(f"Saved PCA loadings to {loadings_path}")
     elif args.method == "tsne":
-        print("t-SNE axes are non-linear embeddings; absolute directions are not individually interpretable.")
+        print(
+            "t-SNE axes are non-linear embeddings; absolute directions are not individually interpretable."
+        )
     if args.clouds_output is not None:
         _plot_composer_clouds(
             combined,

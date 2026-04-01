@@ -143,7 +143,7 @@
 \fi
 
 \begin{abstract}
-This study presents a computational framework for quantifying stylistic evolution in Western art music, analysing 144 solo piano compositions by Johann Sebastian Bach, Wolfgang Amadeus Mozart, Fr\'ed\'eric Chopin, and Claude Debussy sourced from the PDMX dataset. A pipeline built on the music21 toolkit extracts 36 features spanning harmonic, melodic, and rhythmic dimensions. One-way ANOVA with Benjamini--Hochberg false discovery rate correction reveals that 29 of 36 features differ significantly across composers ($q < 0.05$). Principal component analysis reduces the feature space to three components explaining 48.2\% of variance, visualising a stylistic continuum rather than discrete clusters. A difference-in-differences model captures the dramatic acceleration of stylistic change during the Romantic era (termed the \emph{Romantic Reversal}), while a novel triple-difference analysis, conditioning on mode, demonstrates that minor-key compositions drove this acceleration more strongly than major-key works. External validation, projecting works by Joe Hisaishi and Maurice Ravel into the embedding space, confirms the framework's generalisability beyond the training corpus.
+This study presents a computational framework for quantifying stylistic evolution in Western art music, analysing 144 solo piano compositions by Johann Sebastian Bach, Wolfgang Amadeus Mozart, Fr\'ed\'eric Chopin, and Claude Debussy sourced from the PDMX dataset. A pipeline built on the music21 toolkit extracts 36 features spanning harmonic, melodic, and rhythmic dimensions. One-way ANOVA with Benjamini--Hochberg false discovery rate (BH-FDR) correction reveals that 29 of 36 features differ significantly across composers ($q < 0.05$). Principal component analysis reduces the feature space to three components explaining 48.2\% of variance, visualising a stylistic continuum rather than discrete clusters. A difference-in-differences model captures the dramatic acceleration of stylistic change during the Romantic era (termed the \emph{Romantic Reversal}), while a novel triple-difference analysis, conditioning on mode, demonstrates that minor-key compositions drove this acceleration more strongly than major-key works. External validation, projecting works by Joe Hisaishi and Maurice Ravel into the embedding space, confirms the framework's generalisability beyond the training corpus.
 \end{abstract}
 
 \begin{keywords}
@@ -188,7 +188,7 @@ valuable for benchmarking, leaves the underlying dynamics of stylistic change la
 unexamined. In particular, three analytical dimensions remain underexplored when
 considered together: (a)~comprehensive, interpretable feature extraction spanning
 harmonic, melodic, and rhythmic domains; (b)~static significance testing through omnibus
-ANOVA with false discovery rate correction and dimensionality reduction via principal
+ANOVA with BH-FDR correction and dimensionality reduction via principal
 component analysis (PCA); and (c)~dynamic evolutionary modelling that captures not
 merely \emph{whether} styles differ, but \emph{how} and \emph{when} the rate of
 stylistic change accelerates or reverses. The temporal dimension of musical
@@ -508,7 +508,7 @@ labels.
 \subsubsection{ANOVA and Post-Hoc Findings}
 
 Of the 36 features submitted to omnibus ANOVA, 29 reached significance after
-Benjamini--Hochberg FDR correction ($q < 0.05$), confirming that the four
+BH-FDR correction ($q < 0.05$), confirming that the four
 composers differ on a broad majority of harmonic, melodic, and rhythmic
 dimensions. The seven non-significant features were
 \texttt{deceptive\_cadence\_ratio}, \texttt{parallel\_motion\_ratio},
