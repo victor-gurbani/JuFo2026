@@ -160,8 +160,7 @@ computational musicology; stylistic analysis; principal component analysis; diff
 Can musical style be quantified computationally? Western art music evolved through
 distinct stylistic periods, each characterised by identifiable harmonic, melodic, and
 rhythmic conventions. The contrapuntal rigour of the Baroque, the homophonic clarity of
-the Classical era, the expressive chromaticism of the Romantic period, and the colouristic
-experimentation of Impressionism form a rich trajectory of aesthetic transformation.
+the Classical era, the expressive chromaticism of the Romantic period, and the timbral and harmonic innovations of Impressionism form a rich trajectory of aesthetic transformation.
 This study examines four composers whose works epitomise these successive eras:
 Johann Sebastian Bach (Baroque), Wolfgang Amadeus Mozart (Classical),
 Fr\'ed\'eric Chopin (Romantic), and Claude Debussy (Impressionist). By extracting
@@ -183,7 +182,7 @@ rules applied to manually encoded DARMS data, yet its small sample size and limi
 tooling constrained both scope and generalisability.
 
 Despite this growing body of work, a significant gap persists. The majority of
-computational studies frame the problem as one of composer classification, treating
+computational studies frame the problem as one of composer classification \citep{Herremans2015}, treating
 predictive accuracy as the primary measure of success. Such an orientation, while
 valuable for benchmarking, leaves the underlying dynamics of stylistic change largely
 unexamined. In particular, three analytical dimensions remain underexplored when
@@ -194,7 +193,7 @@ component analysis (PCA); and (c)~dynamic evolutionary modelling that captures n
 merely \emph{whether} styles differ, but \emph{how} and \emph{when} the rate of
 stylistic change accelerates or reverses. The temporal dimension of musical
 evolution, specifically the velocity and direction of parametric shifts across
-centuries, has received surprisingly little quantitative attention.
+centuries, has received comparatively less quantitative attention than static classification tasks.
 
 This study makes four principal contributions to the field. First, it introduces a
 36-feature extraction pipeline spanning harmonic, melodic, and rhythmic dimensions,
@@ -298,12 +297,19 @@ art music: Johann Sebastian Bach (Baroque), Wolfgang Amadeus Mozart (Classical),
 Fr\'ed\'eric Chopin (Romantic), and Claude Debussy (Impressionist). To prevent
 class imbalance from distorting downstream statistics, the corpus was clipped to
 the smallest number of qualifying works per composer, yielding 36 works each and
-144 scores in total. The resulting corpus spans 21,344 measures and 71,585
+144 scores in total, a sample size consistent with established evaluation norms in empirical music research \citep{Urbano2016}. The resulting corpus spans 21,344 measures and 71,585
 quarter-note durations (approximately 13.3 hours at a reference tempo of
-90~BPM). Sensitivity analyses conducted with relaxed filter thresholds confirmed
+90~BPM). Preliminary checks with relaxed filter thresholds suggested
 that loosening the quality or licence constraints increased corpus size at the
 cost of introducing scoring artefacts and composer-level bias, validating the
 conservative filtering strategy adopted here.
+
+Beethoven's oeuvre spans and actively drives the transition from the Classical to
+the Romantic stylistic paradigm. Including his works would confound the distinct
+pre- and post-shift states required by the differencing framework adopted in this
+study. The four selected composers instead represent prototypical exemplars of
+their respective periods, maximising construct validity for the between-era
+comparisons that follow.
 
 \subsection{Feature Extraction}
 
@@ -359,8 +365,9 @@ contrary and parallel motion.
 Nine rhythmic features capture temporal organisation at multiple structural
 levels. Duration statistics (\texttt{avg\_note\_duration},
 \texttt{std\_note\_duration}) describe the central tendency and variability of
-note lengths; a high standard deviation signals rubato-like alternation between
-sustained sonorities and rapid figuration. Metrical features include
+note lengths; a high standard deviation signals alternation between
+sustained sonorities and rapid figuration, indicating greater notational diversity
+in rhythmic values. Metrical features include
 \texttt{notes\_per\_beat}, \texttt{downbeat\_emphasis\_ratio}, and
 \texttt{syncopation\_ratio}, the last of which detects off-beat events tied
 across bar lines. Pattern-level complexity is measured by
@@ -417,7 +424,7 @@ Debussy vs.\ Mozart on \texttt{dissonance\_ratio}).
 
 Prior to dimensionality reduction, all features were standardised to zero mean
 and unit variance using a \texttt{StandardScaler}. Six count-based features were
-excluded from the PCA input matrix to prevent absolute composition length from
+excluded from the PCA input matrix a priori to prevent absolute composition length from
 dominating the principal axes: \texttt{note\_count},
 \texttt{note\_event\_count}, \texttt{chord\_event\_count},
 \texttt{chord\_quality\_total}, \texttt{roman\_chord\_count}, and
@@ -443,9 +450,13 @@ difference in group means for a given feature:
 \begin{equation}\label{eq:velocity}
   v_{\text{epoch}} = \bar{x}_{\text{later}} - \bar{x}_{\text{earlier}}
 \end{equation}
-Three transitions are considered: Baroque to Classical ($v_{\text{classical}}$),
-Classical to Romantic ($v_{\text{romantic}}$), and Romantic to Impressionist
-($v_{\text{impressionist}}$). A positive $v$ indicates an increase in the mean
+where $\bar{x}_{\text{later}}$ and $\bar{x}_{\text{earlier}}$ denote the group
+means of the later and earlier composers, respectively. Three transitions are
+considered: Baroque to Classical ($v_{\text{classical}} = \bar{x}_{\text{Mozart}}
+- \bar{x}_{\text{Bach}}$), Classical to Romantic ($v_{\text{romantic}} =
+\bar{x}_{\text{Chopin}} - \bar{x}_{\text{Mozart}}$), and Romantic to
+Impressionist ($v_{\text{impressionist}} = \bar{x}_{\text{Debussy}} -
+\bar{x}_{\text{Chopin}}$). A positive $v$ indicates an increase in the mean
 feature value across the boundary; a negative $v$ indicates a decrease. These
 coefficients convert qualitative musicological narratives (``Chopin expanded the
 harmonic palette'') into signed, comparable magnitudes.
@@ -483,7 +494,12 @@ DDD framework draws on the difference-in-differences methodology widely
 employed in econometrics to disentangle treatment effects from confounding
 trends. Applied here, it reveals whether the key modality modulated the pace of
 stylistic change during the Romantic transition, an analytical dimension that
-purely synchronic methods cannot address.
+purely synchronic methods cannot address. As with any differencing framework
+applied to historical data, the parallel-trends condition cannot be tested
+directly. However, a permutation-based falsification test
+(\Cref{sec:robustness}) provides empirical support by demonstrating that the
+observed DD magnitudes are unlikely to arise from chance assignment of composer
+labels.
 
 \section{Results}\label{sec:results}
 
