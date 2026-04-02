@@ -122,6 +122,13 @@
 
 \newcommand{\linkurl}[1]{\href{#1}{\textcolor{blue}{\underline{\small\nolinkurl{#1}}}}}
 
+% Force bibliography DOIs to render as clickable hyperlinks.
+% apacite's \doi command defaults to plain \Url text; this override
+% fires after apacite's \AtBeginDocument \providecommand.
+\AtBeginDocument{%
+  \renewcommand{\doi}[1]{\href{https://doi.org/#1}{#1}}%
+}
+
 % ==========================================
 % DOCUMENT START
 % ==========================================
