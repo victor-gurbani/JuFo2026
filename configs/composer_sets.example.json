@@ -46,12 +46,36 @@
     "jazz_classic": {
       "description": "Canonical jazz/early-jazz-adjacent composers likely to appear as sheet music.",
       "composer_aliases": {
-        "George Gershwin": ["\\bgeorge\\s+gershwin\\b", "\\bgershwin\\s+george\\b", "\\bgershwin\\b"],
-        "Duke Ellington": ["\\bduke\\s+ellington\\b", "\\bellington\\s+duke\\b", "\\bellington\\b"],
-        "Scott Joplin": ["\\bscott\\s+joplin\\b", "\\bjoplin\\s+scott\\b", "\\bjoplin\\b"],
-        "Thelonious Monk": ["\\bthelonious\\s+monk\\b", "\\bmonk\\s+thelonious\\b", "\\bmonk\\b"],
-        "Bill Evans": ["\\bbill\\s+evans\\b", "\\bevans\\s+bill\\b", "\\bevans\\b"],
-        "Oscar Peterson": ["\\boscar\\s+peterson\\b", "\\bpeterson\\s+oscar\\b", "\\bpeterson\\b"]
+        "George Gershwin": [
+          "\\bgeorge\\s+gershwin\\b",
+          "\\bgershwin\\s+george\\b",
+          "\\bgershwin\\b"
+        ],
+        "Duke Ellington": [
+          "\\bduke\\s+ellington\\b",
+          "\\bellington\\s+duke\\b",
+          "\\bellington\\b"
+        ],
+        "Scott Joplin": [
+          "\\bscott\\s+joplin\\b",
+          "\\bjoplin\\s+scott\\b",
+          "\\bjoplin\\b"
+        ],
+        "Thelonious Monk": [
+          "\\bthelonious\\s+monk\\b",
+          "\\bmonk\\s+thelonious\\b",
+          "\\bmonk\\b"
+        ],
+        "Bill Evans": [
+          "\\bbill\\s+evans\\b",
+          "\\bevans\\s+bill\\b",
+          "\\bevans\\b"
+        ],
+        "Oscar Peterson": [
+          "\\boscar\\s+peterson\\b",
+          "\\bpeterson\\s+oscar\\b",
+          "\\bpeterson\\b"
+        ]
       },
       "exclude_title": [
         "tutorial|lesson|how\\s+to"
@@ -60,13 +84,41 @@
     "spanish_nationalist": {
       "description": "Spanish/Spanish-adjacent classical repertoire; great for 'new subset axes' comparisons.",
       "composer_aliases": {
-        "Albéniz": ["\\bisaac\\s+alb[eé]niz\\b", "\\balb[eé]niz\\s+isaac\\b", "\\balb[eé]niz\\b", "\\balbeniz\\b"],
-        "Granados": ["\\benrique\\s+granados\\b", "\\bgranados\\s+enrique\\b", "\\bgranados\\b"],
-        "Manuel de Falla": ["\\bmanuel\\s+de\\s+falla\\b", "\\bfalla\\s+manuel\\b", "\\bde\\s+falla\\b", "\\bfalla\\b"],
-        "Turina": ["\\bjoaquin\\s+turina\\b", "\\bturina\\s+joaquin\\b", "\\bturina\\b"],
-        "Mompou": ["\\bfederico\\s+mompou\\b", "\\bmompou\\s+federico\\b", "\\bmompou\\b"],
-        "Antonio Soler": ["\\bantonio\\s+soler\\b", "\\bsoler\\b"],
-        "Domenico Scarlatti": ["\\bdomenico\\s+scarlatti\\b", "\\bscarlatti\\b"]
+        "Albéniz": [
+          "\\bisaac\\s+alb[eé]niz\\b",
+          "\\balb[eé]niz\\s+isaac\\b",
+          "\\balb[eé]niz\\b",
+          "\\balbeniz\\b"
+        ],
+        "Granados": [
+          "\\benrique\\s+granados\\b",
+          "\\bgranados\\s+enrique\\b",
+          "\\bgranados\\b"
+        ],
+        "Manuel de Falla": [
+          "\\bmanuel\\s+de\\s+falla\\b",
+          "\\bfalla\\s+manuel\\b",
+          "\\bde\\s+falla\\b",
+          "\\bfalla\\b"
+        ],
+        "Turina": [
+          "\\bjoaquin\\s+turina\\b",
+          "\\bturina\\s+joaquin\\b",
+          "\\bturina\\b"
+        ],
+        "Mompou": [
+          "\\bfederico\\s+mompou\\b",
+          "\\bmompou\\s+federico\\b",
+          "\\bmompou\\b"
+        ],
+        "Antonio Soler": [
+          "\\bantonio\\s+soler\\b",
+          "\\bsoler\\b"
+        ],
+        "Domenico Scarlatti": [
+          "\\bdomenico\\s+scarlatti\\b",
+          "\\bscarlatti\\b"
+        ]
       },
       "exclude_title": [
         "tutorial|lesson|how\\s+to"
@@ -75,12 +127,39 @@
     "french_impressionist_expanded": {
       "description": "An expanded Debussy-centric set to compare canonical vs refit axes inside one stylistic neighborhood.",
       "composer_aliases": {
-        "Debussy": ["\\bclaude\\s+debussy\\b", "\\bdebussy\\s+claude\\b", "\\bc\\s+a\\s+debussy\\b", "\\bdebussy\\b"],
-        "Ravel": ["\\bmaurice\\s+ravel\\b", "\\bravel\\s+maurice\\b", "\\bravel\\b"],
-        "Satie": ["\\berik\\s+satie\\b", "\\bsatie\\s+erik\\b", "\\bsatie\\b"],
-        "Fauré": ["\\bgabriel\\s+faure\\b", "\\bfaure\\s+gabriel\\b", "\\bfaur[eé]\\b", "\\bfaure\\b"],
-        "Saint-Saëns": ["\\bsaint\\s*saens\\b", "\\bsaens\\s+saint\\b", "\\bcamille\\s+saint\\s*saens\\b", "\\bsaint\\s*saens\\s+camille\\b"],
-        "César Franck": ["\\bcesar\\s+franck\\b", "\\bfranck\\s+cesar\\b", "\\bfranck\\b"]
+        "Debussy": [
+          "\\bclaude\\s+debussy\\b",
+          "\\bdebussy\\s+claude\\b",
+          "\\bc\\s+a\\s+debussy\\b",
+          "\\bdebussy\\b"
+        ],
+        "Ravel": [
+          "\\bmaurice\\s+ravel\\b",
+          "\\bravel\\s+maurice\\b",
+          "\\bravel\\b"
+        ],
+        "Satie": [
+          "\\berik\\s+satie\\b",
+          "\\bsatie\\s+erik\\b",
+          "\\bsatie\\b"
+        ],
+        "Fauré": [
+          "\\bgabriel\\s+faure\\b",
+          "\\bfaure\\s+gabriel\\b",
+          "\\bfaur[eé]\\b",
+          "\\bfaure\\b"
+        ],
+        "Saint-Saëns": [
+          "\\bsaint\\s*saens\\b",
+          "\\bsaens\\s+saint\\b",
+          "\\bcamille\\s+saint\\s*saens\\b",
+          "\\bsaint\\s*saens\\s+camille\\b"
+        ],
+        "César Franck": [
+          "\\bcesar\\s+franck\\b",
+          "\\bfranck\\s+cesar\\b",
+          "\\bfranck\\b"
+        ]
       },
       "exclude_title": [
         "tutorial|lesson|how\\s+to"
@@ -89,14 +168,49 @@
     "romantic_piano_big": {
       "description": "Large romantic/virtuosic piano set; useful for checking whether canonical axes stay meaningful.",
       "composer_aliases": {
-        "Chopin": ["\\bfrederic\\s+chopin\\b", "\\bchopin\\s+frederic\\b", "\\bfr[eé]d[eé]ric\\s+chopin\\b", "\\bchopin\\b"],
-        "Liszt": ["\\bfranz\\s+liszt\\b", "\\bliszt\\s+franz\\b", "\\bliszt\\b"],
-        "Brahms": ["\\bjohannes\\s+brahms\\b", "\\bbrahms\\s+johannes\\b", "\\bbrahms\\b"],
-        "Schumann": ["\\bschumann\\b"],
-        "Grieg": ["\\bedvard\\s+grieg\\b", "\\bgrieg\\s+edvard\\b", "\\bgrieg\\b"],
-        "Mendelssohn": ["\\bfelix\\s+mendelssohn\\b", "\\bmendelssohn\\s+felix\\b", "\\bmendelssohn\\s*bartholdy\\b", "\\bmendelssohn\\b"],
-        "Tchaikovsky": ["\\bpiotr\\s+ilyich\\s+tchaikovsky\\b", "\\btchaikovsky\\s+piotr\\b", "\\btchaikovsky\\b", "\\bchaikovsky\\b"],
-        "Rachmaninoff": ["\\bsergei\\s+rachmaninoff\\b", "\\brachmaninoff\\s+sergei\\b", "\\brakhmaninov\\b", "\\brachmaninoff\\b", "\\brachmaninov\\b"]
+        "Chopin": [
+          "\\bfrederic\\s+chopin\\b",
+          "\\bchopin\\s+frederic\\b",
+          "\\bfr[eé]d[eé]ric\\s+chopin\\b",
+          "\\bchopin\\b"
+        ],
+        "Liszt": [
+          "\\bfranz\\s+liszt\\b",
+          "\\bliszt\\s+franz\\b",
+          "\\bliszt\\b"
+        ],
+        "Brahms": [
+          "\\bjohannes\\s+brahms\\b",
+          "\\bbrahms\\s+johannes\\b",
+          "\\bbrahms\\b"
+        ],
+        "Schumann": [
+          "\\bschumann\\b"
+        ],
+        "Grieg": [
+          "\\bedvard\\s+grieg\\b",
+          "\\bgrieg\\s+edvard\\b",
+          "\\bgrieg\\b"
+        ],
+        "Mendelssohn": [
+          "\\bfelix\\s+mendelssohn\\b",
+          "\\bmendelssohn\\s+felix\\b",
+          "\\bmendelssohn\\s*bartholdy\\b",
+          "\\bmendelssohn\\b"
+        ],
+        "Tchaikovsky": [
+          "\\bpiotr\\s+ilyich\\s+tchaikovsky\\b",
+          "\\btchaikovsky\\s+piotr\\b",
+          "\\btchaikovsky\\b",
+          "\\bchaikovsky\\b"
+        ],
+        "Rachmaninoff": [
+          "\\bsergei\\s+rachmaninoff\\b",
+          "\\brachmaninoff\\s+sergei\\b",
+          "\\brakhmaninov\\b",
+          "\\brachmaninoff\\b",
+          "\\brachmaninov\\b"
+        ]
       },
       "exclude_title": [
         "tutorial|lesson|how\\s+to"
@@ -105,10 +219,24 @@
     "anime_film_piano": {
       "description": "Film/anime piano composers; great for modern-vs-canonical comparisons.",
       "composer_aliases": {
-        "Joe Hisaishi": ["\\bjoe\\s+hisaishi\\b", "\\bhisaishi\\s+joe\\b", "\\bhisaishi\\b"],
-        "Yiruma": ["\\byiruma\\b"],
-        "Ludovico Einaudi": ["\\bludovico\\s+einaudi\\b", "\\beinaudi\\s+ludovico\\b", "\\beinaudi\\b"],
-        "Ryuichi Sakamoto": ["\\bryuichi\\s+sakamoto\\b", "\\bsakamoto\\s+ryuichi\\b", "\\bsakamoto\\b"]
+        "Joe Hisaishi": [
+          "\\bjoe\\s+hisaishi\\b",
+          "\\bhisaishi\\s+joe\\b",
+          "\\bhisaishi\\b"
+        ],
+        "Yiruma": [
+          "\\byiruma\\b"
+        ],
+        "Ludovico Einaudi": [
+          "\\bludovico\\s+einaudi\\b",
+          "\\beinaudi\\s+ludovico\\b",
+          "\\beinaudi\\b"
+        ],
+        "Ryuichi Sakamoto": [
+          "\\bryuichi\\s+sakamoto\\b",
+          "\\bsakamoto\\s+ryuichi\\b",
+          "\\bsakamoto\\b"
+        ]
       },
       "exclude_title": [
         "tutorial|lesson|how\\s+to"
@@ -117,11 +245,31 @@
     "video_game_music": {
       "description": "Video-game composers/arrangers (often appear in PDMX as piano arrangements).",
       "composer_aliases": {
-        "Koji Kondo": ["\\bkoji\\s+kondo\\b", "\\bkondo\\s+koji\\b", "\\bkondo\\b"],
-        "Nobuo Uematsu": ["\\bnobuo\\s+uematsu\\b", "\\buematsu\\s+nobuo\\b", "\\buematsu\\b"],
-        "Yoko Shimomura": ["\\byoko\\s+shimomura\\b", "\\bshimomura\\s+yoko\\b", "\\bshimomura\\b"],
-        "Jeremy Soule": ["\\bjeremy\\s+soule\\b", "\\bsoule\\s+jeremy\\b", "\\bsoule\\b"],
-        "Michiru Yamane": ["\\bmichiru\\s+yamane\\b", "\\byamane\\s+michiru\\b", "\\byamane\\b"]
+        "Koji Kondo": [
+          "\\bkoji\\s+kondo\\b",
+          "\\bkondo\\s+koji\\b",
+          "\\bkondo\\b"
+        ],
+        "Nobuo Uematsu": [
+          "\\bnobuo\\s+uematsu\\b",
+          "\\buematsu\\s+nobuo\\b",
+          "\\buematsu\\b"
+        ],
+        "Yoko Shimomura": [
+          "\\byoko\\s+shimomura\\b",
+          "\\bshimomura\\s+yoko\\b",
+          "\\bshimomura\\b"
+        ],
+        "Jeremy Soule": [
+          "\\bjeremy\\s+soule\\b",
+          "\\bsoule\\s+jeremy\\b",
+          "\\bsoule\\b"
+        ],
+        "Michiru Yamane": [
+          "\\bmichiru\\s+yamane\\b",
+          "\\byamane\\s+michiru\\b",
+          "\\byamane\\b"
+        ]
       },
       "exclude_title": [
         "tutorial|lesson|how\\s+to"
@@ -130,12 +278,36 @@
     "modern_minimalist": {
       "description": "Contemporary minimalist / neo-classical piano (good for 'modern vs canonical' comparisons).",
       "composer_aliases": {
-        "Philip Glass": ["\\bphilip\\s+glass\\b", "\\bglass\\s+philip\\b", "\\bglass\\b"],
-        "Max Richter": ["\\bmax\\s+richter\\b", "\\brichter\\s+max\\b", "\\brichter\\b"],
-        "Yann Tiersen": ["\\byann\\s+tiersen\\b", "\\btiersen\\s+yann\\b", "\\btiersen\\b"],
-        "Nils Frahm": ["\\bnils\\s+frahm\\b", "\\bfrahm\\s+nils\\b", "\\bfrahm\\b"],
-        "Ólafur Arnalds": ["\\bolafur\\s+arnalds\\b", "\\barnalds\\s+olafur\\b", "\\barnalds\\b"],
-        "Ludovico Einaudi": ["\\bludovico\\s+einaudi\\b", "\\beinaudi\\s+ludovico\\b", "\\beinaudi\\b"]
+        "Philip Glass": [
+          "\\bphilip\\s+glass\\b",
+          "\\bglass\\s+philip\\b",
+          "\\bglass\\b"
+        ],
+        "Max Richter": [
+          "\\bmax\\s+richter\\b",
+          "\\brichter\\s+max\\b",
+          "\\brichter\\b"
+        ],
+        "Yann Tiersen": [
+          "\\byann\\s+tiersen\\b",
+          "\\btiersen\\s+yann\\b",
+          "\\btiersen\\b"
+        ],
+        "Nils Frahm": [
+          "\\bnils\\s+frahm\\b",
+          "\\bfrahm\\s+nils\\b",
+          "\\bfrahm\\b"
+        ],
+        "Ólafur Arnalds": [
+          "\\bolafur\\s+arnalds\\b",
+          "\\barnalds\\s+olafur\\b",
+          "\\barnalds\\b"
+        ],
+        "Ludovico Einaudi": [
+          "\\bludovico\\s+einaudi\\b",
+          "\\beinaudi\\s+ludovico\\b",
+          "\\beinaudi\\b"
+        ]
       },
       "exclude_title": [
         "tutorial|lesson|how\\s+to"
@@ -144,10 +316,26 @@
     "latin_tango": {
       "description": "Latin / tango-adjacent set (expect mixed instrumentation in the raw dataset).",
       "composer_aliases": {
-        "Astor Piazzolla": ["\\bastor\\s+piazzolla\\b", "\\bpiazzolla\\s+astor\\b", "\\bpiazzolla\\b"],
-        "Carlos Gardel": ["\\bcarlos\\s+gardel\\b", "\\bgardel\\s+carlos\\b", "\\bgardel\\b"],
-        "Chico Buarque": ["\\bchico\\s+buarque\\b", "\\bbuarque\\s+chico\\b", "\\bbuarque\\b"],
-        "Antônio Carlos Jobim": ["\\bantonio\\s+car?los\\s+jobim\\b", "\\bjobim\\s+antonio\\b", "\\bjobim\\b"]
+        "Astor Piazzolla": [
+          "\\bastor\\s+piazzolla\\b",
+          "\\bpiazzolla\\s+astor\\b",
+          "\\bpiazzolla\\b"
+        ],
+        "Carlos Gardel": [
+          "\\bcarlos\\s+gardel\\b",
+          "\\bgardel\\s+carlos\\b",
+          "\\bgardel\\b"
+        ],
+        "Chico Buarque": [
+          "\\bchico\\s+buarque\\b",
+          "\\bbuarque\\s+chico\\b",
+          "\\bbuarque\\b"
+        ],
+        "Antônio Carlos Jobim": [
+          "\\bantonio\\s+car?los\\s+jobim\\b",
+          "\\bjobim\\s+antonio\\b",
+          "\\bjobim\\b"
+        ]
       },
       "exclude_title": [
         "tutorial|lesson|how\\s+to"
@@ -156,12 +344,32 @@
     "pop_modern_piano": {
       "description": "Pop/modern songwriters (very noisy in sheet-music datasets; expect lots of arrangements).",
       "composer_aliases": {
-        "Taylor Swift": ["\\btaylor\\s+swift\\b"],
-        "Adele": ["\\badele\\b"],
-        "Billie Eilish": ["\\bbillie\\s+eilish\\b", "\\beilish\\b"],
-        "Elton John": ["\\belton\\s+john\\b"],
-        "Queen": ["\\bqueen\\b", "\\bfreddie\\s+mercury\\b", "\\bmercury\\s+freddie\\b", "\\bmercury\\b"],
-        "The Beatles": ["\\bthe\\s+beatles\\b", "\\blennon\\s+john\\b", "\\bmccartney\\s+paul\\b", "\\blennon\\b", "\\bmccartney\\b"]
+        "Taylor Swift": [
+          "\\btaylor\\s+swift\\b"
+        ],
+        "Adele": [
+          "\\badele\\b"
+        ],
+        "Billie Eilish": [
+          "\\bbillie\\s+eilish\\b",
+          "\\beilish\\b"
+        ],
+        "Elton John": [
+          "\\belton\\s+john\\b"
+        ],
+        "Queen": [
+          "\\bqueen\\b",
+          "\\bfreddie\\s+mercury\\b",
+          "\\bmercury\\s+freddie\\b",
+          "\\bmercury\\b"
+        ],
+        "The Beatles": [
+          "\\bthe\\s+beatles\\b",
+          "\\blennon\\s+john\\b",
+          "\\bmccartney\\s+paul\\b",
+          "\\blennon\\b",
+          "\\bmccartney\\b"
+        ]
       },
       "exclude_title": [
         "tutorial|lesson|how\\s+to"
@@ -196,54 +404,283 @@
           "\\bdebussy,?\\s*claude\\b",
           "\\bc\\.?\\s*a\\.?\\s*debussy\\b"
         ],
-        "George Gershwin": ["\\bgeorge\\s+gershwin\\b", "\\bgershwin\\s+george\\b", "\\bgershwin\\b"],
-        "Duke Ellington": ["\\bduke\\s+ellington\\b", "\\bellington\\s+duke\\b", "\\bellington\\b"],
-        "Scott Joplin": ["\\bscott\\s+joplin\\b", "\\bjoplin\\s+scott\\b", "\\bjoplin\\b"],
-        "Thelonious Monk": ["\\bthelonious\\s+monk\\b", "\\bmonk\\s+thelonious\\b", "\\bmonk\\b"],
-        "Bill Evans": ["\\bbill\\s+evans\\b", "\\bevans\\s+bill\\b", "\\bevans\\b"],
-        "Oscar Peterson": ["\\boscar\\s+peterson\\b", "\\bpeterson\\s+oscar\\b", "\\bpeterson\\b"]
+        "George Gershwin": [
+          "\\bgeorge\\s+gershwin\\b",
+          "\\bgershwin\\s+george\\b",
+          "\\bgershwin\\b"
+        ],
+        "Duke Ellington": [
+          "\\bduke\\s+ellington\\b",
+          "\\bellington\\s+duke\\b",
+          "\\bellington\\b"
+        ],
+        "Scott Joplin": [
+          "\\bscott\\s+joplin\\b",
+          "\\bjoplin\\s+scott\\b",
+          "\\bjoplin\\b"
+        ],
+        "Thelonious Monk": [
+          "\\bthelonious\\s+monk\\b",
+          "\\bmonk\\s+thelonious\\b",
+          "\\bmonk\\b"
+        ],
+        "Bill Evans": [
+          "\\bbill\\s+evans\\b",
+          "\\bevans\\s+bill\\b",
+          "\\bevans\\b"
+        ],
+        "Oscar Peterson": [
+          "\\boscar\\s+peterson\\b",
+          "\\bpeterson\\s+oscar\\b",
+          "\\bpeterson\\b"
+        ]
       }
     },
     "classic_vs_pop": {
       "description": "Comparison set between canonical classical composers and modern pop/rock songwriters.",
       "composer_aliases": {
-      "Bach": [
-        "\\bbach\\b",
-        "\\bj\\.?\\s*s\\.?\\s*bach\\b",
-        "\\bjs\\s*bach\\b",
-        "\\bjohann\\s+sebastian\\s+bach\\b",
-        "\\bbach,?\\s*j\\.?\\s*s\\.?\\b",
-        "\\bbach,?\\s*johann\\s+sebastian\\b"
-      ],
-      "Mozart": [
-        "\\bmozart\\b",
-        "\\bw\\.?\\s*a\\.?\\s*mozart\\b",
-        "\\bwolfgang\\s+amadeus\\s+mozart\\b",
-        "\\bmozart,?\\s*wolfgang\\b"
-      ],
-      "Chopin": [
-        "\\bchopin\\b",
-        "\\bfr[eé]d[eé]ric\\s+chopin\\b",
-        "\\bfrederic\\s+chopin\\b",
-        "\\bchopin,?\\s*frederic\\b"
-      ],
-      "Debussy": [
-        "\\bdebussy\\b",
-        "\\bclaude\\s+debussy\\b",
-        "\\bdebussy,?\\s*claude\\b",
-        "\\bc\\.?\\s*a\\.?\\s*debussy\\b"
-      ],
-      "Taylor Swift": ["\\btaylor\\s+swift\\b"],
-      "Adele": ["\\badele\\b"],
-      "Billie Eilish": ["\\bbillie\\s+eilish\\b", "\\beilish\\b"],
-      "Elton John": ["\\belton\\s+john\\b"],
-      "Queen": ["\\bqueen\\b", "\\bfreddie\\s+mercury\\b", "\\bmercury\\s+freddie\\b", "\\bmercury\\b"],
-      "The Beatles": ["\\bthe\\s+beatles\\b", "\\blennon\\s+john\\b", "\\bmccartney\\s+paul\\b", "\\blennon\\b", "\\bmccartney\\b"]
+        "Bach": [
+          "\\bbach\\b",
+          "\\bj\\.?\\s*s\\.?\\s*bach\\b",
+          "\\bjs\\s*bach\\b",
+          "\\bjohann\\s+sebastian\\s+bach\\b",
+          "\\bbach,?\\s*j\\.?\\s*s\\.?\\b",
+          "\\bbach,?\\s*johann\\s+sebastian\\b"
+        ],
+        "Mozart": [
+          "\\bmozart\\b",
+          "\\bw\\.?\\s*a\\.?\\s*mozart\\b",
+          "\\bwolfgang\\s+amadeus\\s+mozart\\b",
+          "\\bmozart,?\\s*wolfgang\\b"
+        ],
+        "Chopin": [
+          "\\bchopin\\b",
+          "\\bfr[eé]d[eé]ric\\s+chopin\\b",
+          "\\bfrederic\\s+chopin\\b",
+          "\\bchopin,?\\s*frederic\\b"
+        ],
+        "Debussy": [
+          "\\bdebussy\\b",
+          "\\bclaude\\s+debussy\\b",
+          "\\bdebussy,?\\s*claude\\b",
+          "\\bc\\.?\\s*a\\.?\\s*debussy\\b"
+        ],
+        "Taylor Swift": [
+          "\\btaylor\\s+swift\\b"
+        ],
+        "Adele": [
+          "\\badele\\b"
+        ],
+        "Billie Eilish": [
+          "\\bbillie\\s+eilish\\b",
+          "\\beilish\\b"
+        ],
+        "Elton John": [
+          "\\belton\\s+john\\b"
+        ],
+        "Queen": [
+          "\\bqueen\\b",
+          "\\bfreddie\\s+mercury\\b",
+          "\\bmercury\\s+freddie\\b",
+          "\\bmercury\\b"
+        ],
+        "The Beatles": [
+          "\\bthe\\s+beatles\\b",
+          "\\blennon\\s+john\\b",
+          "\\bmccartney\\s+paul\\b",
+          "\\blennon\\b",
+          "\\bmccartney\\b"
+        ]
       },
       "exclude_title": [
-      "tutorial|lesson|how\\s+to"
+        "tutorial|lesson|how\\s+to"
+      ]
+    },
+    "classical_era": {
+      "description": "Classical era giants.",
+      "composer_aliases": {
+        "Beethoven": [
+          "\\bludwig\\s+(van|von)\\s+beethoven\\b",
+          "\\bl\\.?\\s*v\\.?\\s*beethoven\\b",
+          "\\bl\\.?\\s*van\\s+beethoven\\b",
+          "\\bbeethoven\\b"
+        ],
+        "Haydn": [
+          "\\bjoseph\\s+haydn\\b",
+          "\\bfranz\\s+joseph\\s+haydn\\b",
+          "\\bhaydn\\b"
+        ],
+        "Mozart": [
+          "\\bwolfgang\\s+amadeus\\s+mozart\\b",
+          "\\bw\\.?\\s*a\\.?\\s*mozart\\b",
+          "\\bmozart\\b"
+        ]
+      },
+      "exclude_composer": [
+        "\\bmichael\\s+haydn\\b",
+        "\\bj\\.?\\s*michael\\s+haydn\\b"
+      ],
+      "exclude_title": [
+        "tutorial",
+        "lesson",
+        "how\\s+to"
+      ]
+    },
+    "baroque_era": {
+      "description": "Baroque masters.",
+      "composer_aliases": {
+        "Bach": [
+          "\\bjohann\\s+sebastian\\s+bach\\b",
+          "\\bj\\.?\\s*s\\.?\\s*bach\\b",
+          "\\bbach\\b"
+        ],
+        "Handel": [
+          "\\bh[aä]ndel\\b",
+          "\\bhandel\\b"
+        ],
+        "Vivaldi": [
+          "\\bantonio\\s+(lucio\\s+)?vivaldi\\b",
+          "\\bvivaldi\\b"
+        ],
+        "Corelli": [
+          "\\barcangelo\\s+corelli\\b",
+          "\\bcorelli\\b"
+        ],
+        "Purcell": [
+          "\\bhenry\\s+purcell\\b",
+          "\\bpurcell\\b"
+        ],
+        "Telemann": [
+          "\\bgeorg\\s+philipp\\s+telemann\\b",
+          "\\btelemann\\b"
+        ]
+      },
+      "exclude_composer": [
+        "\\bj\\.?\\s*c\\.?\\s*bach\\b",
+        "\\bcarl\\s+philipp\\s+emmanuel\\s+bach\\b",
+        "\\bwilhelm\\s+friedemann\\s+bach\\b",
+        "\\bchristian\\s+bach\\b",
+        "\\bcpe\\b",
+        "\\bemanuel\\b"
+      ],
+      "exclude_title": [
+        "tutorial",
+        "lesson",
+        "how\\s+to"
+      ]
+    },
+    "romantic_expanded": {
+      "description": "Extended romantic era composers.",
+      "composer_aliases": {
+        "Schubert": [
+          "\\bfranz\\s+schubert\\b",
+          "\\bschubert\\b"
+        ],
+        "Schumann": [
+          "\\brobert\\s+(alexander\\s+)?schumann\\b",
+          "\\bschumann\\b"
+        ],
+        "Liszt": [
+          "\\bfranz\\s+liszt\\b",
+          "\\bf\\.?\\s*liszt\\b",
+          "\\bliszt\\b"
+        ],
+        "Brahms": [
+          "\\bjohannes\\s+brahms\\b",
+          "\\bbrahms\\b"
+        ],
+        "Tchaikovsky": [
+          "\\bpyotr\\s+ilyich\\s+tchaikovsky\\b",
+          "\\bpeter\\s+tchaikovsky\\b",
+          "\\bp\\.?\\s*i\\.?\\s*tchaikovsky\\b",
+          "\\btchaikovsky\\b",
+          "\\bchaikovsky\\b"
+        ],
+        "Dvorak": [
+          "\\bantonin\\s+dvorak\\b",
+          "\\bantonin\\s+dvo[řr][áa]k\\b",
+          "\\bdvo[řr][áa]k\\b",
+          "\\bdvorak\\b"
+        ],
+        "Grieg": [
+          "\\bedvard\\s+(hagerup\\s+)?grieg\\b",
+          "\\bgrieg\\b"
+        ],
+        "Mendelssohn": [
+          "\\bfelix\\s+mendelssohn(\\s*bartholdy)?\\b",
+          "\\bfanny\\s+mendelssohn\\b",
+          "\\bmendelssohn\\b"
+        ],
+        "Paganini": [
+          "\\bniccol[oò]\\s+paganini\\b",
+          "\\bpaganini\\b"
+        ]
+      },
+      "exclude_composer": [
+        "\\bmichael\\s+schubert\\b",
+        "\\bclara\\s+schumann\\b"
+      ],
+      "exclude_title": [
+        "tutorial",
+        "lesson",
+        "how\\s+to"
+      ]
+    },
+    "late_romantic_and_opera": {
+      "description": "Late romantic, opera, and early 20th century composers.",
+      "composer_aliases": {
+        "Rachmaninoff": [
+          "\\bsergei\\s+rachmaninoff\\b",
+          "\\brachmaninoff\\b",
+          "\\brachmaninov\\b",
+          "\\brakhmaninov\\b"
+        ],
+        "Mahler": [
+          "\\bgustav\\s+mahler\\b",
+          "\\bmahler\\b"
+        ],
+        "Wagner": [
+          "\\brichard\\s+wagner\\b",
+          "\\bwagner\\b"
+        ],
+        "Verdi": [
+          "\\bgiuseppe\\s+verdi\\b",
+          "\\bverdi\\b"
+        ],
+        "Puccini": [
+          "\\bgiacomo\\s+puccini\\b",
+          "\\bpuccini\\b"
+        ],
+        "Strauss": [
+          "\\brichard\\s+strauss\\b",
+          "\\bjohann\\s+strauss\\b",
+          "\\bstrauss\\b"
+        ],
+        "Elgar": [
+          "\\bedward\\s+elgar\\b",
+          "\\belgar\\b"
+        ],
+        "Bizet": [
+          "\\bgeorges\\s+bizet\\b",
+          "\\bbizet\\b"
+        ],
+        "Rossini": [
+          "\\bgioachino\\s+rossini\\b",
+          "\\bgioacchino\\s+rossini\\b",
+          "\\brossini\\b"
+        ]
+      },
+      "exclude_composer": [
+        "\\bpaul\\s+wagner\\b",
+        "\\bcarlo\\s+rossini\\b",
+        "\\bvecchi\\b",
+        "\\bmontgomery\\b"
+      ],
+      "exclude_title": [
+        "tutorial",
+        "lesson",
+        "how\\s+to"
       ]
     }
-
   }
 }
