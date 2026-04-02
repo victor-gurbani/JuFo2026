@@ -1,4 +1,5 @@
 """Tools for curating a balanced solo-piano corpus from the PDMX dataset."""
+
 from __future__ import annotations
 
 import argparse
@@ -8,7 +9,7 @@ import sys
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence
 
 import pandas as pd
 
@@ -29,12 +30,30 @@ COMPOSER_RULES: Dict[str, ComposerRule] = {
         label="Bach",
         required=("bach",),
         any_groups=(("johann", "j s", "js", "sebastian", "joh"),),
-        exclude=("christian", "wilhelm", "friedemann", "cpe", "emanuel", "carl", "anna", "wf"),
+        exclude=(
+            "christian",
+            "wilhelm",
+            "friedemann",
+            "cpe",
+            "emanuel",
+            "carl",
+            "anna",
+            "wf",
+        ),
     ),
     "mozart": ComposerRule(
         label="Mozart",
         required=("mozart",),
-        exclude=("leopold", "franz", "xaver", "anna", "holzer", "simrock", "suessmayr", "sussmayr"),
+        exclude=(
+            "leopold",
+            "franz",
+            "xaver",
+            "anna",
+            "holzer",
+            "simrock",
+            "suessmayr",
+            "sussmayr",
+        ),
     ),
     "chopin": ComposerRule(
         label="Chopin",
@@ -66,6 +85,7 @@ def matches_debussy_alias(tokens: Sequence[str]) -> bool:
     if first in DEBUSSY_ALLOWED_PREFIXES and index <= 2:
         return True
     return False
+
 
 ARRANGEMENT_KEYWORDS = {
     "arr",
@@ -116,8 +136,15 @@ def resolve_composer(raw_name: Optional[str]) -> Optional[str]:
         if not all(token in normalized for token in rule.required):
             continue
         if rule.any_groups:
-            any_group_match = all(any(option in normalized for option in group) for group in rule.any_groups)
-            if not any_group_match and key == "debussy" and matches_debussy_alias(tokens):
+            any_group_match = all(
+                any(option in normalized for option in group)
+                for group in rule.any_groups
+            )
+            if (
+                not any_group_match
+                and key == "debussy"
+                and matches_debussy_alias(tokens)
+            ):
                 any_group_match = True
             if not any_group_match:
                 continue
@@ -127,7 +154,9 @@ def resolve_composer(raw_name: Optional[str]) -> Optional[str]:
     return None
 
 
-def load_score_metadata(base_path: Path, relative_path: str, cache: Dict[str, dict]) -> Optional[dict]:
+def load_score_metadata(
+    base_path: Path, relative_path: str, cache: Dict[str, dict]
+) -> Optional[dict]:
     if not isinstance(relative_path, str):
         return None
     if relative_path in cache:
@@ -180,9 +209,15 @@ def is_solo_piano(score: dict) -> bool:
     instrumentation = score.get("instrumentation_text")
     if isinstance(instrumentation, str) and instrumentation.strip():
         normalized = normalize_text(instrumentation)
-        if "piano" in normalized and all(tok not in normalized for tok in ("violin", "voice", "organ", "string", "orchestra")):
+        if "piano" in normalized and all(
+            tok not in normalized
+            for tok in ("violin", "voice", "organ", "string", "orchestra")
+        ):
             evidence = True
-        elif any(tok in normalized for tok in ("violin", "voice", "organ", "string", "orchestra")):
+        elif any(
+            tok in normalized
+            for tok in ("violin", "voice", "organ", "string", "orchestra")
+        ):
             return False
     parts = score.get("parts")
     if isinstance(parts, int) and parts > 2:
@@ -234,7 +269,9 @@ def curate_corpus(
         metadata_rel = row.get("metadata")
         if not isinstance(metadata_rel, str) or not metadata_rel.strip():
             continue
-        metadata_entry = load_score_metadata(dataset_root, metadata_rel.strip(), metadata_cache)
+        metadata_entry = load_score_metadata(
+            dataset_root, metadata_rel.strip(), metadata_cache
+        )
         if not metadata_entry:
             continue
         score_data = metadata_entry.get("data", {}).get("score", {})
@@ -257,7 +294,9 @@ def curate_corpus(
                 "mxl_abs_path": str(mxl_full),
                 "metadata_rel_path": row.get("metadata"),
                 "instrument_names": "; ".join(extract_instrument_names(score_data)),
-                "instrumentation_tags": "; ".join(extract_instrumentation_tags(score_data)),
+                "instrumentation_tags": "; ".join(
+                    extract_instrumentation_tags(score_data)
+                ),
                 "parts": score_data.get("parts"),
             }
         )
@@ -266,7 +305,11 @@ def curate_corpus(
         raise RuntimeError("No scores matched the requested filters.")
 
     curated = pd.DataFrame(accepted_rows).drop_duplicates("mxl_abs_path")
-    curated.sort_values(by=["composer_label", "rating", "n_ratings"], ascending=[True, False, False], inplace=True)
+    curated.sort_values(
+        by=["composer_label", "rating", "n_ratings"],
+        ascending=[True, False, False],
+        inplace=True,
+    )
 
     per_composer = max_per_composer
     if per_composer is None:
@@ -291,16 +334,60 @@ def write_outputs(curated: pd.DataFrame, output_csv: Path, output_paths: Path) -
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
-    parser = argparse.ArgumentParser(description="Curate a balanced solo-piano corpus from PDMX metadata.")
-    parser.add_argument("--dataset-root", type=Path, default=Path("15571083"), help="Path to the extracted PDMX dataset directory.")
-    parser.add_argument("--csv", type=Path, default=None, help="Path to PDMX.csv (defaults to <dataset-root>/PDMX.csv).")
-    parser.add_argument("--min-rating", type=float, default=4.0, help="Minimum average rating to keep a score.")
-    parser.add_argument("--max-per-composer", type=int, default=None, help="Maximum item count per composer (defaults to the smallest available count).")
-    parser.add_argument("--skip-license-filter", action="store_true", help="Allow entries with potential license conflicts.")
-    parser.add_argument("--skip-deduplicated-filter", action="store_true", help="Ignore the rated_deduplicated subset flag.")
-    parser.add_argument("--skip-unique-filter", action="store_true", help="Ignore the best_unique_arrangement flag.")
-    parser.add_argument("--output-csv", type=Path, default=Path("data/curated/solo_piano_corpus.csv"), help="Destination CSV for curated metadata.")
-    parser.add_argument("--output-paths", type=Path, default=Path("data/curated/solo_piano_mxl_paths.txt"), help="Destination text file listing absolute MusicXML paths.")
+    parser = argparse.ArgumentParser(
+        description="Curate a balanced solo-piano corpus from PDMX metadata."
+    )
+    parser.add_argument(
+        "--dataset-root",
+        type=Path,
+        default=Path("15571083"),
+        help="Path to the extracted PDMX dataset directory.",
+    )
+    parser.add_argument(
+        "--csv",
+        type=Path,
+        default=None,
+        help="Path to PDMX.csv (defaults to <dataset-root>/PDMX.csv).",
+    )
+    parser.add_argument(
+        "--min-rating",
+        type=float,
+        default=4.0,
+        help="Minimum average rating to keep a score.",
+    )
+    parser.add_argument(
+        "--max-per-composer",
+        type=int,
+        default=None,
+        help="Maximum item count per composer (defaults to the smallest available count).",
+    )
+    parser.add_argument(
+        "--skip-license-filter",
+        action="store_true",
+        help="Allow entries with potential license conflicts.",
+    )
+    parser.add_argument(
+        "--skip-deduplicated-filter",
+        action="store_true",
+        help="Ignore the rated_deduplicated subset flag.",
+    )
+    parser.add_argument(
+        "--skip-unique-filter",
+        action="store_true",
+        help="Ignore the best_unique_arrangement flag.",
+    )
+    parser.add_argument(
+        "--output-csv",
+        type=Path,
+        default=Path("data/curated/solo_piano_corpus.csv"),
+        help="Destination CSV for curated metadata.",
+    )
+    parser.add_argument(
+        "--output-paths",
+        type=Path,
+        default=Path("data/curated/solo_piano_mxl_paths.txt"),
+        help="Destination text file listing absolute MusicXML paths.",
+    )
 
     args = parser.parse_args(argv)
 
@@ -325,7 +412,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     write_outputs(curated, args.output_csv.resolve(), args.output_paths.resolve())
 
     summary = (
-        curated.groupby("composer_label").size().rename("count").sort_index().to_frame()
+        curated.groupby("composer_label")
+        .size()
+        .rename("count")
+        .sort_index()
+        .to_frame()
         .assign(total=len(curated))
     )
     print(summary)

@@ -26,7 +26,7 @@ import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -76,19 +76,25 @@ def load_meta(cache_csv: Path) -> Dict[str, Any]:
     return _load_meta(meta_json)
 
 
-def lookup_cached_embedding(cache_df: pd.DataFrame, mxl_abs_path: str) -> Optional[pd.Series]:
+def lookup_cached_embedding(
+    cache_df: pd.DataFrame, mxl_abs_path: str
+) -> Optional[pd.Series]:
     if cache_df.empty:
         return None
     if "mxl_abs_path" not in cache_df.columns:
         return None
     target_name = Path(mxl_abs_path).name
-    matches = cache_df.index[cache_df["mxl_abs_path"].astype(str).str.endswith(target_name)]
+    matches = cache_df.index[
+        cache_df["mxl_abs_path"].astype(str).str.endswith(target_name)
+    ]
     if len(matches) == 0:
         return None
     return cache_df.loc[matches[0]]
 
 
-def project_features_into_cached_pca(feature_mapping: Dict[str, object], meta: Dict[str, Any]) -> np.ndarray:
+def project_features_into_cached_pca(
+    feature_mapping: Dict[str, object], meta: Dict[str, Any]
+) -> np.ndarray:
     """Project a single piece into the cached PCA space.
 
     Requires that `meta` contains a `pca` section produced by this module.
@@ -122,13 +128,17 @@ def project_features_into_cached_pca(feature_mapping: Dict[str, object], meta: D
         except Exception:
             return float("nan")
 
-    x = np.array([_to_float(feature_mapping.get(col)) for col in feature_columns], dtype=float)
+    x = np.array(
+        [_to_float(feature_mapping.get(col)) for col in feature_columns], dtype=float
+    )
     for idx, col in enumerate(feature_columns):
         if np.isfinite(x[idx]):
             continue
         mean_val = impute_means.get(col, None)
         if mean_val is None:
-            raise ValueError(f"Missing value for feature '{col}' and no imputation mean available.")
+            raise ValueError(
+                f"Missing value for feature '{col}' and no imputation mean available."
+            )
         try:
             x[idx] = float(mean_val)
         except Exception as exc:
@@ -139,7 +149,9 @@ def project_features_into_cached_pca(feature_mapping: Dict[str, object], meta: D
     scaler_mean = np.array(pca.get("scaler_mean", []), dtype=float)
     scaler_scale = np.array(pca.get("scaler_scale", []), dtype=float)
     if scaler_mean.shape[0] != x.shape[0] or scaler_scale.shape[0] != x.shape[0]:
-        raise ValueError("Scaler parameters in cache meta do not match feature vector length.")
+        raise ValueError(
+            "Scaler parameters in cache meta do not match feature vector length."
+        )
     safe_scale = np.where(scaler_scale == 0.0, 1.0, scaler_scale)
     x_scaled = (x - scaler_mean) / safe_scale
 
@@ -148,7 +160,11 @@ def project_features_into_cached_pca(feature_mapping: Dict[str, object], meta: D
         raise ValueError("PCA mean in cache meta does not match feature vector length.")
 
     components = np.array(pca.get("pca_components", []), dtype=float)
-    if components.ndim != 2 or components.shape[1] != x_scaled.shape[0] or components.shape[0] < 3:
+    if (
+        components.ndim != 2
+        or components.shape[1] != x_scaled.shape[0]
+        or components.shape[0] < 3
+    ):
         raise ValueError("PCA components in cache meta have an unexpected shape.")
 
     coords = (x_scaled - pca_mean) @ components.T
@@ -265,7 +281,11 @@ def build_cache(
     combined["mxl_abs_path"] = combined["mxl_path"].apply(normalize_path)
 
     if combined["mxl_abs_path"].duplicated().any():
-        duplicates = combined.loc[combined["mxl_abs_path"].duplicated(), "mxl_abs_path"].head(10).tolist()
+        duplicates = (
+            combined.loc[combined["mxl_abs_path"].duplicated(), "mxl_abs_path"]
+            .head(10)
+            .tolist()
+        )
         raise ValueError(
             "Duplicate mxl_abs_path entries detected in merged features; cannot build a stable cache. "
             f"Examples: {duplicates}"
@@ -308,29 +328,41 @@ def build_cache(
         "inputs": asdict(input_spec),
         "piece_id_column": "mxl_abs_path",
         "piece_count": int(len(cache_df)),
-        "piece_id_digest": _piece_id_digest(cache_df["mxl_abs_path"].astype(str).tolist()),
+        "piece_id_digest": _piece_id_digest(
+            cache_df["mxl_abs_path"].astype(str).tolist()
+        ),
     }
 
     if method == "pca":
         if pca_model is None:
-            raise RuntimeError("Expected PCA model artifacts but projection returned None.")
+            raise RuntimeError(
+                "Expected PCA model artifacts but projection returned None."
+            )
         impute_means_series = combined[feature_cols].mean(numeric_only=True)
-        impute_means = {str(k): float(v) for k, v in impute_means_series.items() if np.isfinite(v)}
+        impute_means = {
+            str(k): float(v) for k, v in impute_means_series.items() if np.isfinite(v)
+        }
         artifacts = PcaArtifacts(
             feature_columns=tuple(feature_cols),
             impute_means=impute_means,
             scaler_mean=tuple(float(x) for x in getattr(scaler, "mean_", [])),
             scaler_scale=tuple(float(x) for x in getattr(scaler, "scale_", [])),
-            pca_components=tuple(tuple(float(v) for v in row) for row in pca_model.components_),
+            pca_components=tuple(
+                tuple(float(v) for v in row) for row in pca_model.components_
+            ),
             pca_mean=tuple(float(v) for v in getattr(pca_model, "mean_", [])),
-            explained_variance_ratio=tuple(float(v) for v in pca_model.explained_variance_ratio_),
+            explained_variance_ratio=tuple(
+                float(v) for v in pca_model.explained_variance_ratio_
+            ),
         )
         meta["pca"] = asdict(artifacts)
 
     return cache_df, meta
 
 
-def _resolve_musicxml_path(raw_path: str, repo_root: Path, dataset_root: Optional[Path]) -> Optional[Path]:
+def _resolve_musicxml_path(
+    raw_path: str, repo_root: Path, dataset_root: Optional[Path]
+) -> Optional[Path]:
     """Resolve a raw mxl path from various CSVs into an absolute existing path."""
     raw = str(raw_path).strip()
     if not raw:
@@ -415,7 +447,9 @@ def _iter_corpus_records(
             "mxl",
         ]
 
-        composer_col = next((c for c in composer_col_candidates if c in df.columns), None)
+        composer_col = next(
+            (c for c in composer_col_candidates if c in df.columns), None
+        )
         title_col = next((c for c in title_col_candidates if c in df.columns), None)
         path_col = next((c for c in path_col_candidates if c in df.columns), None)
         if path_col is None:
@@ -427,11 +461,21 @@ def _iter_corpus_records(
             raw_path = row.get(path_col)
             if not isinstance(raw_path, str):
                 continue
-            resolved = _resolve_musicxml_path(raw_path, repo_root=repo_root, dataset_root=dataset_root)
+            resolved = _resolve_musicxml_path(
+                raw_path, repo_root=repo_root, dataset_root=dataset_root
+            )
             if resolved is None:
                 continue
-            composer = str(row.get(composer_col) or "Unknown").strip() if composer_col else "Unknown"
-            title = str(row.get(title_col) or resolved.stem).strip() if title_col else resolved.stem
+            composer = (
+                str(row.get(composer_col) or "Unknown").strip()
+                if composer_col
+                else "Unknown"
+            )
+            title = (
+                str(row.get(title_col) or resolved.stem).strip()
+                if title_col
+                else resolved.stem
+            )
             yield composer or "Unknown", title or resolved.stem, resolved
         return
 
@@ -442,13 +486,17 @@ def _iter_corpus_records(
             raw = line.strip()
             if not raw:
                 continue
-            resolved = _resolve_musicxml_path(raw, repo_root=repo_root, dataset_root=dataset_root)
+            resolved = _resolve_musicxml_path(
+                raw, repo_root=repo_root, dataset_root=dataset_root
+            )
             if resolved is None:
                 continue
             yield "Unknown", resolved.stem, resolved
         return
 
-    raise ValueError("Provide either --corpus-csv or --paths to define which pieces to cache.")
+    raise ValueError(
+        "Provide either --corpus-csv or --paths to define which pieces to cache."
+    )
 
 
 def _load_done_set(done_path: Path) -> set[str]:
@@ -507,7 +555,9 @@ def _sanitize_metric_value(value: object) -> object:
         return text
 
 
-def _derive_feature_schema_from_csvs(harmonic_path: Path, melodic_path: Path, rhythmic_path: Path) -> List[str]:
+def _derive_feature_schema_from_csvs(
+    harmonic_path: Path, melodic_path: Path, rhythmic_path: Path
+) -> List[str]:
     """Return the ordered list of feature columns (excluding identifiers) used by this project.
 
     This uses the headers of the existing feature CSVs, so the full-corpus feature cache
@@ -518,11 +568,19 @@ def _derive_feature_schema_from_csvs(harmonic_path: Path, melodic_path: Path, rh
         if not path.exists():
             raise FileNotFoundError(f"Schema source features file not found: {path}")
         header = pd.read_csv(path, nrows=0)
-        cols = [c for c in header.columns if c not in {"composer_label", "title", "mxl_path", "mxl_abs_path"}]
+        cols = [
+            c
+            for c in header.columns
+            if c not in {"composer_label", "title", "mxl_path", "mxl_abs_path"}
+        ]
         return cols
 
     schema: List[str] = []
-    for part_cols in (_feature_cols(harmonic_path), _feature_cols(melodic_path), _feature_cols(rhythmic_path)):
+    for part_cols in (
+        _feature_cols(harmonic_path),
+        _feature_cols(melodic_path),
+        _feature_cols(rhythmic_path),
+    ):
         for col in part_cols:
             if col not in schema:
                 schema.append(col)
@@ -601,12 +659,16 @@ def cache_corpus_long_running(
     """
 
     if output_embedding_csv is None and output_features_csv is None:
-        raise ValueError("Nothing to write: provide --output-csv and/or --output-features-csv.")
+        raise ValueError(
+            "Nothing to write: provide --output-csv and/or --output-features-csv."
+        )
 
     model_meta: Optional[Dict[str, Any]] = None
     if output_embedding_csv is not None:
         if model_cache_csv is None:
-            raise ValueError("--model-cache is required when writing an embedding/projection cache.")
+            raise ValueError(
+                "--model-cache is required when writing an embedding/projection cache."
+            )
         if not model_cache_csv.exists():
             raise FileNotFoundError(f"Model cache CSV not found: {model_cache_csv}")
         model_meta = load_meta(model_cache_csv)
@@ -617,14 +679,26 @@ def cache_corpus_long_running(
     # Prepare feature schema early (used for full-feature caching).
     feature_schema: Optional[List[str]] = None
     if output_features_csv is not None:
-        feature_schema = _derive_feature_schema_from_csvs(schema_harmonic, schema_melodic, schema_rhythmic)
+        feature_schema = _derive_feature_schema_from_csvs(
+            schema_harmonic, schema_melodic, schema_rhythmic
+        )
 
     # Output init / overwrite behavior.
-    if output_embedding_csv is not None and output_embedding_csv.exists() and not resume and not force:
+    if (
+        output_embedding_csv is not None
+        and output_embedding_csv.exists()
+        and not resume
+        and not force
+    ):
         raise FileExistsError(
             f"Output embedding cache already exists: {output_embedding_csv}. Use --resume to continue or --force to overwrite."
         )
-    if output_features_csv is not None and output_features_csv.exists() and not resume and not force:
+    if (
+        output_features_csv is not None
+        and output_features_csv.exists()
+        and not resume
+        and not force
+    ):
         raise FileExistsError(
             f"Output features cache already exists: {output_features_csv}. Use --resume to continue or --force to overwrite."
         )
@@ -649,7 +723,9 @@ def cache_corpus_long_running(
             done_embeddings = _scan_existing_cache_for_done(output_embedding_csv)
             if done_embeddings:
                 done_path_embed.parent.mkdir(parents=True, exist_ok=True)
-                done_path_embed.write_text("\n".join(sorted(done_embeddings)) + "\n", encoding="utf-8")
+                done_path_embed.write_text(
+                    "\n".join(sorted(done_embeddings)) + "\n", encoding="utf-8"
+                )
 
         # Ensure meta exists early so other consumers know which PCA space this cache is in.
         meta_out = dict(model_meta or {})
@@ -657,11 +733,16 @@ def cache_corpus_long_running(
         meta_out["created_at"] = datetime.now(timezone.utc).isoformat()
         meta_out["derived_from"] = {
             "model_cache_csv": str(model_cache_csv) if model_cache_csv else None,
-            "model_cache_meta": str(meta_path_for(model_cache_csv)) if model_cache_csv else None,
+            "model_cache_meta": str(meta_path_for(model_cache_csv))
+            if model_cache_csv
+            else None,
         }
         meta_out["in_progress"] = True
         meta_out["piece_count"] = int(len(done_embeddings))
-        _atomic_write_text(meta_path_for(output_embedding_csv), json.dumps(meta_out, indent=2, sort_keys=True))
+        _atomic_write_text(
+            meta_path_for(output_embedding_csv),
+            json.dumps(meta_out, indent=2, sort_keys=True),
+        )
 
     if output_features_csv is not None:
         done_path_feat = done_path_for(output_features_csv)
@@ -671,7 +752,9 @@ def cache_corpus_long_running(
             done_features = _scan_existing_cache_for_done(output_features_csv)
             if done_features:
                 done_path_feat.parent.mkdir(parents=True, exist_ok=True)
-                done_path_feat.write_text("\n".join(sorted(done_features)) + "\n", encoding="utf-8")
+                done_path_feat.write_text(
+                    "\n".join(sorted(done_features)) + "\n", encoding="utf-8"
+                )
 
         meta_feat: Dict[str, Any] = {
             "cache_version": CACHE_VERSION,
@@ -686,7 +769,10 @@ def cache_corpus_long_running(
             "in_progress": True,
             "piece_count": int(len(done_features)),
         }
-        _atomic_write_text(meta_path_for(output_features_csv), json.dumps(meta_feat, indent=2, sort_keys=True))
+        _atomic_write_text(
+            meta_path_for(output_features_csv),
+            json.dumps(meta_feat, indent=2, sort_keys=True),
+        )
 
     scanned = 0
     total_records: Optional[int] = None
@@ -719,6 +805,7 @@ def cache_corpus_long_running(
 
     done_handle_embed = None
     done_handle_feat = None
+
     def _build_task_list() -> Tuple[List[Tuple[str, str, str]], int]:
         """Return (tasks, scanned_total).
 
@@ -742,7 +829,9 @@ def cache_corpus_long_running(
                 "mxl_rel",
                 "mxl",
             ]
-            composer_col = next((c for c in composer_col_candidates if c in df.columns), None)
+            composer_col = next(
+                (c for c in composer_col_candidates if c in df.columns), None
+            )
             title_col = next((c for c in title_col_candidates if c in df.columns), None)
             path_col = next((c for c in path_col_candidates if c in df.columns), None)
             if path_col is None:
@@ -754,16 +843,26 @@ def cache_corpus_long_running(
                 raw_path = row.get(path_col)
                 if not isinstance(raw_path, str):
                     continue
-                resolved = _resolve_musicxml_path(raw_path, repo_root=repo_root, dataset_root=dataset_root_resolved)
+                resolved = _resolve_musicxml_path(
+                    raw_path, repo_root=repo_root, dataset_root=dataset_root_resolved
+                )
                 if resolved is None:
                     continue
                 mxl_abs = normalize_path(resolved)
-                needs_embedding = output_embedding_csv is not None and mxl_abs not in done_embeddings
-                needs_features = output_features_csv is not None and mxl_abs not in done_features
+                needs_embedding = (
+                    output_embedding_csv is not None and mxl_abs not in done_embeddings
+                )
+                needs_features = (
+                    output_features_csv is not None and mxl_abs not in done_features
+                )
                 if not needs_embedding and not needs_features:
                     continue
-                composer = _coerce_label(row.get(composer_col) if composer_col else None, "Unknown")
-                title = _coerce_label(row.get(title_col) if title_col else None, resolved.stem)
+                composer = _coerce_label(
+                    row.get(composer_col) if composer_col else None, "Unknown"
+                )
+                title = _coerce_label(
+                    row.get(title_col) if title_col else None, resolved.stem
+                )
                 tasks.append((composer, title, str(resolved)))
                 if limit is not None and len(tasks) >= limit:
                     break
@@ -772,15 +871,25 @@ def cache_corpus_long_running(
         if paths_file is not None:
             if not paths_file.exists():
                 raise FileNotFoundError(f"Paths file not found: {paths_file}")
-            lines = [line.strip() for line in paths_file.read_text(encoding="utf-8").splitlines() if line.strip()]
+            lines = [
+                line.strip()
+                for line in paths_file.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             scanned_total = int(len(lines))
             for raw in lines:
-                resolved = _resolve_musicxml_path(raw, repo_root=repo_root, dataset_root=dataset_root_resolved)
+                resolved = _resolve_musicxml_path(
+                    raw, repo_root=repo_root, dataset_root=dataset_root_resolved
+                )
                 if resolved is None:
                     continue
                 mxl_abs = normalize_path(resolved)
-                needs_embedding = output_embedding_csv is not None and mxl_abs not in done_embeddings
-                needs_features = output_features_csv is not None and mxl_abs not in done_features
+                needs_embedding = (
+                    output_embedding_csv is not None and mxl_abs not in done_embeddings
+                )
+                needs_features = (
+                    output_features_csv is not None and mxl_abs not in done_features
+                )
                 if not needs_embedding and not needs_features:
                     continue
                 tasks.append(("Unknown", resolved.stem, str(resolved)))
@@ -788,20 +897,28 @@ def cache_corpus_long_running(
                     break
             return tasks, scanned_total
 
-        raise ValueError("Provide either --corpus-csv or --paths to define which pieces to cache.")
+        raise ValueError(
+            "Provide either --corpus-csv or --paths to define which pieces to cache."
+        )
 
     try:
         if output_embedding_csv is not None:
-            done_handle_embed = done_path_for(output_embedding_csv).open("a", encoding="utf-8")
+            done_handle_embed = done_path_for(output_embedding_csv).open(
+                "a", encoding="utf-8"
+            )
         if output_features_csv is not None:
-            done_handle_feat = done_path_for(output_features_csv).open("a", encoding="utf-8")
+            done_handle_feat = done_path_for(output_features_csv).open(
+                "a", encoding="utf-8"
+            )
 
         tasks, scanned_total = _build_task_list()
         scanned = int(scanned_total)
         total_records = int(scanned_total)
         total_work = int(len(tasks))
         if total_records > 0 and total_work > 0:
-            print(f"[info] Corpus records={total_records}, pending work items={total_work}")
+            print(
+                f"[info] Corpus records={total_records}, pending work items={total_work}"
+            )
 
         # Override progress display to track completed work items (not raw corpus rows).
         completed = 0
@@ -817,7 +934,9 @@ def cache_corpus_long_running(
             eta = remaining / rate if rate > 0 else float("nan")
             bar = _format_progress_bar(completed, total_work)
             pct = (completed / total_work) * 100.0
-            embed_count = len(done_embeddings) if output_embedding_csv is not None else 0
+            embed_count = (
+                len(done_embeddings) if output_embedding_csv is not None else 0
+            )
             feat_count = len(done_features) if output_features_csv is not None else 0
             print(
                 f"[progress] {bar} {completed}/{total_work} ({pct:.1f}%) ETA {_format_eta(eta)} "
@@ -831,7 +950,9 @@ def cache_corpus_long_running(
         workers_eff = int(max(1, workers))
         chunksize_eff = int(max(1, chunksize))
 
-        iterator: Iterable[Tuple[str, str, str, Optional[Dict[str, object]], Optional[str]]]
+        iterator: Iterable[
+            Tuple[str, str, str, Optional[Dict[str, object]], Optional[str]]
+        ]
         pool: Optional[MpPool] = None
         if workers_eff <= 1:
             iterator = (_worker_compute_features(task) for task in tasks)
@@ -839,7 +960,9 @@ def cache_corpus_long_running(
             ctx = mp.get_context("spawn")
             pool = ctx.Pool(processes=workers_eff)
             assert pool is not None
-            iterator = pool.imap_unordered(_worker_compute_features, tasks, chunksize=chunksize_eff)
+            iterator = pool.imap_unordered(
+                _worker_compute_features, tasks, chunksize=chunksize_eff
+            )
 
         try:
             for composer, title, abs_path_str, feature_mapping, error in iterator:
@@ -847,24 +970,41 @@ def cache_corpus_long_running(
                 _maybe_print_work_progress()
 
                 mxl_abs = normalize_path(abs_path_str)
-                needs_embedding = output_embedding_csv is not None and mxl_abs not in done_embeddings
-                needs_features = output_features_csv is not None and mxl_abs not in done_features
+                needs_embedding = (
+                    output_embedding_csv is not None and mxl_abs not in done_embeddings
+                )
+                needs_features = (
+                    output_features_csv is not None and mxl_abs not in done_features
+                )
                 if not needs_embedding and not needs_features:
                     continue
 
                 if error is not None or feature_mapping is None:
                     if skip_errors:
-                        print(f"[warn] Skipping {abs_path_str} due to error: {error}", flush=True)
+                        print(
+                            f"[warn] Skipping {abs_path_str} due to error: {error}",
+                            flush=True,
+                        )
                         continue
-                    raise RuntimeError(f"Feature extraction failed for {abs_path_str}: {error}")
+                    raise RuntimeError(
+                        f"Feature extraction failed for {abs_path_str}: {error}"
+                    )
 
                 coords = None
                 if needs_embedding:
                     if model_meta is None:
-                        raise RuntimeError("Internal error: model_meta missing while embedding requested.")
-                    coords = project_features_into_cached_pca(feature_mapping, model_meta)
+                        raise RuntimeError(
+                            "Internal error: model_meta missing while embedding requested."
+                        )
+                    coords = project_features_into_cached_pca(
+                        feature_mapping, model_meta
+                    )
 
-                if needs_embedding and output_embedding_csv is not None and coords is not None:
+                if (
+                    needs_embedding
+                    and output_embedding_csv is not None
+                    and coords is not None
+                ):
                     row_embed = {
                         "composer_label": composer,
                         "title": title,
@@ -883,7 +1023,11 @@ def cache_corpus_long_running(
                     last_written_composer = composer
                     last_written_title = title
 
-                if needs_features and output_features_csv is not None and feature_schema is not None:
+                if (
+                    needs_features
+                    and output_features_csv is not None
+                    and feature_schema is not None
+                ):
                     fieldnames = list(FEATURE_CACHE_ID_COLUMNS) + list(feature_schema)
                     row_feat: Dict[str, object] = {
                         "composer_label": composer,
@@ -904,25 +1048,48 @@ def cache_corpus_long_running(
 
                 written_since_checkpoint += 1
 
-                if checkpoint_every > 0 and written_since_checkpoint >= checkpoint_every:
+                if (
+                    checkpoint_every > 0
+                    and written_since_checkpoint >= checkpoint_every
+                ):
                     now = datetime.now(timezone.utc).isoformat()
                     if output_embedding_csv is not None:
                         meta_embed = load_meta(output_embedding_csv)
                         meta_embed["piece_count"] = int(len(done_embeddings))
                         meta_embed["last_checkpoint_at"] = now
-                        _atomic_write_text(meta_path_for(output_embedding_csv), json.dumps(meta_embed, indent=2, sort_keys=True))
+                        _atomic_write_text(
+                            meta_path_for(output_embedding_csv),
+                            json.dumps(meta_embed, indent=2, sort_keys=True),
+                        )
                     if output_features_csv is not None:
-                        meta_feat = json.loads(meta_path_for(output_features_csv).read_text(encoding="utf-8"))
+                        meta_feat = json.loads(
+                            meta_path_for(output_features_csv).read_text(
+                                encoding="utf-8"
+                            )
+                        )
                         meta_feat["piece_count"] = int(len(done_features))
                         meta_feat["last_checkpoint_at"] = now
-                        _atomic_write_text(meta_path_for(output_features_csv), json.dumps(meta_feat, indent=2, sort_keys=True))
-                    embed_count = len(done_embeddings) if output_embedding_csv is not None else 0
-                    feat_count = len(done_features) if output_features_csv is not None else 0
+                        _atomic_write_text(
+                            meta_path_for(output_features_csv),
+                            json.dumps(meta_feat, indent=2, sort_keys=True),
+                        )
+                    embed_count = (
+                        len(done_embeddings) if output_embedding_csv is not None else 0
+                    )
+                    feat_count = (
+                        len(done_features) if output_features_csv is not None else 0
+                    )
                     if last_written is not None:
                         hint = f"last={last_written_composer or 'Unknown'} — {last_written_title or ''}".strip()
-                        print(f"[checkpoint] embeddings={embed_count} features={feat_count} {hint}", flush=True)
+                        print(
+                            f"[checkpoint] embeddings={embed_count} features={feat_count} {hint}",
+                            flush=True,
+                        )
                     else:
-                        print(f"[checkpoint] embeddings={embed_count} features={feat_count}", flush=True)
+                        print(
+                            f"[checkpoint] embeddings={embed_count} features={feat_count}",
+                            flush=True,
+                        )
                     written_since_checkpoint = 0
         finally:
             if pool is not None:
@@ -951,17 +1118,25 @@ def cache_corpus_long_running(
             meta_embed["piece_id_digest"] = _piece_id_digest(done_embeddings)
         except Exception:
             pass
-        _atomic_write_text(meta_path_for(output_embedding_csv), json.dumps(meta_embed, indent=2, sort_keys=True))
+        _atomic_write_text(
+            meta_path_for(output_embedding_csv),
+            json.dumps(meta_embed, indent=2, sort_keys=True),
+        )
 
     if output_features_csv is not None:
-        meta_feat = json.loads(meta_path_for(output_features_csv).read_text(encoding="utf-8"))
+        meta_feat = json.loads(
+            meta_path_for(output_features_csv).read_text(encoding="utf-8")
+        )
         meta_feat["in_progress"] = False
         meta_feat["piece_count"] = int(len(done_features))
         try:
             meta_feat["piece_id_digest"] = _piece_id_digest(done_features)
         except Exception:
             pass
-        _atomic_write_text(meta_path_for(output_features_csv), json.dumps(meta_feat, indent=2, sort_keys=True))
+        _atomic_write_text(
+            meta_path_for(output_features_csv),
+            json.dumps(meta_feat, indent=2, sort_keys=True),
+        )
 
     # Return count of the largest cache produced (useful progress signal).
     return int(max(len(done_embeddings), len(done_features)))
@@ -1008,9 +1183,13 @@ def cache_is_compatible(
         "harmonic_path": str(harmonic_path),
         "melodic_path": str(melodic_path),
         "rhythmic_path": str(rhythmic_path),
-        "harmonic_sha256": _sha256_file(harmonic_path) if harmonic_path.exists() else None,
+        "harmonic_sha256": _sha256_file(harmonic_path)
+        if harmonic_path.exists()
+        else None,
         "melodic_sha256": _sha256_file(melodic_path) if melodic_path.exists() else None,
-        "rhythmic_sha256": _sha256_file(rhythmic_path) if rhythmic_path.exists() else None,
+        "rhythmic_sha256": _sha256_file(rhythmic_path)
+        if rhythmic_path.exists()
+        else None,
         "excluded_features": list(sorted(EXCLUDED_FEATURES)),
     }
 
@@ -1048,9 +1227,24 @@ def parse_arguments() -> argparse.Namespace:
             "Writes a sidecar .meta.json with reproducible parameters and, for PCA, the projection artifacts."
         )
     )
-    parser.add_argument("--harmonic", type=Path, default=DEFAULT_HARMONIC, help="Path to harmonic features CSV.")
-    parser.add_argument("--melodic", type=Path, default=DEFAULT_MELODIC, help="Path to melodic features CSV.")
-    parser.add_argument("--rhythmic", type=Path, default=DEFAULT_RHYTHMIC, help="Path to rhythmic features CSV.")
+    parser.add_argument(
+        "--harmonic",
+        type=Path,
+        default=DEFAULT_HARMONIC,
+        help="Path to harmonic features CSV.",
+    )
+    parser.add_argument(
+        "--melodic",
+        type=Path,
+        default=DEFAULT_MELODIC,
+        help="Path to melodic features CSV.",
+    )
+    parser.add_argument(
+        "--rhythmic",
+        type=Path,
+        default=DEFAULT_RHYTHMIC,
+        help="Path to rhythmic features CSV.",
+    )
     parser.add_argument(
         "--method",
         choices=["pca", "tsne"],
@@ -1058,10 +1252,21 @@ def parse_arguments() -> argparse.Namespace:
         help="Projection method (default: pca).",
     )
     parser.add_argument("--seed", type=int, default=42, help="Random seed (PCA/t-SNE).")
-    parser.add_argument("--perplexity", type=float, default=30.0, help="t-SNE perplexity (tsne only).")
-    parser.add_argument("--tsne-early-exaggeration", type=float, default=12.0, help="t-SNE early exaggeration.")
-    parser.add_argument("--tsne-learning-rate", type=float, default=200.0, help="t-SNE learning rate.")
-    parser.add_argument("--tsne-metric", type=str, default="euclidean", help="t-SNE distance metric.")
+    parser.add_argument(
+        "--perplexity", type=float, default=30.0, help="t-SNE perplexity (tsne only)."
+    )
+    parser.add_argument(
+        "--tsne-early-exaggeration",
+        type=float,
+        default=12.0,
+        help="t-SNE early exaggeration.",
+    )
+    parser.add_argument(
+        "--tsne-learning-rate", type=float, default=200.0, help="t-SNE learning rate."
+    )
+    parser.add_argument(
+        "--tsne-metric", type=str, default="euclidean", help="t-SNE distance metric."
+    )
     parser.add_argument(
         "--output-csv",
         type=Path,
@@ -1123,7 +1328,11 @@ def parse_arguments() -> argparse.Namespace:
             "Useful when caching from full PDMX.csv."
         ),
     )
-    parser.add_argument("--resume", action="store_true", help="Resume a partially built projection cache.")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume a partially built projection cache.",
+    )
     parser.add_argument(
         "--limit",
         type=int,
@@ -1207,7 +1416,9 @@ def main() -> int:
                 chunksize=int(args.chunksize),
             )
         except KeyboardInterrupt:
-            print("[warn] Interrupted; progress preserved. Re-run with --resume to continue.")
+            print(
+                "[warn] Interrupted; progress preserved. Re-run with --resume to continue."
+            )
             return 130
         targets: List[str] = []
         if not args.no_embedding_cache:

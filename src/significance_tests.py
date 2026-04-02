@@ -1,4 +1,5 @@
 """Run ANOVA and Tukey HSD significance tests across extracted feature tables."""
+
 from __future__ import annotations
 
 import argparse
@@ -76,14 +77,18 @@ def _numeric_feature_columns(df: pd.DataFrame) -> List[str]:
 
 def _collect_groups(df: pd.DataFrame, feature: str) -> List[Tuple[str, np.ndarray]]:
     grouped: List[Tuple[str, np.ndarray]] = []
-    for label, group in df[["composer_label", feature]].dropna().groupby("composer_label"):
+    for label, group in (
+        df[["composer_label", feature]].dropna().groupby("composer_label")
+    ):
         values = group[feature].to_numpy(dtype=float)
         if values.size >= MIN_GROUP_SIZE:
             grouped.append((str(label), values))
     return grouped
 
 
-def _anova_for_feature(df: pd.DataFrame, feature: str, source: str) -> Optional[AnovaResult]:
+def _anova_for_feature(
+    df: pd.DataFrame, feature: str, source: str
+) -> Optional[AnovaResult]:
     groups = _collect_groups(df, feature)
     if len(groups) < MIN_GROUPS:
         return None
@@ -108,7 +113,9 @@ def _anova_for_feature(df: pd.DataFrame, feature: str, source: str) -> Optional[
     )
 
 
-def _tukey_for_feature(df: pd.DataFrame, feature: str, source: str, alpha: float) -> Optional[pd.DataFrame]:
+def _tukey_for_feature(
+    df: pd.DataFrame, feature: str, source: str, alpha: float
+) -> Optional[pd.DataFrame]:
     groups = _collect_groups(df, feature)
     if len(groups) < MIN_GROUPS:
         return None
@@ -129,7 +136,9 @@ def _tukey_for_feature(df: pd.DataFrame, feature: str, source: str, alpha: float
         except Exception:
             tukey = None
         if tukey is not None:
-            summary = pd.DataFrame(data=tukey.summary().data[1:], columns=tukey.summary().data[0])
+            summary = pd.DataFrame(
+                data=tukey.summary().data[1:], columns=tukey.summary().data[0]
+            )
             summary.insert(0, "feature", feature)
             summary.insert(1, "source", source)
             summary = summary.rename(
@@ -205,7 +214,9 @@ def _bh_fdr(p_values: np.ndarray, alpha: float) -> Tuple[np.ndarray, np.ndarray]
     return reject, np.clip(adjusted, 0.0, 1.0)
 
 
-def run_significance_tests(feature_paths: Dict[str, Path], alpha: float, run_tukey: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
+def run_significance_tests(
+    feature_paths: Dict[str, Path], alpha: float, run_tukey: bool = True
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     anova_records: List[Dict[str, object]] = []
     tukey_frames: List[pd.DataFrame] = []
     dataframes: Dict[str, pd.DataFrame] = {}
@@ -235,10 +246,14 @@ def run_significance_tests(feature_paths: Dict[str, Path], alpha: float, run_tuk
         num_tests = max(len(anova_df), 1)
         bonf_threshold = alpha / num_tests
         anova_df["bonferroni_threshold"] = bonf_threshold
-        anova_df["p_value_bonferroni"] = np.clip(anova_df["p_value"] * num_tests, 0.0, 1.0)
+        anova_df["p_value_bonferroni"] = np.clip(
+            anova_df["p_value"] * num_tests, 0.0, 1.0
+        )
         anova_df["significant_bonferroni"] = anova_df["p_value"] <= bonf_threshold
 
-        reject_fdr, pvals_fdr = _bh_fdr(anova_df["p_value"].to_numpy(dtype=float), alpha=alpha)
+        reject_fdr, pvals_fdr = _bh_fdr(
+            anova_df["p_value"].to_numpy(dtype=float), alpha=alpha
+        )
         anova_df["p_value_fdr"] = pvals_fdr
         anova_df["significant_fdr"] = reject_fdr
 
@@ -253,11 +268,18 @@ def run_significance_tests(feature_paths: Dict[str, Path], alpha: float, run_tuk
                 if tukey_df is not None:
                     tukey_frames.append(tukey_df)
 
-    tukey_df = pd.concat(tukey_frames, ignore_index=True) if tukey_frames else pd.DataFrame()
+    tukey_df = (
+        pd.concat(tukey_frames, ignore_index=True) if tukey_frames else pd.DataFrame()
+    )
     return anova_df, tukey_df
 
 
-def write_results(anova_df: pd.DataFrame, tukey_df: pd.DataFrame, anova_output: Path, tukey_output: Path) -> None:
+def write_results(
+    anova_df: pd.DataFrame,
+    tukey_df: pd.DataFrame,
+    anova_output: Path,
+    tukey_output: Path,
+) -> None:
     anova_output.parent.mkdir(parents=True, exist_ok=True)
     tukey_output.parent.mkdir(parents=True, exist_ok=True)
     anova_df.to_csv(anova_output, index=False)
@@ -265,20 +287,78 @@ def write_results(anova_df: pd.DataFrame, tukey_df: pd.DataFrame, anova_output: 
         tukey_df.to_csv(tukey_output, index=False)
     else:
         # Write an empty file with headers for reproducibility.
-        pd.DataFrame(columns=["feature", "source", "group_1", "group_2", "meandiff", "p_adj", "ci_lower", "ci_upper", "reject"]).to_csv(tukey_output, index=False)
+        pd.DataFrame(
+            columns=[
+                "feature",
+                "source",
+                "group_1",
+                "group_2",
+                "meandiff",
+                "p_adj",
+                "ci_lower",
+                "ci_upper",
+                "reject",
+            ]
+        ).to_csv(tukey_output, index=False)
 
 
 def parse_arguments(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run ANOVA and Tukey HSD tests across feature tables.")
-    parser.add_argument("--harmonic-csv", type=Path, default=DEFAULT_HARMONIC_FEATURES, help="Harmonic feature table.")
-    parser.add_argument("--melodic-csv", type=Path, default=DEFAULT_MELODIC_FEATURES, help="Melodic feature table.")
-    parser.add_argument("--rhythmic-csv", type=Path, default=DEFAULT_RHYTHMIC_FEATURES, help="Rhythmic feature table.")
-    parser.add_argument("--anova-output", type=Path, default=DEFAULT_ANOVA_OUTPUT, help="Destination CSV for ANOVA summary results.")
-    parser.add_argument("--tukey-output", type=Path, default=DEFAULT_TUKEY_OUTPUT, help="Destination CSV for Tukey HSD post-hoc comparisons.")
-    parser.add_argument("--alpha", type=float, default=ALPHA, help="Significance level for hypothesis testing (default: 0.05).")
-    parser.add_argument("--no-tukey", action="store_true", help="Skip Tukey HSD even when ANOVA is significant.")
-    parser.add_argument("--min-group-size", type=int, default=MIN_GROUP_SIZE, help="Minimum samples per composer required for inclusion (default: 3).")
-    parser.add_argument("--min-groups", type=int, default=MIN_GROUPS, help="Minimum number of composer groups required (default: 3).")
+    parser = argparse.ArgumentParser(
+        description="Run ANOVA and Tukey HSD tests across feature tables."
+    )
+    parser.add_argument(
+        "--harmonic-csv",
+        type=Path,
+        default=DEFAULT_HARMONIC_FEATURES,
+        help="Harmonic feature table.",
+    )
+    parser.add_argument(
+        "--melodic-csv",
+        type=Path,
+        default=DEFAULT_MELODIC_FEATURES,
+        help="Melodic feature table.",
+    )
+    parser.add_argument(
+        "--rhythmic-csv",
+        type=Path,
+        default=DEFAULT_RHYTHMIC_FEATURES,
+        help="Rhythmic feature table.",
+    )
+    parser.add_argument(
+        "--anova-output",
+        type=Path,
+        default=DEFAULT_ANOVA_OUTPUT,
+        help="Destination CSV for ANOVA summary results.",
+    )
+    parser.add_argument(
+        "--tukey-output",
+        type=Path,
+        default=DEFAULT_TUKEY_OUTPUT,
+        help="Destination CSV for Tukey HSD post-hoc comparisons.",
+    )
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=ALPHA,
+        help="Significance level for hypothesis testing (default: 0.05).",
+    )
+    parser.add_argument(
+        "--no-tukey",
+        action="store_true",
+        help="Skip Tukey HSD even when ANOVA is significant.",
+    )
+    parser.add_argument(
+        "--min-group-size",
+        type=int,
+        default=MIN_GROUP_SIZE,
+        help="Minimum samples per composer required for inclusion (default: 3).",
+    )
+    parser.add_argument(
+        "--min-groups",
+        type=int,
+        default=MIN_GROUPS,
+        help="Minimum number of composer groups required (default: 3).",
+    )
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -296,11 +376,20 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "rhythmic": args.rhythmic_csv,
     }
 
-    anova_df, tukey_df = run_significance_tests(feature_paths, alpha=ALPHA, run_tukey=not args.no_tukey)
-    write_results(anova_df, tukey_df if not args.no_tukey else pd.DataFrame(), args.anova_output, args.tukey_output)
+    anova_df, tukey_df = run_significance_tests(
+        feature_paths, alpha=ALPHA, run_tukey=not args.no_tukey
+    )
+    write_results(
+        anova_df,
+        tukey_df if not args.no_tukey else pd.DataFrame(),
+        args.anova_output,
+        args.tukey_output,
+    )
 
     if anova_df.empty:
-        print("[warn] No ANOVA results were produced. Check group sizes and feature coverage.")
+        print(
+            "[warn] No ANOVA results were produced. Check group sizes and feature coverage."
+        )
     else:
         preview_cols = [
             "feature",
@@ -319,16 +408,26 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         alpha_hits = int(anova_df["significant_alpha"].sum())
         bonf_hits = int(anova_df["significant_bonferroni"].sum())
         fdr_hits = int(anova_df["significant_fdr"].sum())
-        bonf_threshold = float(anova_df["bonferroni_threshold"].iloc[0]) if "bonferroni_threshold" in anova_df.columns else args.alpha
+        bonf_threshold = (
+            float(anova_df["bonferroni_threshold"].iloc[0])
+            if "bonferroni_threshold" in anova_df.columns
+            else args.alpha
+        )
         print(f"[info] Raw α={args.alpha:.3g}: {alpha_hits}/{total_tests} significant")
-        print(f"[info] Bonferroni threshold α/{total_tests}≈{bonf_threshold:.3g}: {bonf_hits}/{total_tests} significant")
-        print(f"[info] Benjamini–Hochberg FDR q<{args.alpha:.3g}: {fdr_hits}/{total_tests} significant")
+        print(
+            f"[info] Bonferroni threshold α/{total_tests}≈{bonf_threshold:.3g}: {bonf_hits}/{total_tests} significant"
+        )
+        print(
+            f"[info] Benjamini–Hochberg FDR q<{args.alpha:.3g}: {fdr_hits}/{total_tests} significant"
+        )
         print(f"Saved ANOVA summary to {args.anova_output}")
 
     if not args.no_tukey:
         if tukey_df.empty:
             if pairwise_tukeyhsd is None:
-                print("[warn] statsmodels is unavailable; Tukey HSD results were skipped.")
+                print(
+                    "[warn] statsmodels is unavailable; Tukey HSD results were skipped."
+                )
             else:
                 print("[warn] No Tukey HSD results met significance thresholds.")
         else:

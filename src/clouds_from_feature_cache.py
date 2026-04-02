@@ -30,7 +30,7 @@ import re
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -42,7 +42,6 @@ from feature_embedding import (  # type: ignore[attr-defined]
     EXCLUDED_FEATURES,
     _axis_titles,
     _plot_composer_clouds,
-    _write_plotly_figure,
 )
 
 
@@ -109,7 +108,9 @@ def _filter_rows(df: pd.DataFrame, spec: FilterSpec) -> pd.DataFrame:
         return df
 
     # Match against normalized text to avoid splitting on punctuation/diacritics.
-    composer_text = df.get("composer_label", pd.Series([""] * len(df))).apply(_normalize_for_match)
+    composer_text = df.get("composer_label", pd.Series([""] * len(df))).apply(
+        _normalize_for_match
+    )
     title_text = df.get("title", pd.Series([""] * len(df))).apply(_normalize_for_match)
 
     inc_comp = _compile_patterns(spec.include_composer)
@@ -168,18 +169,28 @@ def _apply_composer_aliases(
     return out
 
 
-def _balance_per_composer(df: pd.DataFrame, max_per_composer: Optional[int]) -> pd.DataFrame:
+def _balance_per_composer(
+    df: pd.DataFrame, max_per_composer: Optional[int]
+) -> pd.DataFrame:
     if max_per_composer is None or max_per_composer <= 0 or df.empty:
         return df
     if "composer_label" not in df.columns:
         return df
 
     # Deterministic sampling: sort by path/title, then take first N per composer.
-    sort_cols = [c for c in ("composer_label", "mxl_abs_path", "mxl_path", "title") if c in df.columns]
+    sort_cols = [
+        c
+        for c in ("composer_label", "mxl_abs_path", "mxl_path", "title")
+        if c in df.columns
+    ]
     if sort_cols:
         df = df.sort_values(sort_cols)
 
-    balanced = df.groupby("composer_label", group_keys=False).head(max_per_composer).reset_index(drop=True)
+    balanced = (
+        df.groupby("composer_label", group_keys=False)
+        .head(max_per_composer)
+        .reset_index(drop=True)
+    )
     return balanced
 
 
@@ -226,10 +237,16 @@ def _project_into_canonical_axes(df: pd.DataFrame, model_cache_csv: Path) -> np.
     components = np.nan_to_num(components, nan=0.0, posinf=0.0, neginf=0.0)
     components = np.clip(components, -10.0, 10.0)
 
-    if scaler_mean.shape[0] != len(feature_columns) or scaler_scale.shape[0] != len(feature_columns):
-        raise ValueError("Scaler parameters in model cache do not match feature vector length.")
+    if scaler_mean.shape[0] != len(feature_columns) or scaler_scale.shape[0] != len(
+        feature_columns
+    ):
+        raise ValueError(
+            "Scaler parameters in model cache do not match feature vector length."
+        )
     if pca_mean.shape[0] != len(feature_columns):
-        raise ValueError("PCA mean in model cache does not match feature vector length.")
+        raise ValueError(
+            "PCA mean in model cache does not match feature vector length."
+        )
     if components.shape != (3, len(feature_columns)):
         raise ValueError("PCA components in model cache have an unexpected shape.")
 
@@ -250,7 +267,9 @@ def _project_into_canonical_axes(df: pd.DataFrame, model_cache_csv: Path) -> np.
         aligned[col] = series.fillna(mean_num)
 
     x = aligned.values.astype(float)
-    safe_scale = np.where(np.isfinite(scaler_scale) & (np.abs(scaler_scale) > 1e-12), scaler_scale, 1.0)
+    safe_scale = np.where(
+        np.isfinite(scaler_scale) & (np.abs(scaler_scale) > 1e-12), scaler_scale, 1.0
+    )
     x_scaled = (x - scaler_mean) / safe_scale
     x_scaled = np.nan_to_num(x_scaled, nan=0.0, posinf=0.0, neginf=0.0)
 
@@ -383,7 +402,9 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def _load_group_spec(config_path: Path, group_name: str) -> Tuple[FilterSpec, Dict[str, Any]]:
+def _load_group_spec(
+    config_path: Path, group_name: str
+) -> Tuple[FilterSpec, Dict[str, Any]]:
     config = json.loads(config_path.read_text(encoding="utf-8"))
     groups = config.get("groups") if isinstance(config, dict) else None
     if not isinstance(groups, dict):
@@ -412,8 +433,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         group_spec, group_meta = _load_group_spec(args.config, args.group)
         # CLI patterns augment group patterns.
         spec = FilterSpec(
-            include_composer=tuple(group_spec.include_composer) + tuple(spec.include_composer),
-            exclude_composer=tuple(group_spec.exclude_composer) + tuple(spec.exclude_composer),
+            include_composer=tuple(group_spec.include_composer)
+            + tuple(spec.include_composer),
+            exclude_composer=tuple(group_spec.exclude_composer)
+            + tuple(spec.exclude_composer),
             include_title=tuple(group_spec.include_title) + tuple(spec.include_title),
             exclude_title=tuple(group_spec.exclude_title) + tuple(spec.exclude_title),
         )
@@ -425,7 +448,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     filtered = _filter_rows(df, spec)
 
     # Optional alias mapping: avoid “double clouds” due to composer naming variants.
-    composer_aliases = group_meta.get("composer_aliases") if isinstance(group_meta, dict) else None
+    composer_aliases = (
+        group_meta.get("composer_aliases") if isinstance(group_meta, dict) else None
+    )
     if isinstance(composer_aliases, dict):
         # JSON may contain non-list values; coerce to string sequences.
         cleaned: Dict[str, List[str]] = {}
@@ -515,7 +540,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "subset_piece_count": int(len(filtered)),
     }
     manifest_path = args.outdir / f"{safe_label}__run_manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8"
+    )
 
     return 0
 

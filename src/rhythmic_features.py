@@ -1,4 +1,5 @@
 """Extract rhythmic features from the curated solo-piano corpus."""
+
 from __future__ import annotations
 
 import argparse
@@ -14,7 +15,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
-from music21 import chord, meter, note, stream
+from music21 import chord, note, stream
 
 # Use a non-interactive backend to support headless environments
 matplotlib.use("Agg")
@@ -71,7 +72,9 @@ def load_corpus(csv_path: Path, paths_path: Optional[Path] = None) -> pd.DataFra
             raise ValueError(f"Missing 'mxl_abs_path' column in {csv_path}")
         return df
     if paths_path and paths_path.exists():
-        paths = [line.strip() for line in paths_path.read_text().splitlines() if line.strip()]
+        paths = [
+            line.strip() for line in paths_path.read_text().splitlines() if line.strip()
+        ]
         return pd.DataFrame({"mxl_abs_path": paths})
     raise FileNotFoundError("No curated corpus CSV or path list found.")
 
@@ -94,12 +97,24 @@ def _collect_rhythmic_events(score: stream.Score) -> List[Tuple[float, float, fl
             duration = float(element.duration.quarterLength or 0.0)
             if duration <= 0:
                 continue
-            events.append((float(element.offset or 0.0), duration, float(element.beatStrength or 0.0)))
+            events.append(
+                (
+                    float(element.offset or 0.0),
+                    duration,
+                    float(element.beatStrength or 0.0),
+                )
+            )
         elif isinstance(element, chord.Chord):
             duration = float(element.duration.quarterLength or 0.0)
             if duration <= 0:
                 continue
-            events.append((float(element.offset or 0.0), duration, float(element.beatStrength or 0.0)))
+            events.append(
+                (
+                    float(element.offset or 0.0),
+                    duration,
+                    float(element.beatStrength or 0.0),
+                )
+            )
     events.sort(key=lambda item: item[0])
     return events
 
@@ -111,7 +126,11 @@ def _primary_time_signature(score: stream.Score) -> Optional[Any]:
     return None
 
 
-def _notes_per_beat(events: Sequence[Tuple[float, float, float]], beat_length: float, highest_time: float) -> Optional[float]:
+def _notes_per_beat(
+    events: Sequence[Tuple[float, float, float]],
+    beat_length: float,
+    highest_time: float,
+) -> Optional[float]:
     if not events or beat_length <= 0:
         return None
     total_beats = highest_time / beat_length if highest_time > 0 else 0.0
@@ -127,7 +146,9 @@ def _downbeat_emphasis(events: Sequence[Tuple[float, float, float]]) -> Optional
     return float(strong / len(events))
 
 
-def _is_syncopated(offset: float, duration: float, beat_length: float, beat_strength: float) -> bool:
+def _is_syncopated(
+    offset: float, duration: float, beat_length: float, beat_strength: float
+) -> bool:
     if beat_length <= 0:
         return False
     if beat_strength >= SYNC_WEAK_THRESHOLD:
@@ -169,7 +190,9 @@ def _beat_length_at(ts_map: Sequence[Tuple[float, float]], offset: float) -> flo
     return beat_length if beat_length > 0 else 1.0
 
 
-def _syncopation_ratio(events: Sequence[Tuple[float, float, float]], ts_map: Sequence[Tuple[float, float]]) -> Optional[float]:
+def _syncopation_ratio(
+    events: Sequence[Tuple[float, float, float]], ts_map: Sequence[Tuple[float, float]]
+) -> Optional[float]:
     if not events:
         return None
     syncopated = 0
@@ -184,7 +207,9 @@ def _syncopation_ratio(events: Sequence[Tuple[float, float, float]], ts_map: Seq
     return float(syncopated / len(events))
 
 
-def _rhythmic_pattern_entropy(events: Sequence[Tuple[float, float, float]], n: int = 3) -> Optional[float]:
+def _rhythmic_pattern_entropy(
+    events: Sequence[Tuple[float, float, float]], n: int = 3
+) -> Optional[float]:
     if len(events) < n:
         return None
     tokens = [f"{duration:.3f}" for _, duration, _ in events]
@@ -202,14 +227,18 @@ def _rhythmic_pattern_entropy(events: Sequence[Tuple[float, float, float]], n: i
     return float(entropy)
 
 
-def _micro_rhythmic_density(events: Sequence[Tuple[float, float, float]], window: int = MICRO_WINDOW) -> Optional[float]:
+def _micro_rhythmic_density(
+    events: Sequence[Tuple[float, float, float]], window: int = MICRO_WINDOW
+) -> Optional[float]:
     if len(events) < window:
         return None
     hits = 0
     total = len(events) - window + 1
     for idx in range(total):
         window_durations = [duration for _, duration, _ in events[idx : idx + window]]
-        short_notes = sum(1 for duration in window_durations if duration <= FAST_NOTE_THRESHOLD)
+        short_notes = sum(
+            1 for duration in window_durations if duration <= FAST_NOTE_THRESHOLD
+        )
         if short_notes >= window - 1:
             hits += 1
     if total == 0:
@@ -289,7 +318,9 @@ def compute_rhythmic_features(score: stream.Score) -> Dict[str, object]:
 
     ts_map = _time_signature_map(score)
 
-    notes_per_beat = _notes_per_beat(events, beat_length, float(score.highestTime or 0.0))
+    notes_per_beat = _notes_per_beat(
+        events, beat_length, float(score.highestTime or 0.0)
+    )
     downbeat_ratio = _downbeat_emphasis(events)
     syncopation = _syncopation_ratio(events, ts_map)
     pattern_entropy = _rhythmic_pattern_entropy(events)
@@ -336,10 +367,16 @@ def run_feature_extraction(
                 avg_note_duration=_get_optional_float(metrics, "avg_note_duration"),
                 std_note_duration=_get_optional_float(metrics, "std_note_duration"),
                 notes_per_beat=_get_optional_float(metrics, "notes_per_beat"),
-                downbeat_emphasis_ratio=_get_optional_float(metrics, "downbeat_emphasis_ratio"),
+                downbeat_emphasis_ratio=_get_optional_float(
+                    metrics, "downbeat_emphasis_ratio"
+                ),
                 syncopation_ratio=_get_optional_float(metrics, "syncopation_ratio"),
-                rhythmic_pattern_entropy=_get_optional_float(metrics, "rhythmic_pattern_entropy"),
-                micro_rhythmic_density=_get_optional_float(metrics, "micro_rhythmic_density"),
+                rhythmic_pattern_entropy=_get_optional_float(
+                    metrics, "rhythmic_pattern_entropy"
+                ),
+                micro_rhythmic_density=_get_optional_float(
+                    metrics, "micro_rhythmic_density"
+                ),
                 cross_rhythm_ratio=_get_optional_float(metrics, "cross_rhythm_ratio"),
             )
         )
@@ -417,15 +454,52 @@ def _get_optional_float(metrics: Dict[str, Any], key: str) -> Optional[float]:
 
 
 def parse_arguments(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Extract rhythmic features from the curated corpus.")
-    parser.add_argument("--csv", type=Path, default=DEFAULT_CORPUS, help="Path to curated corpus CSV.")
-    parser.add_argument("--paths", type=Path, default=DEFAULT_PATHS, help="Fallback path list if CSV absent.")
-    parser.add_argument("--output-csv", type=Path, default=DEFAULT_OUTPUT, help="Destination for rhythmic features CSV.")
-    parser.add_argument("--figure-dir", type=Path, default=DEFAULT_FIGURE_DIR, help="Directory for saving plots.")
-    parser.add_argument("--limit", type=int, default=None, help="Limit the number of files processed (for dry runs).")
-    parser.add_argument("--no-skip-errors", action="store_true", help="Abort on the first extraction error instead of skipping.")
-    parser.add_argument("--skip-plots", action="store_true", help="Do not generate plots after extraction.")
-    parser.add_argument("--features-from", type=Path, default=None, help="Load an existing features CSV instead of recomputing.")
+    parser = argparse.ArgumentParser(
+        description="Extract rhythmic features from the curated corpus."
+    )
+    parser.add_argument(
+        "--csv", type=Path, default=DEFAULT_CORPUS, help="Path to curated corpus CSV."
+    )
+    parser.add_argument(
+        "--paths",
+        type=Path,
+        default=DEFAULT_PATHS,
+        help="Fallback path list if CSV absent.",
+    )
+    parser.add_argument(
+        "--output-csv",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help="Destination for rhythmic features CSV.",
+    )
+    parser.add_argument(
+        "--figure-dir",
+        type=Path,
+        default=DEFAULT_FIGURE_DIR,
+        help="Directory for saving plots.",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Limit the number of files processed (for dry runs).",
+    )
+    parser.add_argument(
+        "--no-skip-errors",
+        action="store_true",
+        help="Abort on the first extraction error instead of skipping.",
+    )
+    parser.add_argument(
+        "--skip-plots",
+        action="store_true",
+        help="Do not generate plots after extraction.",
+    )
+    parser.add_argument(
+        "--features-from",
+        type=Path,
+        default=None,
+        help="Load an existing features CSV instead of recomputing.",
+    )
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -440,7 +514,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 0
 
     df = load_corpus(args.csv, args.paths)
-    results = run_feature_extraction(df, limit=args.limit, skip_errors=not args.no_skip_errors)
+    results = run_feature_extraction(
+        df, limit=args.limit, skip_errors=not args.no_skip_errors
+    )
     if not results:
         raise RuntimeError("No rhythmic features could be extracted.")
 
@@ -457,6 +533,4 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 
 if __name__ == "__main__":  # pragma: no cover
-    import sys
-
     sys.exit(main())
