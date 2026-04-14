@@ -1,3 +1,5 @@
+[← Zurück zur Übersicht](index.html)
+
 # Anhang B: Reproduzierbarkeits-Leitfaden
 
 Dieser Anhang dokumentiert die vollständige Software-Pipeline zur exakten Replikation aller Ergebnisse. Alle Befehle und Skripte sind im Projekt-Repository verfügbar.
@@ -281,4 +283,8 @@ Einheitliches Format für alle drei Feature-Typen:
     - `reject`: Signifikanz (True/False)
 
 
-\clearpage
+
+
+
+[← Zurück zur Übersicht](index.html)
+

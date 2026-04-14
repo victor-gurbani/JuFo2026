@@ -1,3 +1,5 @@
+[← Zurück zur Übersicht](index.html)
+
 # Anhang E: Deployment und Web-Infrastruktur
 
 Die Überführung der lokalen Next.js-Datenvisualisierung in eine öffentliche Web-Anwendung erforderte die Überwindung spezifischer infrastruktureller und softwarearchitektonischer Hürden. Die Applikation (gehostet auf <https://empirical-music.victorgurbani.com>) läuft auf einem ressourcenlimitierten Oracle Linux Virtual Private Server (VPS) unter Apache 2.4 und PM2. Die Beschränkungen in Speicher und Arbeitsspeicher setzten signifikante Optimierungen des Build-Prozesses voraus.
@@ -12,3 +14,7 @@ Weitere Hürden betrafen die dynamische Darstellung frisch berechneter PCA-Wolke
 
 ## Das Caching-Resolver-Dilemma\label{sec:caching}
 Schlussendlich trat das Problem der Interoperabilität von Dateipfaden zwischen macOS-Entwicklungssystemen und Oracle-Linux-Hosting auf. Das Backend speicherte Caches mit absoluten Unix-Dateipfaden der MusicXML-Dateien, um Dimensionsreduktions-Metadaten effizienter heranzuziehen. Da die korrespondierenden MusicXML-Dateien aus Speicher-Gründen nicht auf den Server mitkopiert wurden (`--forceCache`-Flag überschreibt den Verzeichnis-Check), litten die Identifizierungs-Signaturen im Skript `embedding_cache.py` unter fehlschlagenden Zuordnungen. Durch den Umbau der Abgleichoperation mithilfe von `Path(mxl_abs_path).name.endswith(...)` wurde gewährleistet, dass das Dashboard auch dann voll funktionsfähig agiert und Einzelstücke fehlerfrei visualisiert rekonstruieren kann, wenn nur der Feature-Cache der Pipeline lokalisiert wird, selbst in Cross-OS-Szenarien ohne korrespondierenden Rohdatensatz.
+
+
+[← Zurück zur Übersicht](index.html)
+

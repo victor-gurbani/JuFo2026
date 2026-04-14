@@ -1,3 +1,5 @@
+[← Zurück zur Übersicht](index.html)
+
 # Anhang D: Erweiterte Details zur Machine-Learning-Pipeline
 
 Um die Transparenz und Reproduzierbarkeit der durchgeführten Klassifikationsexperimente (Random Forest und Neuronales Netz) weiter zu erhöhen, werden in diesem Anhang tiefere Einblicke in die Hyperparameter-Optimierung, die Baumstrukturen und die lokalen SHAP-Erklärungen gegeben.
@@ -39,4 +41,8 @@ Während einzelne Entscheidungsbäume eine *Mikro-Logik* zeigen, aggregieren SHA
 
 
 
-\clearpage
+
+
+
+[← Zurück zur Übersicht](index.html)
+

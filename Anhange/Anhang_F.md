@@ -1,3 +1,5 @@
+[← Zurück zur Übersicht](index.html)
+
 # Anhang F: Multicore-Caching-Infrastruktur
 
 Um Analysen auf das vollständige PDMX-Archiv (254\,077 Partituren) zu ermöglichen, wurde ein skalierbares Caching-System entwickelt (`src/embedding_cache.py`). Dieses System unterstützt:
@@ -8,3 +10,7 @@ Um Analysen auf das vollständige PDMX-Archiv (254\,077 Partituren) zu ermöglic
 
 
  Die Cache-Integrität wird durch SHA256-Hashes der Eingabe-Feature-CSVs und JSON-Metadaten gewährleistet. Ein vollständiger Cache des PDMX-Korpus (alle 254\,077 Partituren $\times$ 36 Features) belegt etwa 180\,MB und ermöglicht Echtzeit-Exploration beliebiger Komponisten-Subsets über die Weboberfläche (siehe \hyperref[sec:weboberflache]{Abschnitt~\ref*{sec:weboberflache}}).
+
+
+[← Zurück zur Übersicht](index.html)
+

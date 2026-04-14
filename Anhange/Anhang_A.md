@@ -1,3 +1,5 @@
+[← Zurück zur Übersicht](index.html)
+
 # Anhang A: Vollständige Merkmalsdokumentation
 
 Dieser Anhang dokumentiert alle 36 extrahierten Merkmale der drei Säulen. Jedes Merkmal wird durch seine musikologische Bedeutung, Berechnungsmethode und Interpretation erklärt.
@@ -135,4 +137,8 @@ Die 36 Merkmale erfassen komplementäre Dimensionen musikalischer Gestaltung:
 
 Diese vollständige Dokumentation ermöglicht die Replikation und Erweiterung der Analyse auf neue Komponisten oder Repertoires.
 
-\clearpage
+
+
+
+[← Zurück zur Übersicht](index.html)
+

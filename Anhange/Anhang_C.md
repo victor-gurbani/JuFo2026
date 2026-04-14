@@ -1,3 +1,5 @@
+[← Zurück zur Übersicht](index.html)
+
 # Anhang C: Online-Links und Indexseiten
 
 Alle Abbildungen im PDF sind klickbar und führen zu den interaktiven Online-Versionen. Zur Sicherheit sind alle Links hier gesammelt aufgeführt (für Leserinnen und Leser ohne PDF-Link-Unterstützung).
@@ -33,4 +35,8 @@ Alle Abbildungen im PDF sind klickbar und führen zu den interaktiven Online-Ver
 
 Dieser Leitfaden ermöglicht vollständige Reproduktion aller Ergebnisse sowie deren Erweiterung auf neue Fragestellungen. Bei Problemen: GitHub-Issues im Repository oder Kontakt über verfügbare Adresse.
 
-\clearpage
+
+
+
+[← Zurück zur Übersicht](index.html)
+
