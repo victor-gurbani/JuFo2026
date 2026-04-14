@@ -6,7 +6,7 @@ Dieser Anhang dokumentiert die vollständige Software-Pipeline zur exakten Repli
 
 ## Pipeline-Architektur
 
-\hyperref[fig:pipeline]{Abbildung~\ref*{fig:pipeline}} zeigt den vollständigen Datenfluss von den Rohdaten bis zur Visualisierung.
+Die folgende Abbildung zeigt den vollständigen Datenfluss von den Rohdaten bis zur Visualisierung.
 
 ![Systemarchitektur der Analyse-Pipeline. Phase~1 filtert 254\,077 PDMX-Einträge auf 144 balancierte Klavierwerke. Phase~2 extrahiert 36 Merkmale in drei Kategorien. Phase~3 führt statistische Tests durch. Phase~4 erzeugt interaktive Visualisierungen und Evolutionsmetriken.](../figures/pipeline_architecture.png)
 
