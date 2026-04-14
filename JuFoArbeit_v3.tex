@@ -1,11 +1,14 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
+
+\newif\ifshowappendix
+\showappendixfalse
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
-\usepackage[margin=2.0cm]{geometry} 
+\usepackage[left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.0cm]{geometry} 
 \usepackage{setspace}    
-\setstretch{1.1}
+\setstretch{1.5}
 \usepackage{enumitem}
 \usepackage{hyperref} % se puede añadir hidelinks para evitar cuadros alrededor de los enlaces
 \usepackage[all]{hypcap} % jump to top of figure, not caption
@@ -109,7 +112,7 @@
 
 % Fix headheight warning
 \setlength{\headheight}{14.5pt}
-\addtolength{\topmargin}{-2.5pt}
+% \addtolength{\topmargin}{-2.5pt}
 
 % Consistent theorem/proof environments
 \newtheorem{theorem}{Theorem}
