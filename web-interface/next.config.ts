@@ -7,6 +7,9 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, "..");
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: repoRoot,
+  },
   output: "standalone",
   outputFileTracingExcludes: {
     '*': [
