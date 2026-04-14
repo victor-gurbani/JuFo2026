@@ -126,7 +126,7 @@
 % apacite's \doi command defaults to plain \Url text; this override
 % fires after apacite's \AtBeginDocument \providecommand.
 \AtBeginDocument{%
-  \renewcommand{\doi}[1]{\href{https://doi.org/#1}{#1}}%
+  \renewcommand{\doi}[1]{\href{https://doi.org/#1}{\nolinkurl{#1}}}%
 }
 
 % ==========================================
@@ -547,6 +547,7 @@ $F$-statistic.
 \caption{Top 15 features ranked by ANOVA $F$-statistic. All displayed features
 reach FDR significance ($q < 0.05$). Bars are coloured by analytical domain
 (harmonic, melodic, rhythmic).}
+\vspace{0.5cm}\small{\textbf{Figure 1 alt text:} A horizontal bar chart displaying the top 15 musical features ranked by their ANOVA F-statistic. The highest-ranked feature is pitch range semitones, followed by dissonance ratio and pitch class entropy. The bars are colour-coded into three domains: harmonic, melodic, and rhythmic, demonstrating that significant differences between composers exist across all three musical dimensions.}
 \label{fig:anova_bar}
 \end{figure}
 
@@ -584,6 +585,7 @@ the Romantic and Impressionist corpora, a point revisited in
 excluding six raw-count features (see text). Darker
 cells indicate more features for which the two composers differ significantly
 ($p_{\mathrm{adj}} < 0.05$).}
+\vspace{0.5cm}\small{\textbf{Figure 2 alt text:} A heatmap grid displaying the number of statistically significant differences between six pairs of composers. The Debussy and Mozart pair shows the highest number of differences with 16 significant features, indicated by a dark colour, while the Chopin and Debussy pair shows the fewest with only 4 significant features, indicated by a lighter colour.}
 \label{fig:tukey_heatmap}
 \end{figure}
 
@@ -602,6 +604,7 @@ to Debussy, whose Impressionist palette yields the highest dissonance values.
 \includegraphics[width=\textwidth]{../figures/melodic/boxplot_pitch_range_semitones.png}
 \caption{Per-composer distribution of \texttt{pitch\_range\_semitones}.
 Notches indicate 95\% confidence intervals around the median.}
+\vspace{0.5cm}\small{\textbf{Figure 3 alt text:} A boxplot charting the pitch range in semitones for four composers. Mozart and Bach show a narrow distribution with lower medians, whereas Chopin and Debussy show a much wider distribution and significantly higher medians around 67 semitones, visually demonstrating a chronological expansion of the pitch range.}
 \label{fig:box_pitch}
 \end{figure}
 
@@ -611,6 +614,7 @@ Notches indicate 95\% confidence intervals around the median.}
 \caption{Per-composer distribution of \texttt{dissonance\_ratio}. Mozart's
 narrow, low-dissonance cluster contrasts sharply with the broad, elevated
 distributions of Chopin and Debussy.}
+\vspace{0.5cm}\small{\textbf{Figure 4 alt text:} A boxplot displaying the dissonance ratio across four composers. Mozart’s works show a distribution near the bottom of the scale, Bach sits slightly higher, while Chopin and Debussy exhibit increasingly higher medians, illustrating a chronological progression toward higher dissonance.}
 \label{fig:box_dissonance}
 \end{figure}
 
@@ -686,6 +690,7 @@ left to right; PC2 (temporal structure) runs bottom to top; PC3 (contrapuntal
 texture) runs front to back. An interactive version of this figure is
 available online at
 \ifblindreview [Interactive link redacted for double-blind review] \else \url{https://victor-gurbani.github.io/JuFo2026/figures/embeddings/composer_clouds_3d.html}\fi.}
+\vspace{0.5cm}\small{\textbf{Figure 5 alt text:} A 3D scatter plot of a Principal Component Analysis mapping 144 musical works. The axes are PC1, PC2, and PC3. Bach forms a tight cluster at low PC2; Mozart forms a cluster at high PC2. Chopin stretches diagonally between Mozart and Debussy, and Debussy sits at the high PC1 end, illustrating a stylistic continuum.}
 \label{fig:pca_clouds}
 \end{figure}
 
@@ -751,6 +756,7 @@ largely untouched until the Impressionist period.
 four representative features. Positive DD indicates Romantic-era acceleration
 relative to the Classical transition. The rhythmic entropy bar near zero
 contrasts with the large positive values for pitch and harmonic features.}
+\vspace{0.5cm}\small{\textbf{Figure 6 alt text:} A two-by-two grid of line charts illustrating the evolutionary trajectories of four musical features (Pitch Range Semitones, Dissonance Ratio, Harmonic Density Mean, and Rhythmic Pattern Entropy) across Bach, Mozart, Chopin, and Debussy. Each chart plots the feature means for Major mode (solid orange line) and Minor mode (dashed dark blue line). Pitch Range, Dissonance Ratio, and Harmonic Density all exhibit a 'V' shape, dipping from Bach to Mozart before rising sharply to Chopin and continuing upwards to Debussy. The gap between Major and Minor widens notably in the Romantic era for Dissonance and Pitch Range, while in Harmonic Density, Minor steeply overtakes Major at Debussy. In contrast, Rhythmic Pattern Entropy remains relatively flat between Bach and Chopin, then spikes dramatically for Debussy, where the Major and Minor lines converge at their highest point.}
 \label{fig:ddd}
 \end{figure}
 
@@ -1027,9 +1033,10 @@ historical period.
 \caption{External validation: Joe Hisaishi's \emph{One Summer's Day}
 (2001), marked by a diamond, projected into the PCA embedding. The piece
 falls between the Chopin and Debussy clouds with a slight bias toward
-Chopin, consistent with its blend of Romantic harmony and Impressionist
-texture. An interactive version is available at
+Chopin, validating the framework's ability to map contemporary Romantic
+and Impressionist hybrids. An interactive version is available at
 \ifblindreview [Interactive link redacted for double-blind review] \else \url{https://victor-gurbani.github.io/JuFo2026/figures/highlights/one_summers_day_pca_cloud.html}\fi.}
+\vspace{0.5cm}\small{\textbf{Figure 7 alt text:} A 2D PCA scatter plot showing the projection of Joe Hisaishi's "One Summer's Day". A distinct diamond marker highlights the piece's position bridging the spatial gap between the Chopin and Debussy composer clusters, reflecting its stylistic hybridization of Romantic and Impressionist elements.}
 \label{fig:hisaishi}
 \end{figure}
 
@@ -1059,9 +1066,10 @@ Impressionist parameters even further.
 \caption{External validation: Ravel's String Quartet in F major (1903),
 marked by a diamond, projected into the PCA embedding. The quartet
 falls within and slightly beyond the Debussy cloud along PC1,
-reflecting Ravel's more extreme harmonic and rhythmic complexity.
-An interactive version is available at
+indicating higher harmonic complexity and chromaticism consistent with
+post-Impressionist development. An interactive version is available at
 \ifblindreview [Interactive link redacted for double-blind review] \else \url{https://victor-gurbani.github.io/JuFo2026/figures/highlights/ravel_string_quartet_pca_cloud.html}\fi.}
+\vspace{0.5cm}\small{\textbf{Figure 8 alt text:} A 2D PCA scatter plot highlighting the position of Maurice Ravel's String Quartet in F major with a diamond marker. The projection places the piece inside and slightly further along the PC1 axis than the main Debussy cloud, showcasing its more extreme chromaticism within the Impressionist aesthetic.}
 \label{fig:ravel}
 \end{figure}
 
